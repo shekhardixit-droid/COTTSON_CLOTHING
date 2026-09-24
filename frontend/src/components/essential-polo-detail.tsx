@@ -4,7 +4,23 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, ImagePlus, Palette, Plus, Minus, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  ChevronDown,
+  ImagePlus,
+  Move,
+  Palette,
+  Plus,
+  Minus,
+  RotateCw,
+  X,
+  ZoomIn,
+  ZoomOut,
+  AlignCenterHorizontal,
+  AlignCenterVertical,
+} from "lucide-react";
 import { type Product, colorById, variantUrl, formatPrice } from "@/lib/catalog";
 import { useCart } from "@/lib/cart-store";
 import { cn } from "@/lib/utils";
@@ -21,62 +37,97 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
 
   // Logo overlay: a sibling layer on top of the photo, independent of which color image
   // is showing underneath — so it stays put across color swaps without any extra work.
+  // Position/size are tracked as % of the (square, so axis-independent) photo container —
+  // resolution-independent, and easy to present as friendly "cm" units in the precise
+  // positioning panel via GARMENT_WIDTH_CM below.
+  const GARMENT_WIDTH_CM = 40; // assumed real-world chest width the photo frames
+  const pctToCm = (pct: number) => Math.round((pct / 100) * GARMENT_WIDTH_CM * 10) / 10;
+  const cmToPct = (cm: number) => (cm / GARMENT_WIDTH_CM) * 100;
+
   const [logoSrc, setLogoSrc] = useState<string | null>(null);
-  const [logoPos, setLogoPos] = useState({ x: 50, y: 42 }); // % of the photo container
-  const [logoSize, setLogoSize] = useState(80); // px
+  const [logoLeft, setLogoLeft] = useState(40); // % from left edge of container
+  const [logoTop, setLogoTop] = useState(35); // % from top edge
+  const [logoWidth, setLogoWidth] = useState(20); // % of container width
+  const [logoHeight, setLogoHeight] = useState(20); // % of container height
+  const [rotation, setRotation] = useState(0); // degrees
   const [application, setApplication] = useState<"print" | "embroidery">("print");
+  const [showPositionPanel, setShowPositionPanel] = useState(false);
+  const [zoomed, setZoomed] = useState(false);
   const photoRef = useRef<HTMLDivElement>(null);
-  const draggingRef = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const clampPct = (v: number, min = 0, max = 95) => Math.min(max, Math.max(min, v));
 
   const onLogoFile = (file: File) => {
     const reader = new FileReader();
-    reader.onload = () => setLogoSrc(reader.result as string);
+    reader.onload = () => {
+      setLogoSrc(reader.result as string);
+      setZoomed(true); // zoom in on the placement area right away, like a stitch close-up
+    };
     reader.readAsDataURL(file);
   };
 
-  const movePointerTo = (clientX: number, clientY: number) => {
-    const rect = photoRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const x = Math.min(95, Math.max(5, ((clientX - rect.left) / rect.width) * 100));
-    const y = Math.min(95, Math.max(5, ((clientY - rect.top) / rect.height) * 100));
-    setLogoPos({ x, y });
-  };
-
+  // Move: drag from inside the box, tracked by pointer delta converted to % of the container.
+  const dragRef = useRef<{ startX: number; startY: number; left: number; top: number } | null>(null);
   const onLogoPointerDown = (e: React.PointerEvent) => {
     e.preventDefault();
-    draggingRef.current = true;
+    dragRef.current = { startX: e.clientX, startY: e.clientY, left: logoLeft, top: logoTop };
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
   };
   const onLogoPointerMove = (e: React.PointerEvent) => {
-    if (!draggingRef.current) return;
-    movePointerTo(e.clientX, e.clientY);
+    const drag = dragRef.current;
+    const rect = photoRef.current?.getBoundingClientRect();
+    if (!drag || !rect) return;
+    const dxPct = ((e.clientX - drag.startX) / rect.width) * 100;
+    const dyPct = ((e.clientY - drag.startY) / rect.height) * 100;
+    setLogoLeft(clampPct(drag.left + dxPct));
+    setLogoTop(clampPct(drag.top + dyPct));
   };
   const onLogoPointerUp = () => {
-    draggingRef.current = false;
+    dragRef.current = null;
   };
 
-  // Corner-handle resize: track the pointer's distance from the logo's own center and
-  // derive a new size from it, so any corner drags symmetrically outward/inward.
-  const resizingRef = useRef(false);
-  const onHandlePointerDown = (e: React.PointerEvent) => {
+  // Resize: each corner drags its own edges, anchoring the opposite corner in place.
+  const resizeRef = useRef<{ corner: string; startX: number; startY: number; box: { left: number; top: number; width: number; height: number } } | null>(null);
+  const onHandlePointerDown = (corner: string) => (e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    resizingRef.current = true;
+    resizeRef.current = { corner, startX: e.clientX, startY: e.clientY, box: { left: logoLeft, top: logoTop, width: logoWidth, height: logoHeight } };
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
   };
   const onHandlePointerMove = (e: React.PointerEvent) => {
-    if (!resizingRef.current) return;
+    const rs = resizeRef.current;
     const rect = photoRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const centerX = rect.left + (logoPos.x / 100) * rect.width;
-    const centerY = rect.top + (logoPos.y / 100) * rect.height;
-    const dist = Math.hypot(e.clientX - centerX, e.clientY - centerY);
-    setLogoSize(Math.min(220, Math.max(32, Math.round(dist * 1.4))));
+    if (!rs || !rect) return;
+    const dxPct = ((e.clientX - rs.startX) / rect.width) * 100;
+    const dyPct = ((e.clientY - rs.startY) / rect.height) * 100;
+    const { corner, box } = rs;
+    let { left, top, width, height } = box;
+    if (corner.includes("right")) width = Math.max(4, box.width + dxPct);
+    if (corner.includes("left")) {
+      width = Math.max(4, box.width - dxPct);
+      left = box.left + (box.width - width);
+    }
+    if (corner.includes("bottom")) height = Math.max(4, box.height + dyPct);
+    if (corner.includes("top")) {
+      height = Math.max(4, box.height - dyPct);
+      top = box.top + (box.height - height);
+    }
+    setLogoLeft(left);
+    setLogoTop(top);
+    setLogoWidth(width);
+    setLogoHeight(height);
   };
   const onHandlePointerUp = () => {
-    resizingRef.current = false;
+    resizeRef.current = null;
   };
+
+  const nudge = (dx: number, dy: number) => {
+    setLogoLeft((v) => clampPct(v + dx));
+    setLogoTop((v) => clampPct(v + dy));
+  };
+  const centerHorizontal = () => setLogoLeft(clampPct(50 - logoWidth / 2));
+  const centerVertical = () => setLogoTop(clampPct(50 - logoHeight / 2));
 
   const color = colorById(colorId);
   const totalQty = Object.values(sizes).reduce((n, q) => n + q, 0);
@@ -114,6 +165,13 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
         {/* Left: photo with the wave-sweep color swap */}
         <div className="relative bg-muted">
           <div ref={photoRef} className="relative aspect-square w-full select-none overflow-hidden">
+            <div
+              className="absolute inset-0 transition-transform duration-500 ease-out"
+              style={{
+                transform: zoomed ? "scale(2)" : "scale(1)",
+                transformOrigin: logoSrc ? `${logoLeft + logoWidth / 2}% ${logoTop + logoHeight / 2}%` : "50% 50%",
+              }}
+            >
             <Image
               src={variantUrl(product, baseColorId)}
               alt={`${product.title} — ${colorById(baseColorId).name}`}
@@ -149,36 +207,59 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
                 as a proper selectable element: dashed box + corner handles to resize. */}
             {logoSrc && (
               <div
-                className="absolute -translate-x-1/2 -translate-y-1/2 touch-none"
-                style={{ left: `${logoPos.x}%`, top: `${logoPos.y}%`, width: logoSize }}
+                className="absolute touch-none"
+                style={{ left: `${logoLeft}%`, top: `${logoTop}%`, width: `${logoWidth}%`, height: `${logoHeight}%`, transform: `rotate(${rotation}deg)` }}
               >
                 <div
                   onPointerDown={onLogoPointerDown}
                   onPointerMove={onLogoPointerMove}
                   onPointerUp={onLogoPointerUp}
-                  className="relative cursor-grab rounded outline-dashed outline-2 outline-offset-4 outline-brand/70 active:cursor-grabbing"
+                  className="relative size-full cursor-grab rounded outline-dashed outline-2 outline-offset-4 outline-brand/70 active:cursor-grabbing"
                 >
-                  <img
-                    src={logoSrc}
-                    alt="Your logo"
-                    draggable={false}
-                    className={cn("pointer-events-none block w-full select-none", application === "embroidery" && "contrast-110 saturate-75")}
-                    style={{
-                      filter:
-                        application === "embroidery"
-                          ? "drop-shadow(0 1px 0.5px rgba(0,0,0,0.45)) drop-shadow(0 0 0.5px rgba(255,255,255,0.6))"
-                          : "drop-shadow(0 1px 2px rgba(0,0,0,0.25))",
-                    }}
-                  />
+                  <div className="relative">
+                    <img
+                      src={logoSrc}
+                      alt="Your logo"
+                      draggable={false}
+                      className={cn("pointer-events-none block w-full select-none", application === "embroidery" && "contrast-125 saturate-75")}
+                      style={{
+                        filter:
+                          application === "embroidery"
+                            ? // Stitched satin-border: several small offset shadows in a thread color
+                              // ring the logo's silhouette, instead of one soft photographic shadow.
+                              [0, 45, 90, 135, 180, 225, 270, 315]
+                                .map((deg) => `drop-shadow(${Math.cos((deg * Math.PI) / 180)}px ${Math.sin((deg * Math.PI) / 180)}px 0 rgba(15,15,20,0.55))`)
+                                .join(" ")
+                            : "drop-shadow(0 1px 2px rgba(0,0,0,0.25))",
+                      }}
+                    />
+                    {application === "embroidery" && (
+                      // Diagonal thread-line texture, clipped to the logo's own shape via a
+                      // luminance mask and blended in — reads as stitched fill, not flat print.
+                      <div
+                        className="pointer-events-none absolute inset-0 mix-blend-overlay"
+                        style={{
+                          backgroundImage:
+                            "repeating-linear-gradient(45deg, rgba(255,255,255,0.9) 0px, rgba(255,255,255,0.9) 1px, rgba(0,0,0,0.5) 1px, rgba(0,0,0,0.5) 2px, transparent 2px, transparent 3px)",
+                          WebkitMaskImage: `url(${logoSrc})`,
+                          maskImage: `url(${logoSrc})`,
+                          WebkitMaskSize: "100% 100%",
+                          maskSize: "100% 100%",
+                          WebkitMaskRepeat: "no-repeat",
+                          maskRepeat: "no-repeat",
+                        }}
+                      />
+                    )}
+                  </div>
                   {[
-                    ["-top-4 -left-4", "nwse-resize"],
-                    ["-top-4 -right-4", "nesw-resize"],
-                    ["-bottom-4 -left-4", "nesw-resize"],
-                    ["-bottom-4 -right-4", "nwse-resize"],
-                  ].map(([pos, cursor]) => (
+                    ["top-left", "-top-4 -left-4", "nwse-resize"],
+                    ["top-right", "-top-4 -right-4", "nesw-resize"],
+                    ["bottom-left", "-bottom-4 -left-4", "nesw-resize"],
+                    ["bottom-right", "-bottom-4 -right-4", "nwse-resize"],
+                  ].map(([corner, pos, cursor]) => (
                     <div
-                      key={pos}
-                      onPointerDown={onHandlePointerDown}
+                      key={corner}
+                      onPointerDown={onHandlePointerDown(corner)}
                       onPointerMove={onHandlePointerMove}
                       onPointerUp={onHandlePointerUp}
                       className={cn("absolute size-3 rounded-full border-2 border-brand bg-background shadow", pos)}
@@ -188,7 +269,18 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
                 </div>
               </div>
             )}
+            </div>
           </div>
+          {logoSrc && (
+            <button
+              type="button"
+              onClick={() => setZoomed((z) => !z)}
+              className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium shadow-sm hover:bg-background"
+            >
+              {zoomed ? <ZoomOut className="size-3.5" /> : <ZoomIn className="size-3.5" />}
+              {zoomed ? "Zoom out" : "Zoom to logo"}
+            </button>
+          )}
           <button
             type="button"
             disabled
@@ -256,17 +348,16 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
                       {a === "embroidery" ? "Stitched (Embroidery)" : "Print"}
                     </button>
                   ))}
-                  <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                    Size
-                    <input
-                      type="range"
-                      min={40}
-                      max={160}
-                      value={logoSize}
-                      onChange={(e) => setLogoSize(Number(e.target.value))}
-                      className="w-20"
-                    />
-                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowPositionPanel((s) => !s)}
+                    className={cn(
+                      "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold",
+                      showPositionPanel ? "border-brand bg-brand text-white" : "text-muted-foreground hover:border-brand"
+                    )}
+                  >
+                    <Move className="size-3.5" /> Position graphic
+                  </button>
                   <button
                     type="button"
                     onClick={() => setLogoSrc(null)}
@@ -276,6 +367,111 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
                     <X className="size-4" />
                   </button>
                 </div>
+
+                {showPositionPanel && (
+                  <div className="mt-4 rounded-xl border p-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      {(
+                        [
+                          ["Height", pctToCm(logoHeight), (cm: number) => setLogoHeight(Math.max(4, cmToPct(cm)))],
+                          ["Width", pctToCm(logoWidth), (cm: number) => setLogoWidth(Math.max(4, cmToPct(cm)))],
+                        ] as const
+                      ).map(([label, cm, set]) => (
+                        <div key={label}>
+                          <div className="text-xs font-medium text-muted-foreground">{label}</div>
+                          <div className="mt-1 flex items-center gap-1">
+                            <div className="flex h-9 flex-1 items-center rounded-md border px-2 text-sm">
+                              {cm.toFixed(2)} <span className="ml-1 text-xs text-muted-foreground">cm</span>
+                            </div>
+                            <button type="button" onClick={() => set(cm - 0.5)} className="grid size-9 shrink-0 place-items-center rounded-md border hover:bg-muted">
+                              <Minus className="size-3.5" />
+                            </button>
+                            <button type="button" onClick={() => set(cm + 0.5)} className="grid size-9 shrink-0 place-items-center rounded-md border hover:bg-muted">
+                              <Plus className="size-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-3 gap-4">
+                      <div>
+                        <div className="text-xs font-medium text-muted-foreground">Centering</div>
+                        <div className="mt-1 flex gap-1">
+                          <button type="button" onClick={centerHorizontal} aria-label="Center horizontally" className="grid size-9 place-items-center rounded-md border hover:bg-muted">
+                            <AlignCenterVertical className="size-4" />
+                          </button>
+                          <button type="button" onClick={centerVertical} aria-label="Center vertically" className="grid size-9 place-items-center rounded-md border hover:bg-muted">
+                            <AlignCenterHorizontal className="size-4" />
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-muted-foreground">Moving</div>
+                        <div className="mt-1 flex gap-1">
+                          <button type="button" onClick={() => nudge(-2, 0)} aria-label="Move left" className="grid size-9 place-items-center rounded-md border hover:bg-muted">
+                            <ChevronLeft className="size-4" />
+                          </button>
+                          <button type="button" onClick={() => nudge(2, 0)} aria-label="Move right" className="grid size-9 place-items-center rounded-md border hover:bg-muted">
+                            <ChevronRight className="size-4" />
+                          </button>
+                          <button type="button" onClick={() => nudge(0, -2)} aria-label="Move up" className="grid size-9 place-items-center rounded-md border hover:bg-muted">
+                            <ChevronUp className="size-4" />
+                          </button>
+                          <button type="button" onClick={() => nudge(0, 2)} aria-label="Move down" className="grid size-9 place-items-center rounded-md border hover:bg-muted">
+                            <ChevronDown className="size-4" />
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-muted-foreground">Rotate</div>
+                        <button
+                          type="button"
+                          onClick={() => setRotation((r) => (r + 15) % 360)}
+                          aria-label="Rotate"
+                          className="mt-1 grid size-9 place-items-center rounded-md border hover:bg-muted"
+                        >
+                          <RotateCw className="size-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-2 gap-4">
+                      {(
+                        [
+                          ["Top distance", pctToCm(logoTop), (cm: number) => setLogoTop(clampPct(cmToPct(cm)))],
+                          ["Left distance", pctToCm(logoLeft), (cm: number) => setLogoLeft(clampPct(cmToPct(cm)))],
+                        ] as const
+                      ).map(([label, cm, set]) => (
+                        <div key={label}>
+                          <div className="text-xs font-medium text-muted-foreground">{label}</div>
+                          <div className="mt-1 flex items-center gap-1">
+                            <div className="flex h-9 flex-1 items-center rounded-md border px-2 text-sm">
+                              {cm.toFixed(2)} <span className="ml-1 text-xs text-muted-foreground">cm</span>
+                            </div>
+                            <button type="button" onClick={() => set(cm - 0.5)} className="grid size-9 shrink-0 place-items-center rounded-md border hover:bg-muted">
+                              <Minus className="size-3.5" />
+                            </button>
+                            <button type="button" onClick={() => set(cm + 0.5)} className="grid size-9 shrink-0 place-items-center rounded-md border hover:bg-muted">
+                              <Plus className="size-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowPositionPanel(false);
+                        toast.success("Logo position updated");
+                      }}
+                      className="mt-4 h-10 w-full rounded-lg bg-brand text-sm font-semibold text-white hover:bg-brand/90"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                )}
               </>
             )}
           </div>
