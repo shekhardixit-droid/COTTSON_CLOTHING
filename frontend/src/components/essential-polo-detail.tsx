@@ -56,6 +56,28 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
     draggingRef.current = false;
   };
 
+  // Corner-handle resize: track the pointer's distance from the logo's own center and
+  // derive a new size from it, so any corner drags symmetrically outward/inward.
+  const resizingRef = useRef(false);
+  const onHandlePointerDown = (e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    resizingRef.current = true;
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  };
+  const onHandlePointerMove = (e: React.PointerEvent) => {
+    if (!resizingRef.current) return;
+    const rect = photoRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const centerX = rect.left + (logoPos.x / 100) * rect.width;
+    const centerY = rect.top + (logoPos.y / 100) * rect.height;
+    const dist = Math.hypot(e.clientX - centerX, e.clientY - centerY);
+    setLogoSize(Math.min(220, Math.max(32, Math.round(dist * 1.4))));
+  };
+  const onHandlePointerUp = () => {
+    resizingRef.current = false;
+  };
+
   const color = colorById(colorId);
   const totalQty = Object.values(sizes).reduce((n, q) => n + q, 0);
   const setSize = (s: string, qty: number) => setSizes((prev) => ({ ...prev, [s]: Math.max(0, qty) }));
@@ -123,29 +145,48 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
             )}
 
             {/* Logo overlay: independent of the color layers below, so it carries over to
-                every trim color automatically — never baked into a specific photo. */}
+                every trim color automatically — never baked into a specific photo. Wrapped
+                as a proper selectable element: dashed box + corner handles to resize. */}
             {logoSrc && (
-              <img
-                src={logoSrc}
-                alt="Your logo"
-                draggable={false}
-                onPointerDown={onLogoPointerDown}
-                onPointerMove={onLogoPointerMove}
-                onPointerUp={onLogoPointerUp}
-                className={cn(
-                  "absolute -translate-x-1/2 -translate-y-1/2 cursor-grab touch-none select-none active:cursor-grabbing",
-                  application === "embroidery" && "contrast-110 saturate-75"
-                )}
-                style={{
-                  left: `${logoPos.x}%`,
-                  top: `${logoPos.y}%`,
-                  width: logoSize,
-                  filter:
-                    application === "embroidery"
-                      ? "drop-shadow(0 1px 0.5px rgba(0,0,0,0.45)) drop-shadow(0 0 0.5px rgba(255,255,255,0.6))"
-                      : "drop-shadow(0 1px 2px rgba(0,0,0,0.25))",
-                }}
-              />
+              <div
+                className="absolute -translate-x-1/2 -translate-y-1/2 touch-none"
+                style={{ left: `${logoPos.x}%`, top: `${logoPos.y}%`, width: logoSize }}
+              >
+                <div
+                  onPointerDown={onLogoPointerDown}
+                  onPointerMove={onLogoPointerMove}
+                  onPointerUp={onLogoPointerUp}
+                  className="relative cursor-grab rounded outline-dashed outline-2 outline-offset-4 outline-brand/70 active:cursor-grabbing"
+                >
+                  <img
+                    src={logoSrc}
+                    alt="Your logo"
+                    draggable={false}
+                    className={cn("pointer-events-none block w-full select-none", application === "embroidery" && "contrast-110 saturate-75")}
+                    style={{
+                      filter:
+                        application === "embroidery"
+                          ? "drop-shadow(0 1px 0.5px rgba(0,0,0,0.45)) drop-shadow(0 0 0.5px rgba(255,255,255,0.6))"
+                          : "drop-shadow(0 1px 2px rgba(0,0,0,0.25))",
+                    }}
+                  />
+                  {[
+                    ["-top-4 -left-4", "nwse-resize"],
+                    ["-top-4 -right-4", "nesw-resize"],
+                    ["-bottom-4 -left-4", "nesw-resize"],
+                    ["-bottom-4 -right-4", "nwse-resize"],
+                  ].map(([pos, cursor]) => (
+                    <div
+                      key={pos}
+                      onPointerDown={onHandlePointerDown}
+                      onPointerMove={onHandlePointerMove}
+                      onPointerUp={onHandlePointerUp}
+                      className={cn("absolute size-3 rounded-full border-2 border-brand bg-background shadow", pos)}
+                      style={{ cursor }}
+                    />
+                  ))}
+                </div>
+              </div>
             )}
           </div>
           <button
