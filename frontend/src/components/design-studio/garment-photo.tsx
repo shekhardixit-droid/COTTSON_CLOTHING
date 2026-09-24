@@ -3,12 +3,28 @@
 import { forwardRef, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { type Product, colorById, variantUrl } from "@/lib/catalog";
-import { IMAGE_ASPECT } from "./placement";
+import { IMAGE_ASPECT, type Focus } from "./placement";
+
+/** Pan + zoom (transform-origin 0 0) that puts the focus point in the middle of the frame.
+ * The photo box is as tall as the frame and centred in it, so everything works in fractions
+ * of the photo box; the pan is clamped so the photo never slides off an edge. */
+function focusTransform({ px, py, z }: Focus) {
+  const A = IMAGE_ASPECT;
+  let tx = 0.5 - z * px;
+  // Photo edges relative to the frame: left = (1 - A) / 2 + tx·A, right = left + z·A
+  if (z * A >= 1) tx = Math.min(-(1 - A) / (2 * A), Math.max((1 + A) / (2 * A) - z, tx));
+  else tx = (1 - z) / 2;
+  const ty = Math.min(0, Math.max(1 - z, 0.5 - z * py));
+  return `translate(${tx * 100}%, ${ty * 100}%) scale(${z})`;
+}
 
 /** The polo photo in its own 2:3 box (so cm placement maps 1:1 to the image), with the
  * wave-sweep transition between collar colors. Children (the logo layer) sit on top. */
-export const GarmentPhoto = forwardRef<HTMLDivElement, { product: Product; colorId: string; children?: React.ReactNode }>(
-  function GarmentPhoto({ product, colorId, children }, ref) {
+export const GarmentPhoto = forwardRef<
+  HTMLDivElement,
+  { product: Product; colorId: string; focus?: Focus | null; children?: React.ReactNode }
+>(
+  function GarmentPhoto({ product, colorId, focus, children }, ref) {
     const [base, setBase] = useState(colorId);
     const [incoming, setIncoming] = useState<string | null>(null);
     const [swept, setSwept] = useState(false);
@@ -39,8 +55,8 @@ export const GarmentPhoto = forwardRef<HTMLDivElement, { product: Product; color
         src={variantUrl(product, id)}
         alt={`${product.title} — ${colorById(id).name}`}
         fill
-        sizes="(min-width: 1024px) 700px, 100vw"
-        quality={95}
+        // Served as-is: the optimizer re-encodes at q75, which shows when zoomed in
+        unoptimized
         draggable={false}
         className="pointer-events-none object-cover"
         priority
@@ -48,7 +64,11 @@ export const GarmentPhoto = forwardRef<HTMLDivElement, { product: Product; color
     );
 
     return (
-      <div ref={ref} className="relative h-full select-none" style={{ aspectRatio: IMAGE_ASPECT }}>
+      <div
+        ref={ref}
+        className="relative h-full select-none transition-transform duration-700 ease-[cubic-bezier(.2,.7,.2,1)]"
+        style={{ aspectRatio: IMAGE_ASPECT, transformOrigin: "0 0", transform: focus ? focusTransform(focus) : undefined }}
+      >
         {img(base)}
         {incoming && (
           <div

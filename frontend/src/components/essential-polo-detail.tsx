@@ -4,17 +4,25 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { ImagePlus, Minus, Move, Palette, Plus, X, ZoomIn, ZoomOut } from "lucide-react";
-import { type Product, colorById, variantUrl, formatPrice } from "@/lib/catalog";
+import { type Product, colorById, formatPrice } from "@/lib/catalog";
 import { useCart } from "@/lib/cart-store";
 import { cn } from "@/lib/utils";
-import { IMAGE_HEIGHT_CM, IMAGE_WIDTH_CM, finishingById, maxWidthFor, placeAt, type Placement } from "@/components/design-studio/placement";
+import {
+  FINISHINGS,
+  finishingById,
+  focusOn,
+  largestWidthFor,
+  maxWidthFor,
+  placeAt,
+  tierFor,
+  type Focus,
+  type Placement,
+  type PositionId,
+} from "@/components/design-studio/placement";
 import { LogoLayer } from "@/components/design-studio/logo-layer";
-import { PositionPanel } from "@/components/design-studio/position-panel";
-import { FabricCloseup, GarmentPhoto, useFabricColor } from "@/components/design-studio/garment-photo";
-import { readLogoFile, useStitchedLogo, type LogoFile } from "@/components/design-studio/use-logo-artwork";
-
-// The quick Print / Stitched toggle maps onto the studio's finishing tiers
-const FINISHING = { print: "dtf-m", embroidery: "emb-standard" } as const;
+import { PositionDialog } from "@/components/design-studio/position-dialog";
+import { GarmentPhoto } from "@/components/design-studio/garment-photo";
+import { readLogoFile, useLogoArt, type LogoFile } from "@/components/design-studio/use-logo-artwork";
 
 /** Product detail page for the Essential Polo: wave-sweep trim-color swap, a quick logo
  * preview, and the real catalog (price, sizes, minBulk) + cart. The full editor is /studio. */
@@ -25,44 +33,49 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
 
   const [logo, setLogo] = useState<LogoFile | null>(null);
   const [placement, setPlacement] = useState<Placement>(placeAt("left-chest", 8, 1));
-  const [application, setApplication] = useState<"print" | "embroidery">("print");
-  const [showPositionPanel, setShowPositionPanel] = useState(false);
-  const [closeup, setCloseup] = useState(false);
+  const [positionId, setPositionId] = useState<PositionId>("left-chest");
+  // Print / Stitched pick the smallest tier of that kind; growing the logo steps the tier up
+  const [finishingId, setFinishingId] = useState("dtf-s");
+  const [positionOpen, setPositionOpen] = useState(false);
+  // Zoomed in on the logo (set on upload / by the zoom button); null = whole garment
+  const [focus, setFocus] = useState<Focus | null>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const finishing = finishingById(FINISHING[application]);
-  const embroidered = application === "embroidery";
-  const maxW = logo ? maxWidthFor(finishing, logo.aspect) : 10;
-  const stitched = useStitchedLogo(logo?.src ?? null, {
-    enabled: embroidered,
+  const finishing = finishingById(finishingId);
+  const embroidered = finishing.kind === "embroidery";
+  const maxW = logo ? largestWidthFor(finishing.kind, logo.aspect) : 10;
+  const logoArt = useLogoArt(logo?.src ?? null, {
+    embroidered,
     maxColors: finishing.maxColors,
-    thread: null,
+    color: null,
     widthCm: placement.w,
-  });
-  const logoArt = embroidered ? stitched.url ?? logo?.src : logo?.src;
-  const fabric = useFabricColor(
-    variantUrl(product, colorId),
-    (placement.x + placement.w / 2) / IMAGE_WIDTH_CM,
-    logo ? (placement.y + placement.w / logo.aspect / 2) / IMAGE_HEIGHT_CM : 0.4
-  );
+  }).url;
 
   const onLogoFile = async (file: File) => {
     try {
       const l = await readLogoFile(file);
+      const p = placeAt(positionId, Math.min(8, maxWidthFor(finishing, l.aspect)), l.aspect);
       setLogo(l);
-      setPlacement(placeAt("left-chest", Math.min(8, maxWidthFor(finishing, l.aspect)), l.aspect));
-      setCloseup(true); // show the logo up close right away
+      setPlacement(p);
+      setFocus(focusOn(p, l.aspect)); // zoom in on the logo right away
     } catch {
       toast.error("Couldn't read that file — try a PNG, JPG or SVG");
     }
   };
 
-  const setFinish = (a: "print" | "embroidery") => {
-    setApplication(a);
-    if (!logo) return;
-    // Shrink to the finishing's max size around the same centre if needed
-    const w = Math.min(placement.w, maxWidthFor(finishingById(FINISHING[a]), logo.aspect));
+  const onPlacement = (p: Placement) => {
+    setPlacement(p);
+    if (logo) setFinishingId(tierFor(finishing, p.w, logo.aspect).id);
+  };
+
+  const setFinish = (kind: "print" | "embroidery") => {
+    if (!logo) return setFinishingId(FINISHINGS.find((f) => f.kind === kind)!.id);
+    // Smallest tier of that kind that fits the current size, else shrink to the largest one
+    const fits = FINISHINGS.find((f) => f.kind === kind && placement.w <= maxWidthFor(f, logo.aspect) + 1e-6);
+    const tier = fits ?? FINISHINGS.filter((f) => f.kind === kind).at(-1)!;
+    setFinishingId(tier.id);
+    const w = Math.min(placement.w, maxWidthFor(tier, logo.aspect));
     setPlacement((p) => ({ ...p, w, x: p.x + (p.w - w) / 2, y: p.y + (p.w - w) / logo.aspect / 2 }));
   };
 
@@ -91,35 +104,32 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">
       <div className="grid gap-10 overflow-hidden rounded-2xl border lg:grid-cols-2">
-        {/* Left: photo with the wave-sweep color swap, or the logo close-up */}
-        <div className="relative bg-muted">
+        {/* Left: photo with the wave-sweep color swap, zoomed in on the logo once there is one */}
+        <div className="relative bg-white">
           <div className="relative grid aspect-square w-full place-items-center overflow-hidden">
-            {closeup && logo && logoArt ? (
-              <FabricCloseup fabric={fabric} logo={logoArt} aspect={logo.aspect} rotation={placement.rotation} embroidered={embroidered} />
-            ) : (
-              <GarmentPhoto ref={frameRef} product={product} colorId={colorId}>
-                {logo && logoArt && (
-                  <LogoLayer
-                    src={logoArt}
-                    embroidered={embroidered}
-                    placement={placement}
-                    aspect={logo.aspect}
-                    maxWidth={maxW}
-                    onChange={setPlacement}
-                    frameRef={frameRef}
-                  />
-                )}
-              </GarmentPhoto>
-            )}
+            <GarmentPhoto ref={frameRef} product={product} colorId={colorId} focus={focus}>
+              {logo && logoArt && (
+                <LogoLayer
+                  src={logoArt}
+                  embroidered={embroidered}
+                  placement={placement}
+                  aspect={logo.aspect}
+                  maxWidth={maxW}
+                  onChange={onPlacement}
+                  frameRef={frameRef}
+                  zoom={focus?.z ?? 1}
+                />
+              )}
+            </GarmentPhoto>
           </div>
           {logo && (
             <button
               type="button"
-              onClick={() => setCloseup((z) => !z)}
+              onClick={() => setFocus((f) => (f ? null : focusOn(placement, logo.aspect)))}
               className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium shadow-sm hover:bg-background"
             >
-              {closeup ? <ZoomOut className="size-3.5" /> : <ZoomIn className="size-3.5" />}
-              {closeup ? "Full view" : "Close-up"}
+              {focus ? <ZoomOut className="size-3.5" /> : <ZoomIn className="size-3.5" />}
+              {focus ? "Zoom out" : "Zoom to logo"}
             </button>
           )}
         </div>
@@ -169,7 +179,7 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
                       onClick={() => setFinish(a)}
                       className={cn(
                         "rounded-full border px-3 py-1.5 text-xs font-semibold capitalize",
-                        application === a ? "border-brand bg-brand text-white" : "text-muted-foreground hover:border-brand"
+                        finishing.kind === a ? "border-brand bg-brand text-white" : "text-muted-foreground hover:border-brand"
                       )}
                     >
                       {a === "embroidery" ? "Stitched (Embroidery)" : "Print"}
@@ -177,14 +187,8 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
                   ))}
                   <button
                     type="button"
-                    onClick={() => {
-                      setShowPositionPanel((s) => !s);
-                      setCloseup(false);
-                    }}
-                    className={cn(
-                      "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold",
-                      showPositionPanel ? "border-brand bg-brand text-white" : "text-muted-foreground hover:border-brand"
-                    )}
+                    onClick={() => setPositionOpen(true)}
+                    className="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:border-brand"
                   >
                     <Move className="size-3.5" /> Position graphic
                   </button>
@@ -192,7 +196,7 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
                     type="button"
                     onClick={() => {
                       setLogo(null);
-                      setCloseup(false);
+                      setFocus(null);
                     }}
                     aria-label="Remove logo"
                     className="grid size-7 place-items-center rounded-full text-muted-foreground hover:bg-muted"
@@ -200,25 +204,26 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
                     <X className="size-4" />
                   </button>
                 </div>
-                {embroidered && logo.colors > finishing.maxColors && (
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    Embroidery stitches up to {finishing.maxColors} thread colors — your {logo.colors}-color logo was reduced. More options in the Design Studio.
-                  </p>
-                )}
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {finishing.label} · max {finishing.maxColors} colors and {finishing.maxCm}×{finishing.maxCm} cm
+                  {embroidered && logo.palette.length > finishing.maxColors && ` — your ${logo.palette.length}-color logo was reduced`}
+                </p>
 
-                {showPositionPanel && (
-                  <div className="mt-4 rounded-xl border p-4">
-                    <PositionPanel
-                      placement={placement}
-                      aspect={logo.aspect}
-                      maxWidth={maxW}
-                      onChange={setPlacement}
-                      onApply={() => {
-                        setShowPositionPanel(false);
-                        toast.success("Logo position updated");
-                      }}
-                    />
-                  </div>
+                {positionOpen && logoArt && (
+                  <PositionDialog
+                    logoSrc={logoArt}
+                    aspect={logo.aspect}
+                    finishing={finishing}
+                    placement={placement}
+                    positionId={positionId}
+                    onClose={() => setPositionOpen(false)}
+                    onApply={(p, pos) => {
+                      setPlacement(p);
+                      setPositionId(pos);
+                      setPositionOpen(false);
+                      setFocus(focusOn(p, logo.aspect));
+                    }}
+                  />
                 )}
               </>
             )}

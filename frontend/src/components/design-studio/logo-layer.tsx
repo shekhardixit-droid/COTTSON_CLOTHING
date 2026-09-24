@@ -17,13 +17,15 @@ type Props = {
   editable?: boolean;
   /** Reference element the percentages are measured against (the photo box) */
   frameRef: React.RefObject<HTMLDivElement | null>;
+  /** Current photo zoom, so the selection box and handles stay the same size on screen */
+  zoom?: number;
 };
 
 const MIN_WIDTH_CM = 1.5;
 
 /** The logo as a selectable element on the garment photo: drag to move, corners to resize.
  * Positioned in cm (see placement.ts) so it lines up the same on every trim-color photo. */
-export function LogoLayer({ src, embroidered, placement, aspect, maxWidth, onChange, editable = true, frameRef }: Props) {
+export function LogoLayer({ src, embroidered, placement, aspect, maxWidth, onChange, editable = true, frameRef, zoom = 1 }: Props) {
   const { x, y, w, rotation } = placement;
   const h = w / aspect;
 
@@ -92,8 +94,9 @@ export function LogoLayer({ src, embroidered, placement, aspect, maxWidth, onCha
         onPointerUp={end}
         className={cn(
           "relative size-full",
-          editable && "cursor-grab rounded-[2px] outline-dashed outline-1 outline-offset-2 outline-brand/80 active:cursor-grabbing"
+          editable && "cursor-grab rounded-[2px] outline-dashed outline-brand/80 active:cursor-grabbing"
         )}
+        style={editable ? { outlineWidth: 1 / zoom, outlineOffset: 2 / zoom } : undefined}
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- local data URL */}
         <img
@@ -107,20 +110,23 @@ export function LogoLayer({ src, embroidered, placement, aspect, maxWidth, onCha
         {editable &&
           (
             [
-              ["top-left", "-top-1.5 -left-1.5", "nwse-resize"],
-              ["top-right", "-top-1.5 -right-1.5", "nesw-resize"],
-              ["bottom-left", "-bottom-1.5 -left-1.5", "nesw-resize"],
-              ["bottom-right", "-bottom-1.5 -right-1.5", "nwse-resize"],
+              ["top-left", "-top-2.5 -left-2.5", "nwse-resize"],
+              ["top-right", "-top-2.5 -right-2.5", "nesw-resize"],
+              ["bottom-left", "-bottom-2.5 -left-2.5", "nesw-resize"],
+              ["bottom-right", "-bottom-2.5 -right-2.5", "nwse-resize"],
             ] as const
           ).map(([corner, pos, cursor]) => (
+            // Invisible 20px grab area around a small visible dot
             <div
               key={corner}
               onPointerDown={begin(corner)}
               onPointerMove={move}
               onPointerUp={end}
-              className={cn("absolute size-2 rounded-full border border-brand bg-white shadow", pos)}
-              style={{ cursor }}
-            />
+              className={cn("absolute grid size-5 place-items-center", pos)}
+              style={{ cursor, transform: `scale(${1 / zoom})` }}
+            >
+              <span className="pointer-events-none size-2 rounded-full border border-brand bg-white shadow" />
+            </div>
           ))}
       </div>
     </div>

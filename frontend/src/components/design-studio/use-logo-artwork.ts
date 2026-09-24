@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { countLogoColors, renderEmbroidery } from "@/lib/embroidery";
+import { logoPalette, recolorLogo, renderEmbroidery } from "@/lib/embroidery";
 
-export type LogoFile = { src: string; name: string; aspect: number; colors: number };
+export type LogoFile = { src: string; name: string; aspect: number; palette: string[] };
 
-/** Read an uploaded logo: data URL, aspect ratio (w / h) and how many colors it has */
+/** Read an uploaded logo: data URL, aspect ratio (w / h) and its main colors */
 export async function readLogoFile(file: File): Promise<LogoFile> {
   const src = await new Promise<string>((resolve, reject) => {
     const r = new FileReader();
@@ -18,37 +18,43 @@ export async function readLogoFile(file: File): Promise<LogoFile> {
   await img.decode();
   // SVGs without intrinsic size report 0; fall back to square
   const aspect = img.naturalWidth && img.naturalHeight ? img.naturalWidth / img.naturalHeight : 1;
-  const colors = await countLogoColors(src).catch(() => 1);
-  return { src, name: file.name, aspect, colors };
+  const palette = await logoPalette(src).catch(() => []);
+  return { src, name: file.name, aspect, palette };
 }
 
-/** Stitch image for the logo when the finishing is embroidery; re-rendered (debounced) when
- * the thread settings or the logo's real size change, since stitch density depends on size. */
-export function useStitchedLogo(
+/** The artwork to show for the logo: rendered stitches for embroidery, or the flat logo for
+ * print (recolored when a single color is chosen). Re-rendered, debounced, when the settings
+ * or the logo's real size change, since stitch density depends on size. */
+export function useLogoArt(
   src: string | null,
-  opts: { enabled: boolean; maxColors: number; thread: string | null; widthCm: number }
+  opts: { embroidered: boolean; maxColors: number; color: string | null; widthCm: number }
 ) {
-  const [stitched, setStitched] = useState<{ key: string; url: string } | null>(null);
-  const { enabled, maxColors, thread } = opts;
+  const [art, setArt] = useState<{ key: string; url: string; src: string; embroidered: boolean } | null>(null);
+  const { embroidered, maxColors, color } = opts;
   // Round the size so dragging a corner doesn't re-stitch on every pixel
-  const widthCm = Math.round(opts.widthCm);
-  const key = `${src?.length}:${src?.slice(-32)}:${maxColors}:${thread}:${widthCm}`;
+  const widthCm = embroidered ? Math.round(opts.widthCm) : 0;
+  const needsRender = !!src && (embroidered || !!color);
+  const key = `${src?.length}:${src?.slice(-32)}:${embroidered}:${maxColors}:${color}:${widthCm}`;
 
   useEffect(() => {
-    if (!enabled || !src) return;
+    if (!needsRender || !src) return;
     let cancelled = false;
     const t = window.setTimeout(() => {
-      renderEmbroidery(src, { maxColors, thread, widthCm, width: 1000 })
-        .then((url) => !cancelled && setStitched({ key, url }))
+      (embroidered
+        ? renderEmbroidery(src, { maxColors, thread: color, widthCm, width: 1000 })
+        : recolorLogo(src, color!)
+      )
+        .then((url) => !cancelled && setArt({ key, url, src, embroidered }))
         .catch(() => {});
     }, 150);
     return () => {
       cancelled = true;
       window.clearTimeout(t);
     };
-  }, [enabled, src, maxColors, thread, widthCm, key]);
+  }, [needsRender, src, embroidered, maxColors, color, widthCm, key]);
 
-  if (!enabled || !src) return { url: null, pending: false };
-  // Keep showing the previous stitch render while a new one is being made
-  return { url: stitched?.url ?? null, pending: stitched?.key !== key };
+  if (!src) return { url: null, pending: false };
+  if (!needsRender) return { url: src, pending: false };
+  // Keep showing the previous render of the same kind (or the plain logo) while a new one is made
+  return { url: art && art.src === src && art.embroidered === embroidered ? art.url : src, pending: art?.key !== key };
 }

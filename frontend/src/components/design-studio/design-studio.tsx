@@ -26,6 +26,8 @@ import {
   Trash2,
   Upload,
   X,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react";
 import { type Product, PRODUCTS, colorById, variantUrl, formatPrice } from "@/lib/catalog";
 import { useCart } from "@/lib/cart-store";
@@ -39,35 +41,32 @@ import {
   POSITIONS,
   finishingById,
   finishingHint,
+  focusOn,
+  largestWidthFor,
   maxWidthFor,
   placeAt,
+  tierFor,
+  type Focus,
   type Placement,
   type PositionId,
 } from "./placement";
 import { LogoLayer } from "./logo-layer";
-import { PositionPanel } from "./position-panel";
+import { PositionDialog } from "./position-dialog";
 import { FabricCloseup, GarmentPhoto, useFabricColor } from "./garment-photo";
-import { readLogoFile, useStitchedLogo, type LogoFile } from "./use-logo-artwork";
+import { readLogoFile, useLogoArt, type LogoFile } from "./use-logo-artwork";
 
 const WHATSAPP_NUMBER = "919892297764";
 const STORAGE_KEY = "cottson-studio";
 
-// Thread cones stocked for embroidery; "Logo colors" stitches the logo's own (reduced) colors
-const THREADS = [
-  { id: null, label: "Logo colors", hex: null },
-  { id: "#f4f3ee", label: "White", hex: "#f4f3ee" },
-  { id: "#151515", label: "Black", hex: "#151515" },
-  { id: "#c9a24a", label: "Gold", hex: "#c9a24a" },
-  { id: "#b9bdc4", label: "Silver", hex: "#b9bdc4" },
-  { id: "#1d2c4d", label: "Navy", hex: "#1d2c4d" },
-  { id: "#b3202a", label: "Red", hex: "#b3202a" },
-] as const;
+// Default view: enlarged so the chest (where logos go) fills the frame
+const CHEST_VIEW: Focus = { px: 0.5, py: 0.36, z: 1.45 };
 
 type FrontPrint = {
   finishingId: string;
   positionId: PositionId;
   logo: LogoFile | null;
   placement: Placement;
+  /** One color for the whole logo (monochrome / custom), or null for the logo's own colors */
   thread: string | null;
 };
 type Saved = { slug: string; colorId: string; sizes: Record<string, number>; print: FrontPrint | null };
@@ -90,6 +89,14 @@ const CardTitle = ({ children }: { children: string }) => (
 const Card = ({ className, children }: { className?: string; children: React.ReactNode }) => (
   <section className={cn("rounded-xl bg-white p-5 shadow-[0_1px_3px_rgba(16,24,40,0.06)]", className)}>{children}</section>
 );
+/** One logo color: swatch + hex code */
+const Chip = ({ hex }: { hex: string }) => (
+  <span className="flex items-center gap-1.5 rounded-md bg-muted py-1 pl-1 pr-2 text-[11px] font-medium uppercase tabular-nums">
+    <span className="size-5 rounded border border-black/10" style={{ background: hex }} />
+    {hex}
+  </span>
+);
+
 /** Pill-shaped select like the reference studio's dropdowns */
 function PillSelect<T extends string>({
   value,
@@ -133,6 +140,8 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
   const [addOpen, setAddOpen] = useState(false);
   const [positionOpen, setPositionOpen] = useState(false);
   const [slide, setSlide] = useState(0);
+  // Zoomed in on the logo (set on upload / by the zoom button); null = chest view
+  const [focus, setFocus] = useState<Focus | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [busy, setBusy] = useState(false);
   const frameRef = useRef<HTMLDivElement>(null);
@@ -147,6 +156,8 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
       // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time restore from browser storage
       if (product.colors.includes(saved.colorId)) setColorId(saved.colorId);
       setSizes(saved.sizes ?? {});
+      // Designs saved before logo palettes existed have none; the chips just stay empty
+      if (saved.print?.logo) saved.print.logo.palette ??= [];
       setPrint(saved.print);
       setActive(saved.print ? "front" : "overview");
     } catch {}
@@ -157,16 +168,16 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
   const finishing = print ? finishingById(print.finishingId) : null;
   const embroidered = finishing?.kind === "embroidery";
   const logo = print?.logo ?? null;
-  const maxW = finishing && logo ? maxWidthFor(finishing, logo.aspect) : 10;
+  // Dragging bigger than the tier allows steps up to the next tier (see onPlacement)
+  const maxW = finishing && logo ? largestWidthFor(finishing.kind, logo.aspect) : 10;
 
-  const stitched = useStitchedLogo(logo?.src ?? null, {
-    enabled: !!embroidered,
+  const art = useLogoArt(logo?.src ?? null, {
+    embroidered: !!embroidered,
     maxColors: finishing?.maxColors ?? 2,
-    thread: print?.thread ?? null,
+    color: print?.thread ?? null,
     widthCm: print?.placement.w ?? 8,
   });
-  // Until the first stitch render is ready, show the flat logo rather than nothing
-  const logoArt = embroidered ? stitched.url ?? logo?.src : logo?.src;
+  const logoArt = art.url;
 
   const fabric = useFabricColor(
     variantUrl(product, colorId),
@@ -176,16 +187,33 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
 
   const updatePrint = (p: Partial<FrontPrint>) => setPrint((cur) => (cur ? { ...cur, ...p } : cur));
 
+  // Moving / resizing on the photo; a logo grown past its tier moves up to the tier that fits
+  const onPlacement = (placement: Placement) => {
+    if (!print || !finishing || !logo) return;
+    const tier = tierFor(finishing, placement.w, logo.aspect);
+    if (tier.id !== finishing.id) toast.message(`Switched to ${tier.label}`, { description: finishingHint(tier) });
+    updatePrint({ placement, finishingId: tier.id });
+  };
+
+  // "Make logo monochrome": white on dark garments, black on light ones
+  const monochrome = () => {
+    const [r, g, b] = (fabric.match(/\d+/g) ?? ["0", "0", "0"]).map(Number);
+    updatePrint({ thread: 0.299 * r + 0.587 * g + 0.114 * b < 140 ? "#f4f3ee" : "#151515" });
+  };
+
   const onUpload = async (file: File) => {
     if (!print) return;
     try {
       const l = await readLogoFile(file);
       const f = finishingById(print.finishingId);
       const w = Math.min(maxWidthFor(f, l.aspect), print.positionId === "center-chest" ? 20 : 8);
-      updatePrint({ logo: l, placement: placeAt(print.positionId, w, l.aspect) });
-      setSlide(1); // show the stitch/print close-up right away
-      if (f.kind === "embroidery" && l.colors > f.maxColors)
-        toast.message(`Your logo has ${l.colors} colors`, {
+      const placement = placeAt(print.positionId, w, l.aspect);
+      updatePrint({ logo: l, placement, thread: null });
+      // Zoom the photo in on the logo right away
+      setSlide(0);
+      setFocus(focusOn(placement, l.aspect));
+      if (f.kind === "embroidery" && l.palette.length > f.maxColors)
+        toast.message(`Your logo has ${l.palette.length} colors`, {
           description: `${f.label} stitches up to ${f.maxColors} thread colors, so we've reduced it. Choose Premium for up to 4.`,
         });
     } catch {
@@ -208,7 +236,9 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
 
   const changePosition = (id: PositionId) => {
     if (!print) return;
-    updatePrint({ positionId: id, placement: placeAt(id, print.placement.w, logo?.aspect ?? 1, print.placement.rotation) });
+    const placement = placeAt(id, print.placement.w, logo?.aspect ?? 1, print.placement.rotation);
+    updatePrint({ positionId: id, placement });
+    if (logo && focus) setFocus(focusOn(placement, logo.aspect));
   };
 
   const removePrint = () => {
@@ -216,6 +246,7 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
     setActive("overview");
     setPositionOpen(false);
     setSlide(0);
+    setFocus(null);
   };
 
   const startOver = () => {
@@ -225,6 +256,7 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
     setActive("front");
     setPositionOpen(false);
     setSlide(0);
+    setFocus(null);
     try {
       localStorage.removeItem(STORAGE_KEY);
     } catch {}
@@ -357,24 +389,33 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
     {
       label: "Front",
       body: (editable: boolean) => (
-        // Photo backgrounds are white; enlarged so the chest (where logos go) fills the frame
-        <div className="grid size-full place-items-center bg-white">
-          <div className="h-full origin-[50%_22%] scale-[1.45]">
-            <GarmentPhoto ref={editable ? frameRef : undefined} product={product} colorId={colorId}>
-              {print && logo && logoArt && (
-                <LogoLayer
-                  src={logoArt}
-                  embroidered={!!embroidered}
-                  placement={print.placement}
-                  aspect={logo.aspect}
-                  maxWidth={maxW}
-                  onChange={(placement) => updatePrint({ placement })}
-                  editable={editable && active === "front"}
-                  frameRef={frameRef}
-                />
-              )}
-            </GarmentPhoto>
-          </div>
+        // Photo backgrounds are white, so the frame is too
+        <div className="relative grid size-full place-items-center overflow-hidden bg-white">
+          <GarmentPhoto ref={editable ? frameRef : undefined} product={product} colorId={colorId} focus={focus ?? CHEST_VIEW}>
+            {print && logo && logoArt && (
+              <LogoLayer
+                src={logoArt}
+                embroidered={!!embroidered}
+                placement={print.placement}
+                aspect={logo.aspect}
+                maxWidth={maxW}
+                onChange={onPlacement}
+                editable={editable && active === "front"}
+                frameRef={frameRef}
+                zoom={(focus ?? CHEST_VIEW).z}
+              />
+            )}
+          </GarmentPhoto>
+          {editable && print && logo && (
+            <button
+              type="button"
+              onClick={() => setFocus((f) => (f ? null : focusOn(print.placement, logo.aspect)))}
+              className="absolute bottom-4 right-4 flex items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-xs font-semibold text-brand shadow-sm hover:bg-muted"
+            >
+              {focus ? <ZoomOut className="size-3.5" /> : <ZoomIn className="size-3.5" />}
+              {focus ? "Zoom out" : "Zoom to logo"}
+            </button>
+          )}
         </div>
       ),
     },
@@ -385,7 +426,7 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
             body: () => (
               <div className="relative size-full">
                 <FabricCloseup fabric={fabric} logo={logoArt} aspect={logo.aspect} rotation={print.placement.rotation} embroidered={!!embroidered} />
-                {embroidered && stitched.pending && (
+                {embroidered && art.pending && (
                   <div className="absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-brand">
                     <Loader2 className="size-3 animate-spin" /> Stitching…
                   </div>
@@ -535,16 +576,17 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
                     <button type="button" onClick={() => fileRef.current?.click()} className="min-w-0 flex-1 text-left">
                       <div className="truncate text-sm font-semibold text-brand">{logo ? logo.name : "Upload graphic"}</div>
                       <div className="text-[11px] text-muted-foreground">
-                        {logo ? `${logo.colors} color${logo.colors === 1 ? "" : "s"} · click to replace` : "PNG, JPG or SVG"}
+                        {logo ? "Click to replace" : "PNG, JPG or SVG"}
                       </div>
                     </button>
                     {logo ? (
                       <button
                         type="button"
                         onClick={() => {
-                          updatePrint({ logo: null });
+                          updatePrint({ logo: null, thread: null });
                           setPositionOpen(false);
                           setSlide(0);
+                          setFocus(null);
                         }}
                         aria-label="Remove graphic"
                         className="grid size-9 shrink-0 place-items-center rounded-md bg-white text-muted-foreground hover:text-destructive"
@@ -564,62 +606,50 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
                   </div>
                 </div>
 
-                {logo && embroidered && (
-                  <div className="mt-4">
-                    <div className="text-xs font-medium text-muted-foreground">Thread color</div>
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      {THREADS.map((t) => (
-                        <button
-                          key={t.label}
-                          type="button"
-                          onClick={() => updatePrint({ thread: t.id })}
-                          title={t.label}
-                          aria-label={t.label}
-                          className={cn(
-                            "size-8 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.12)]",
-                            print.thread === t.id && "shadow-[0_0_0_2px_var(--color-brand)]"
-                          )}
-                          style={{
-                            background: t.hex ?? `url(${logo.src}) center/70% no-repeat, #fff`,
-                          }}
-                        />
-                      ))}
-                    </div>
-                    {logo.colors > (finishing?.maxColors ?? 99) && !print.thread && (
-                      <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
-                        Reduced to {finishing?.maxColors} thread colors ({logo.colors} in your logo).
-                      </p>
-                    )}
-                  </div>
-                )}
-
                 {logo && (
-                  <div className="mt-4">
+                  <>
                     <button
                       type="button"
-                      onClick={() => setPositionOpen((o) => !o)}
-                      className={cn(
-                        "flex h-10 w-full items-center justify-center gap-2 rounded-lg text-sm font-semibold",
-                        positionOpen ? "bg-brand text-white" : "bg-muted text-brand hover:bg-muted/70"
-                      )}
+                      onClick={() => setPositionOpen(true)}
+                      className="mt-2.5 flex h-11 w-full items-center gap-2 rounded-lg bg-muted px-3 text-sm font-semibold text-brand hover:bg-muted/70"
                     >
-                      <Move className="size-4" /> Graphic positioning
+                      <Move className="size-4" /> Position graphic
                     </button>
-                    {positionOpen && (
-                      <div className="mt-4">
-                        <PositionPanel
-                          placement={print.placement}
-                          aspect={logo.aspect}
-                          maxWidth={maxW}
-                          onChange={(placement) => updatePrint({ placement })}
-                          onApply={() => {
-                            setPositionOpen(false);
-                            toast.success("Graphic position applied");
-                          }}
-                        />
-                      </div>
+
+                    <div className="mt-4 text-xs font-medium text-muted-foreground">Logo colors</div>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {print.thread ? (
+                        <Chip hex={print.thread} />
+                      ) : (
+                        // Embroidery stitches only as many colors as the tier allows
+                        (embroidered ? logo.palette.slice(0, finishing?.maxColors) : logo.palette).map((hex) => <Chip key={hex} hex={hex} />)
+                      )}
+                    </div>
+                    {embroidered && !print.thread && logo.palette.length > (finishing?.maxColors ?? 99) && (
+                      <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
+                        Reduced to {finishing?.maxColors} thread colors ({logo.palette.length} in your logo).
+                      </p>
                     )}
-                  </div>
+                    <div className="mt-2.5 grid gap-2">
+                      <button
+                        type="button"
+                        onClick={() => (print.thread ? updatePrint({ thread: null }) : monochrome())}
+                        className="h-10 rounded-lg bg-muted px-3 text-left text-sm font-semibold text-brand hover:bg-muted/70"
+                      >
+                        {print.thread ? "Use original logo colors" : "Make logo monochrome"}
+                      </button>
+                      <label className="relative flex h-10 cursor-pointer items-center justify-between rounded-lg bg-muted px-3 text-sm font-semibold text-brand hover:bg-muted/70">
+                        Pick custom color
+                        <span className="size-5 rounded-full border-2 border-white shadow" style={{ background: print.thread ?? "conic-gradient(red, yellow, lime, cyan, blue, magenta, red)" }} />
+                        <input
+                          type="color"
+                          value={print.thread ?? "#ffffff"}
+                          onChange={(e) => updatePrint({ thread: e.target.value })}
+                          className="absolute inset-0 cursor-pointer opacity-0"
+                        />
+                      </label>
+                    </div>
+                  </>
                 )}
               </Card>
             )}
@@ -848,6 +878,23 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
           </div>
         </div>
       </div>
+
+      {positionOpen && print && logo && logoArt && finishing && (
+        <PositionDialog
+          logoSrc={logoArt}
+          aspect={logo.aspect}
+          finishing={finishing}
+          placement={print.placement}
+          positionId={print.positionId}
+          onClose={() => setPositionOpen(false)}
+          onApply={(placement, positionId) => {
+            updatePrint({ placement, positionId });
+            setPositionOpen(false);
+            setSlide(0);
+            setFocus(focusOn(placement, logo.aspect));
+          }}
+        />
+      )}
 
       {/* Size selection drawer */}
       <Sheet open={sizesOpen} onOpenChange={setSizesOpen}>

@@ -241,8 +241,10 @@ export async function renderEmbroidery(src: string, opts: EmbroideryOptions): Pr
   return crop.toDataURL("image/png");
 }
 
-/** How many distinct colors a logo has (to warn when it exceeds a finishing's thread limit) */
-export async function countLogoColors(src: string): Promise<number> {
+const toHex = (c: RGB) => "#" + c.map((v) => Math.round(v).toString(16).padStart(2, "0")).join("");
+
+/** The logo's main colors (up to 8), most common first, e.g. to show as color chips */
+export async function logoPalette(src: string): Promise<string[]> {
   const img = await loadImage(src);
   const W = 200;
   const H = Math.max(1, Math.round((W * img.naturalHeight) / img.naturalWidth));
@@ -253,5 +255,32 @@ export async function countLogoColors(src: string): Promise<number> {
   ctx.drawImage(img, 0, 0, W, H);
   const { data } = ctx.getImageData(0, 0, W, H);
   const mask = logoMask(data, W, H);
-  return threadPalette(data, mask, 8).filter((c, i, all) => all.findIndex((d) => dist2(c, d) < 50 * 50) === i).length;
+  return threadPalette(data, mask, 8)
+    .filter((c, i, all) => all.findIndex((d) => dist2(c, d) < 50 * 50) === i)
+    .map(toHex);
+}
+
+/** The logo in a single color (monochrome / custom color prints), keeping its shape and edges */
+export async function recolorLogo(src: string, hex: string, width = 1000): Promise<string> {
+  const img = await loadImage(src);
+  const W = width;
+  const H = Math.max(1, Math.round((W * img.naturalHeight) / img.naturalWidth));
+  const c = document.createElement("canvas");
+  c.width = W;
+  c.height = H;
+  const ctx = c.getContext("2d", { willReadFrequently: true })!;
+  ctx.drawImage(img, 0, 0, W, H);
+  const id = ctx.getImageData(0, 0, W, H);
+  const mask = logoMask(id.data, W, H);
+  const [r, g, b] = hexToRgb(hex);
+  for (let i = 0; i < mask.length; i++) {
+    id.data[i * 4] = r;
+    id.data[i * 4 + 1] = g;
+    id.data[i * 4 + 2] = b;
+    // Transparent files keep their own (soft-edged) alpha; opaque ones use the background cut-out
+    const alpha = id.data[i * 4 + 3];
+    id.data[i * 4 + 3] = alpha < 255 ? alpha : mask[i] ? 255 : 0;
+  }
+  ctx.putImageData(id, 0, 0);
+  return c.toDataURL("image/png");
 }

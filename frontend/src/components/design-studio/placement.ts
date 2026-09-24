@@ -47,4 +47,29 @@ export const placeAt = (pos: PositionId, w: number, aspect: number, rotation = 0
   return { x: p.cx - w / 2, y: p.cy - w / aspect / 2, w, rotation };
 };
 
+/** Widest the logo can get with any tier of this kind (embroidery tops out at Premium) */
+export const largestWidthFor = (kind: Finishing["kind"], aspect: number) =>
+  Math.max(...FINISHINGS.filter((f) => f.kind === kind).map((f) => maxWidthFor(f, aspect)));
+
+/** When the logo is resized past its tier's limit, step up to the smallest tier of the same kind that fits */
+export const tierFor = (current: Finishing, w: number, aspect: number) => {
+  if (w <= maxWidthFor(current, aspect) + 1e-6) return current;
+  return FINISHINGS.find((f) => f.kind === current.kind && w <= maxWidthFor(f, aspect) + 1e-6) ?? current;
+};
+
+/** The square print area for a placement: centred on the position, as large as the tier allows */
+export const printArea = (pos: PositionId, f: Finishing) => {
+  const p = POSITIONS.find((q) => q.id === pos)!;
+  return { x: p.cx - f.maxCm / 2, y: p.cy - f.maxCm / 2, size: f.maxCm };
+};
+
+/** Where to zoom the photo to show the logo up close: its centre (fractions of the image) and a
+ * zoom level that makes small logos readable without magnifying the photo into mush */
+export type Focus = { px: number; py: number; z: number };
+export const focusOn = (p: Placement, aspect: number): Focus => ({
+  px: (p.x + p.w / 2) / IMAGE_WIDTH_CM,
+  py: (p.y + p.w / aspect / 2) / IMAGE_HEIGHT_CM,
+  z: Math.min(4, Math.max(1.8, 54 / p.w)),
+});
+
 export const round1 = (n: number) => Math.round(n * 10) / 10;
