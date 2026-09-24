@@ -91,13 +91,14 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
       <div className="grid gap-10 overflow-hidden rounded-2xl border lg:grid-cols-2">
         {/* Left: photo with the wave-sweep color swap */}
         <div className="relative bg-muted">
-          <div ref={photoRef} className="relative aspect-square w-full overflow-hidden">
+          <div ref={photoRef} className="relative aspect-square w-full select-none overflow-hidden">
             <Image
               src={variantUrl(product, baseColorId)}
               alt={`${product.title} — ${colorById(baseColorId).name}`}
               fill
               sizes="600px"
-              className="object-contain"
+              draggable={false}
+              className="pointer-events-none object-contain"
             />
             {incomingColorId && (
               <div
@@ -109,7 +110,8 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
                   alt={`${product.title} — ${colorById(incomingColorId).name}`}
                   fill
                   sizes="600px"
-                  className="object-contain"
+                  draggable={false}
+                  className="pointer-events-none object-contain"
                 />
               </div>
             )}
@@ -126,6 +128,7 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
               <img
                 src={logoSrc}
                 alt="Your logo"
+                draggable={false}
                 onPointerDown={onLogoPointerDown}
                 onPointerMove={onLogoPointerMove}
                 onPointerUp={onLogoPointerUp}
@@ -173,13 +176,6 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
             </Link>
           </div>
           <p className="mt-2 text-sm text-muted-foreground">{product.description}</p>
-
-          <Link
-            href="/studio"
-            className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-brand px-4 py-3 text-sm font-semibold text-white hover:bg-brand/90"
-          >
-            <Palette className="size-4" /> Design Studio — design it yourself!
-          </Link>
 
           <div className="mt-8">
             <div className="text-sm font-semibold text-brand">1. Add your logo</div>
