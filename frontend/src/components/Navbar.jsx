@@ -9,10 +9,10 @@ import {
 
 const navItems = [
   { label: "Home", href: "#home" },
-  { label: "About Us", href: "#about" },
+  { label: "About Us", href: "/about" },
   { label: "Products", href: "#products", dropdown: true },
   { label: "Customisation", href: "#customise" },
-  { label: "Clients", href: "#clients" },
+  { label: "Clients", href: "/clients" },
   { label: "Process", href: "#process" },
   { label: "Contact", href: "#contact" },
 ];
