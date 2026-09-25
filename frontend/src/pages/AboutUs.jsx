@@ -228,70 +228,101 @@ function AnimatedCounter({ value }) {
 }
 
 /* =========================================================
-   SECTION 1 — HOW IT ALL BEGAN & WHO WE ARE
+   SECTION 1 — HOW IT ALL BEGAN (SCROLLYTELLING SHOWCASE)
 ========================================================= */
 
 const storyMilestones = [
   {
     period: "March 1956",
+    yearShort: "1956",
     tag: "Textile Roots",
     title: "A Legacy Born in Bombay's Iconic Cotton Mills",
     body: storyParagraphs[0],
     highlight: "Apollo Mills · Kamala Mills · Bombay Textiles",
+    image: "https://res.cloudinary.com/tpxo8m6a/image/upload/v1790315520/Mill_Worker.avif",
+    caption: "Apollo Mills Loom Artisan, Bombay",
+    subtitle: "The formative era of our family's cotton craftsmanship",
+    location: "Apollo Mills, Bombay",
   },
   {
     period: "August 2021",
+    yearShort: "2021",
     tag: "Digital Genesis",
     title: "Bacoola Apparels & The D2C Inception",
     body: storyParagraphs[1],
     highlight: "Amazon · Flipkart · Peachmode · Nationwide Retail",
+    image: "https://res.cloudinary.com/tpxo8m6a/image/upload/v1790315513/Bombay_Dyeing_Mills_Image.avif",
+    caption: "Bombay Dyeing Mills Heritage",
+    subtitle: "Carrying generational fabric expertise into modern e-commerce",
+    location: "Textile District, Mumbai",
   },
   {
     period: "December 2021",
+    yearShort: "2021",
     tag: "The Corporate Turning Point",
     title: "Enterprise Demand for Retail-Grade Workwear",
     body: storyParagraphs[2],
     highlight: "Custom corporate apparel · Event merchandise",
+    image: "https://res.cloudinary.com/tpxo8m6a/image/upload/v1790315529/Mills_of_Bombay.avif",
+    caption: "Historic Mills of Bombay",
+    subtitle: "Extending fine retail craftsmanship into corporate uniforms",
+    location: "Central Mills, Mumbai",
   },
   {
     period: "May 2022",
+    yearShort: "2022",
     tag: "Brand Launch",
     title: "Cottson Clothing Officially Born",
     body: storyParagraphs[3],
     highlight: "Dedicated corporate clothing & uniform manufacturing",
+    image: "https://res.cloudinary.com/tpxo8m6a/image/upload/v1790315506/Apollo_Bunder_Image.avif",
+    caption: "Apollo Bunder & Gateway Harbour",
+    subtitle: "A dedicated brand created exclusively for enterprise apparel",
+    location: "Apollo Bunder, Mumbai",
   },
   {
     period: "August 2025 & Beyond",
+    yearShort: "2025",
     tag: "National Scale",
     title: "80+ Team Members · 100+ Enterprise Clients",
     body: storyParagraphs[4],
     highlight: "Pan-India presence · Customer-first craftsmanship",
+    image: "https://res.cloudinary.com/tpxo8m6a/image/upload/ChatGPT_Image_Sep_25_2026_04_04_13_PM.png",
+    caption: "Cottson Clothing Today",
+    subtitle: "From a family legacy to a trusted national enterprise partner",
+    location: "Pan-India Presence",
+    isEmblem: true,
   },
 ];
 
-const archivalCaptions = [
-  "Apollo Mills Weaver, Bombay 1956",
-  "Bombay Dyeing Mills Complex",
-  "The Historic Mills of Bombay",
-  "Apollo Bunder & Gateway Harbour",
-];
-
 function HowItAllBegan() {
+  const [activeEra, setActiveEra] = useState(0);
+  const milestoneRefs = useRef([]);
+
+  const scrollToMilestone = (index) => {
+    setActiveEra(index);
+    const target = milestoneRefs.current[index];
+    if (target) {
+      const topOffset = target.getBoundingClientRect().top + window.scrollY - 100;
+      window.scrollTo({ top: topOffset, behavior: "smooth" });
+    }
+  };
+
   return (
-    <section className="bg-white py-20 md:py-24 lg:py-28">
+    <section className="bg-white py-20 md:py-28 lg:py-32">
       <div className="mx-auto max-w-[1380px] px-5 sm:px-6 lg:px-8">
 
         {/* =====================================================
             1. SECTION HEADER
         ====================================================== */}
-        <div className="mx-auto mb-16 max-w-[820px] text-center md:mb-20">
-          <EyebrowPill text="Our heritage · Est. 1956" />
+        <div className="mx-auto mb-14 max-w-[840px] text-center md:mb-20">
+          <EyebrowPill text="Our Textile Heritage · Est. 1956" />
 
           <h2
             className="
               text-[36px] font-semibold leading-[1.08]
               tracking-[-0.045em] text-[#113858]
-              sm:text-[46px] lg:text-[54px]
+              sm:text-[46px] lg:text-[56px]
             "
           >
             How It All Began
@@ -302,336 +333,182 @@ function HowItAllBegan() {
 
           <p
             className="
-              mx-auto mt-5 max-w-[620px]
-              text-[13.5px] leading-[1.8] text-[#607487]
-              sm:text-[14.5px]
+              mx-auto mt-5 max-w-[640px]
+              text-[14px] leading-[1.8] text-[#607487]
+              sm:text-[15px]
             "
           >
             Seven decades of textile mastery, passed down through generations
-            and reimagined for modern corporate India.
+            and reimagined for India's leading enterprises.
           </p>
-        </div>
 
-        {/* =====================================================
-            2. "FROM BOMBAY TO MUMBAI" + ARCHIVAL MOSAIC
-        ====================================================== */}
-        <div className="mb-24 grid gap-6 lg:grid-cols-12 lg:gap-7">
-
-          {/* LEFT: FROM BOMBAY TO MUMBAI FEATURE CARD */}
-          <div
-            className="
-              relative flex flex-col justify-between overflow-hidden
-              rounded-[28px] bg-[#113858] p-8 text-white
-              sm:rounded-[32px] sm:p-10 lg:col-span-5 lg:p-12
-            "
-          >
-            {/* Ambient decorative circles */}
-            <div
-              className="
-                pointer-events-none absolute -right-20 -top-20
-                h-72 w-72 rounded-full border border-white/[0.08]
-              "
-            />
-            <div
-              className="
-                pointer-events-none absolute -bottom-16 -left-16
-                h-60 w-60 rounded-full border border-white/[0.06]
-              "
-            />
-
-            <div className="relative z-10">
-              {/* Badge */}
-              <div
-                className="
-                  mb-6 inline-flex items-center gap-2
-                  rounded-full border border-white/20
-                  bg-white/10 px-3.5 py-[6px] backdrop-blur-sm
-                "
+          {/* QUICK-JUMP ERA SELECTOR */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+            {storyMilestones.map((m, i) => (
+              <button
+                key={`filter-pill-${i}`}
+                onClick={() => scrollToMilestone(i)}
+                className={`rounded-full px-4 py-2 text-[11px] font-semibold transition-all duration-300 ${
+                  activeEra === i
+                    ? "bg-[#113858] text-white shadow-md shadow-[#113858]/15"
+                    : "border border-[#113858]/10 bg-[#F5F8FA] text-[#113858]/70 hover:border-[#113858]/20 hover:bg-white hover:text-[#113858]"
+                }`}
               >
-                <span className="h-[6px] w-[6px] rounded-full bg-white" />
-                <span
-                  className="
-                    text-[9px] font-semibold uppercase
-                    tracking-[0.2em] text-white/80
-                  "
-                >
-                  From Bombay to Mumbai
-                </span>
-              </div>
-
-              <h3
-                className="
-                  text-[30px] font-semibold leading-[1.12]
-                  tracking-[-0.04em] text-white
-                  sm:text-[36px]
-                "
-              >
-                From Bombay
-                <br />
-                <span className="text-white/50">to Mumbai</span>
-              </h3>
-
-              <p
-                className="
-                  mt-5 text-[13.5px] leading-[1.85] text-white/70
-                  sm:text-[14px]
-                "
-              >
-                Rooted in textile mastery since 1956, Cottson Clothing has
-                evolved into a premier high-end corporate manufacturer. Since
-                our rebranding in 2021, we have redefined professional attire
-                for the modern executive.
-              </p>
-            </div>
-
-            {/* Bottom highlights strip */}
-            <div
-              className="
-                relative z-10 mt-10 grid grid-cols-3 gap-3
-                border-t border-white/15 pt-6
-              "
-            >
-              <div>
-                <span className="block text-[22px] font-semibold leading-tight tracking-tight text-white sm:text-[26px]">
-                  1956
-                </span>
-                <span className="mt-1 block text-[10px] uppercase tracking-wider text-white/50">
-                  Loom Legacy
-                </span>
-              </div>
-
-              <div>
-                <span className="block text-[22px] font-semibold leading-tight tracking-tight text-white sm:text-[26px]">
-                  80+
-                </span>
-                <span className="mt-1 block text-[10px] uppercase tracking-wider text-white/50">
-                  Team Members
-                </span>
-              </div>
-
-              <div>
-                <span className="block text-[22px] font-semibold leading-tight tracking-tight text-white sm:text-[26px]">
-                  100+
-                </span>
-                <span className="mt-1 block text-[10px] uppercase tracking-wider text-white/50">
-                  Enterprises
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT: 4 HISTORICAL IMAGES IN A CURATED 2x2 GALLERY */}
-          <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:col-span-7">
-            {historicalImages.map((image, index) => (
-              <div
-                key={index}
-                className="
-                  group relative aspect-[4/3] overflow-hidden
-                  rounded-[22px] border border-[#113858]/10
-                  bg-[#F5F8FA] sm:rounded-[26px]
-                "
-              >
-                <img
-                  src={image.src}
-                  alt={image.alt}
-                  className="
-                    h-full w-full object-cover
-                    transition-all duration-700 ease-out
-                    group-hover:scale-[1.05]
-                  "
-                  loading="lazy"
-                  decoding="async"
-                />
-
-                {/* Subtle gradient vignette on bottom */}
-                <div
-                  className="
-                    pointer-events-none absolute inset-x-0 bottom-0
-                    h-24 bg-gradient-to-t from-[#113858]/80 via-[#113858]/30 to-transparent
-                    transition-opacity duration-300
-                  "
-                />
-
-                {/* Archival caption label */}
-                <div className="absolute bottom-3.5 left-3.5 right-3.5 z-10 sm:bottom-4 sm:left-4 sm:right-4">
-                  <p
-                    className="
-                      truncate text-[11px] font-medium tracking-wide
-                      text-white/90 drop-shadow-sm sm:text-[12px]
-                    "
-                  >
-                    {archivalCaptions[index]}
-                  </p>
-                </div>
-              </div>
+                {m.yearShort} · {m.tag}
+              </button>
             ))}
           </div>
-
         </div>
 
         {/* =====================================================
-            3. "WHO WE ARE, WHERE WE CAME FROM..." CHAPTER TIMELINE
+            2. VERTICAL TIMELINE WITH CENTRAL SPINE & ALTERNATING CARDS
         ====================================================== */}
-        <div
-          className="
-            border-t border-[#113858]/10 pt-16
-            md:pt-20 lg:pt-24
-          "
-        >
-          <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+        <div className="relative mx-auto max-w-6xl">
 
-            {/* STICKY LEFT COLUMN */}
-            <div className="lg:col-span-4">
-              <div className="lg:sticky lg:top-28">
-                <EyebrowPill text="Our Evolution" />
+          {/* CENTRAL TIMELINE THREAD (THE WEAVING SPINE) */}
+          <div
+            className="
+              pointer-events-none absolute left-4 top-8 bottom-8
+              w-[2px] bg-gradient-to-b from-[#113858]/10 via-[#113858]/25 to-[#113858]/10
+              md:left-1/2 md:-translate-x-1/2
+            "
+          />
 
-                <h2
-                  className="
-                    text-[32px] font-semibold leading-[1.1]
-                    tracking-[-0.045em] text-[#113858]
-                    sm:text-[40px] lg:text-[46px]
-                  </h2>
-                "
-                >
-                  Who We Are,
-                  <br />
-                  <span className="text-[#113858]/40">
-                    Where We Came From,
-                  </span>
-                  <br />
-                  and Where
-                  <br />
-                  <span className="text-[#113858]/40">
-                    We're Headed!
-                  </span>
-                </h2>
+          <div className="space-y-16 sm:space-y-24">
+            {storyMilestones.map((item, index) => {
+              const isEven = index % 2 === 0;
 
-                <p
-                  className="
-                    mt-6 max-w-sm text-[13px] leading-[1.75]
-                    text-[#607487] sm:text-[14px]
-                  "
-                >
-                  Follow the milestones that transformed an authentic 1956
-                  Bombay textile legacy into India's premier corporate clothing manufacturer.
-                </p>
-
-                {/* Quote Card */}
+              return (
                 <div
-                  className="
-                    mt-8 rounded-[22px] border border-[#113858]/10
-                    bg-[#F5F8FA] p-6
-                  "
+                  key={`timeline-item-${index}`}
+                  ref={(el) => (milestoneRefs.current[index] = el)}
+                  className="relative"
                 >
-                  <p
+                  {/* CENTRAL ILLUMINATED YEAR BADGE */}
+                  <div
                     className="
-                      text-[12.5px] italic leading-[1.7] text-[#113858]/80
+                      absolute left-4 top-0 z-20 -translate-x-1/2
+                      md:left-1/2
                     "
                   >
-                    "What began as a family legacy in textile craftsmanship has
-                    evolved into a national brand known for quality, consistency,
-                    and customer-first service."
-                  </p>
-                  <span
-                    className="
-                      mt-3 block text-[10px] font-semibold uppercase
-                      tracking-[0.16em] text-[#113858]/50
-                    "
+                    <div
+                      className="
+                        flex h-11 w-11 items-center justify-center rounded-full
+                        border-4 border-white bg-[#113858] text-[11px] font-bold text-white
+                        shadow-md shadow-[#113858]/20 transition-transform duration-300 hover:scale-110
+                        sm:h-12 sm:w-12 sm:text-[12px]
+                      "
+                    >
+                      {item.yearShort}
+                    </div>
+                  </div>
+
+                  {/* ALTERNATING 2-COLUMN GRID */}
+                  <div
+                    className={`
+                      grid gap-8 pl-12 sm:gap-10 sm:pl-16
+                      md:grid-cols-2 md:items-center md:gap-16 md:pl-0
+                    `}
                   >
-                    — The Cottson Story
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* RIGHT COLUMN: 5 STRUCTURED CHAPTER CARDS */}
-            <div className="space-y-5 lg:col-span-8">
-              {storyMilestones.map((item, index) => (
-                <article
-                  key={index}
-                  className="
-                    group relative overflow-hidden rounded-[24px]
-                    border border-[#113858]/[0.08] bg-[#F5F8FA]
-                    p-7 transition-all duration-300
-                    hover:-translate-y-1 hover:border-[#113858]/20
-                    hover:bg-white hover:shadow-[0_12px_36px_rgba(17,56,88,0.06)]
-                    sm:rounded-[28px] sm:p-9
-                  "
-                >
-                  {/* Top Bar: Step Number + Year Pill + Tag */}
-                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <span
+                    {/* COLUMN 1: ARCHIVAL PHOTO */}
+                    <div className={`${isEven ? "md:order-1" : "md:order-2"}`}>
+                      <div
                         className="
-                          flex h-8 w-8 items-center justify-center
-                          rounded-full bg-[#113858] text-[11px]
-                          font-semibold text-white transition-transform
-                          duration-300 group-hover:scale-105
+                          group relative overflow-hidden rounded-[26px]
+                          border border-[#113858]/10 bg-[#F5F8FA] p-2
+                          shadow-[0_12px_36px_rgba(17,56,88,0.06)] transition-all duration-500
+                          hover:-translate-y-1 hover:border-[#113858]/20 hover:shadow-[0_20px_50px_rgba(17,56,88,0.12)]
+                          sm:rounded-[30px] sm:p-2.5
                         "
                       >
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
+                        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[20px] sm:rounded-[24px]">
+                          {item.isEmblem ? (
+                            <div className="flex h-full w-full flex-col items-center justify-center bg-[#113858] p-8 text-center text-white">
+                              <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full border border-white/[0.08]" />
+                              <div className="pointer-events-none absolute -bottom-16 -left-16 h-64 w-64 rounded-full border border-white/[0.06]" />
+                              <img
+                                src={item.image}
+                                alt="Cottson Emblem"
+                                className="h-28 w-28 object-contain drop-shadow-[0_10px_30px_rgba(255,255,255,0.15)] transition-transform duration-700 group-hover:scale-105 sm:h-36 sm:w-36"
+                              />
+                              <span className="mt-4 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 text-[9px] font-semibold uppercase tracking-[0.2em] text-white">
+                                Modern Brand Identity
+                              </span>
+                            </div>
+                          ) : (
+                            <>
+                              <img
+                                src={item.image}
+                                alt={item.caption}
+                                className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                                loading="lazy"
+                              />
+                              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#113858]/85 via-transparent to-transparent opacity-80" />
+                            </>
+                          )}
 
-                      <span
-                        className="
-                          text-[13px] font-semibold tracking-tight
-                          text-[#113858] sm:text-[14px]
-                        "
-                      >
-                        {item.period}
-                      </span>
+                          {/* ARCHIVAL FLOATING CAPTION */}
+                          <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
+                            <span className="inline-block text-[10px] font-semibold uppercase tracking-wider text-white/70">
+                              {item.location}
+                            </span>
+                            <p className="mt-0.5 text-[13px] font-medium text-white sm:text-[14px]">
+                              {item.caption}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
-                    <span
-                      className="
-                        rounded-full border border-[#113858]/10
-                        bg-white px-3 py-1 text-[10px] font-semibold
-                        uppercase tracking-wider text-[#113858]/60
-                      "
-                    >
-                      {item.tag}
-                    </span>
+                    {/* COLUMN 2: STORY NARRATIVE CARD */}
+                    <div className={`${isEven ? "md:order-2" : "md:order-1"}`}>
+                      <article
+                        className="
+                          group rounded-[26px] border border-[#113858]/[0.08]
+                          bg-[#F5F8FA] p-7 transition-all duration-300
+                          hover:-translate-y-1 hover:border-[#113858]/15 hover:bg-white hover:shadow-[0_16px_40px_rgba(17,56,88,0.08)]
+                          sm:rounded-[30px] sm:p-9 lg:p-10
+                        "
+                      >
+                        {/* CARD TOP META */}
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div className="inline-flex items-center gap-2 rounded-full border border-[#113858]/10 bg-white px-3.5 py-1 text-[11px] font-semibold text-[#113858]">
+                            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span>{item.period}</span>
+                          </div>
+
+                          <span className="rounded-full bg-[#113858]/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#113858]/60">
+                            {item.tag}
+                          </span>
+                        </div>
+
+                        {/* HEADLINE */}
+                        <h3 className="mt-4 text-[22px] font-semibold leading-[1.25] tracking-[-0.03em] text-[#113858] sm:text-[26px] lg:text-[28px]">
+                          {item.title}
+                        </h3>
+
+                        {/* STORY BODY */}
+                        <p className="mt-4 text-[13.5px] leading-[1.85] text-[#607487] sm:text-[14.5px]">
+                          {item.body}
+                        </p>
+
+                        {/* FOOTER HIGHLIGHTS */}
+                        <div className="mt-6 border-t border-[#113858]/10 pt-4">
+                          <span className="inline-flex items-center gap-2 text-[11.5px] font-medium text-[#113858]/70">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#113858]/40" />
+                            {item.highlight}
+                          </span>
+                        </div>
+                      </article>
+                    </div>
                   </div>
-
-                  {/* Title */}
-                  <h3
-                    className="
-                      mb-3 text-[19px] font-semibold leading-[1.3]
-                      tracking-[-0.03em] text-[#113858]
-                      sm:text-[21px]
-                    "
-                  >
-                    {item.title}
-                  </h3>
-
-                  {/* Body Paragraph */}
-                  <p
-                    className="
-                      text-[13.5px] leading-[1.8] text-[#607487]
-                      sm:text-[14px]
-                    "
-                  >
-                    {item.body}
-                  </p>
-
-                  {/* Highlight Footer Pill */}
-                  <div className="mt-5 border-t border-[#113858]/[0.08] pt-4">
-                    <span
-                      className="
-                        inline-flex items-center gap-1.5 text-[11px]
-                        font-medium text-[#113858]/70
-                      "
-                    >
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#113858]/40" />
-                      {item.highlight}
-                    </span>
-                  </div>
-                </article>
-              ))}
-            </div>
-
+                </div>
+              );
+            })}
           </div>
         </div>
+
+
 
       </div>
     </section>
