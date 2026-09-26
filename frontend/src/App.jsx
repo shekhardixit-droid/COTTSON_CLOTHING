@@ -5,6 +5,7 @@ import Clients from "./pages/Clients";
 import ContactUs from "./pages/ContactUs";
 import Resources from "./pages/Resources";
 
+
 function App() {
   return (
     <BrowserRouter>
@@ -14,6 +15,7 @@ function App() {
         <Route path="/clients" element={<Clients />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/resources" element={<Resources />} />
+        <Route path="/contact" element={<ContactUs />} />
       </Routes>
     </BrowserRouter>
   );
