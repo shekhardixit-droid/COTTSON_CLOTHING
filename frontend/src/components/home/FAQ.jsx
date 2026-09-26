@@ -76,6 +76,7 @@ function FAQItem({ item, isOpen, onClick }) {
         className="
           flex
           w-full
+          min-w-0
           items-center
           justify-between
           gap-5
@@ -89,6 +90,9 @@ function FAQItem({ item, isOpen, onClick }) {
       >
         <span
           className="
+            min-w-0
+            break-words
+
             text-[14px]
             font-semibold
             leading-[1.45]
@@ -147,9 +151,10 @@ function FAQItem({ item, isOpen, onClick }) {
           <p
             className="
               max-w-[720px]
+              break-words
               px-5
               pb-6
-              pr-16
+              pr-14
 
               text-[12.5px]
               leading-[1.8]
@@ -209,16 +214,18 @@ function FAQ() {
             LEFT
         ========================================== */}
 
-        <div className="lg:sticky lg:top-[120px] lg:self-start">
+        <div className="min-w-0 lg:sticky lg:top-[120px] lg:self-start">
 
           {/* LABEL */}
           <div
             className="
               mb-5
               inline-flex
+              max-w-full
               items-center
               gap-2
 
+              whitespace-nowrap
               rounded-full
               border
               border-[#113858]/10
@@ -233,6 +240,7 @@ function FAQ() {
               className="
                 h-[6px]
                 w-[6px]
+                shrink-0
                 rounded-full
                 bg-[#113858]
               "
@@ -255,6 +263,7 @@ function FAQ() {
           <h2
             className="
               max-w-[450px]
+              break-words
 
               text-[36px]
               font-semibold
@@ -278,6 +287,7 @@ function FAQ() {
             className="
               mt-5
               max-w-[410px]
+              break-words
 
               text-[13px]
               leading-[1.8]
@@ -310,6 +320,7 @@ function FAQ() {
                 flex
                 h-[38px]
                 w-[38px]
+                shrink-0
                 items-center
                 justify-center
 
@@ -328,6 +339,8 @@ function FAQ() {
             <h3
               className="
                 mt-4
+                break-words
+
                 text-[15px]
                 font-semibold
                 tracking-[-0.02em]
@@ -340,6 +353,8 @@ function FAQ() {
             <p
               className="
                 mt-2
+                break-words
+
                 text-[12px]
                 leading-[1.7]
                 text-[#607487]
@@ -356,9 +371,11 @@ function FAQ() {
 
                 inline-flex
                 h-[40px]
+                max-w-full
                 items-center
                 justify-center
 
+                whitespace-nowrap
                 rounded-full
 
                 border
@@ -388,7 +405,7 @@ function FAQ() {
             RIGHT — ACCORDION
         ========================================== */}
 
-        <div className="flex flex-col gap-3">
+        <div className="flex min-w-0 flex-col gap-3">
           {faqs.map((item) => (
             <FAQItem
               key={item.id}

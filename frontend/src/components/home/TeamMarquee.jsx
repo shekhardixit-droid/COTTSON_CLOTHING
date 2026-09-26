@@ -131,6 +131,7 @@ function MarqueeRow({
       {/* TRACK */}
       <div
         className="
+          team-marquee-track
           flex
           w-max
           gap-3
@@ -219,6 +220,7 @@ function TeamMarquee() {
           className="
             mx-auto
             max-w-[720px]
+            break-words
 
             text-[34px]
             font-semibold
@@ -241,6 +243,7 @@ function TeamMarquee() {
             mx-auto
             mt-5
             max-w-[520px]
+            break-words
 
             text-[13px]
             leading-[1.75]

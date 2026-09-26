@@ -187,6 +187,7 @@ function TrustedRow({
       {/* MOVING TRACK */}
       <div
         className="
+          trusted-marquee-track
           flex
           w-max
           gap-3
@@ -263,8 +264,10 @@ function TrustedBy() {
           className="
             mb-4
             inline-flex
+            max-w-full
             items-center
             gap-2
+            whitespace-nowrap
             rounded-full
             border
             border-[#113858]/10
@@ -277,6 +280,7 @@ function TrustedBy() {
             className="
               h-[6px]
               w-[6px]
+              shrink-0
               rounded-full
               bg-[#113858]
             "
@@ -299,6 +303,7 @@ function TrustedBy() {
           className="
             mx-auto
             max-w-[700px]
+            break-words
 
             text-[34px]
             font-semibold
@@ -321,6 +326,7 @@ function TrustedBy() {
             mx-auto
             mt-5
             max-w-[520px]
+            break-words
 
             text-[13px]
             leading-[1.75]
@@ -379,6 +385,12 @@ function TrustedBy() {
 
             to {
               transform: translateX(0);
+            }
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            .trusted-marquee-track {
+              animation: none !important;
             }
           }
         `}

@@ -48,7 +48,7 @@ const products = [
 ];
 
 function ProductCard({ product, onEnter, onLeave }) {
- 
+  const navigate = useNavigate();
 
   const handleClick = () => {
     navigate(`/products/${product.slug}`, {
@@ -140,10 +140,11 @@ function ProductCard({ product, onEnter, onLeave }) {
           sm:p-6
         "
       >
-        <div>
+        <div className="min-w-0">
           <p
             className="
               mb-1.5
+              truncate
               text-[9px]
               font-semibold
               uppercase
@@ -156,6 +157,7 @@ function ProductCard({ product, onEnter, onLeave }) {
 
           <h3
             className="
+              break-words
               text-[17px]
               font-semibold
               tracking-[-0.025em]
@@ -204,7 +206,6 @@ function ProductCard({ product, onEnter, onLeave }) {
 
 function ProductMarquee() {
   const [isPaused, setIsPaused] = useState(false);
-  
 
   return (
     <section
@@ -239,7 +240,7 @@ function ProductMarquee() {
           md:justify-between
         "
       >
-        <div>
+        <div className="min-w-0">
           <p
             className="
               mb-3
@@ -256,6 +257,7 @@ function ProductMarquee() {
           <h2
             className="
               max-w-[560px]
+              break-words
               text-[34px]
               font-semibold
               leading-[1.08]
@@ -276,6 +278,7 @@ function ProductMarquee() {
         <p
           className="
             max-w-[390px]
+            break-words
             text-[13px]
             leading-[1.75]
             text-[#607487]
@@ -337,6 +340,7 @@ function ProductMarquee() {
         {/* MOVING TRACK */}
         <div
           className="
+            cottson-marquee-track
             flex
             w-max
             gap-4

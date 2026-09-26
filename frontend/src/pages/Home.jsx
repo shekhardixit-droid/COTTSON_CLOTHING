@@ -1,14 +1,14 @@
-import Navbar from "../components/Navbar";
-import Hero from "../components/Hero";
-import ProductMarquee from "../components/ProductMarquee";
-import TeamMarquee from "../components/TeamMarquee";
-import ProductShowcase from "../components/ProductShowcase";
-import TrustedBy from "../components/TrustedBy";
-import CorporateNeeds from "../components/CorporateNeeds";
-import DesignStudio from "../components/DesignStudio";
-import BusinessTrust from "../components/Businesstrust";
-import FAQ from "../components/FAQ";
-import Footer from "../components/Footer";
+import Navbar from "../components/home/Navbar";
+import Hero from "../components/home/Hero";
+import ProductMarquee from "../components/home/ProductMarquee";
+import TeamMarquee from "../components/home/TeamMarquee";
+import ProductShowcase from "../components/home/ProductShowcase";
+import TrustedBy from "../components/home/TrustedBy";
+import CorporateNeeds from "../components/home/CorporateNeeds";
+import DesignStudio from "../components/home/DesignStudio";
+import BusinessTrust from "../components/home/Businesstrust";
+import FAQ from "../components/home/FAQ";
+import Footer from "../components/home/Footer";
 
 function Home() {
   return (

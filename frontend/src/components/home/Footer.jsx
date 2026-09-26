@@ -69,7 +69,7 @@ function Footer() {
           "
         >
           {/* PAGES */}
-          <div>
+          <div className="min-w-0">
             <p
               className="
                 mb-6
@@ -89,6 +89,7 @@ function Footer() {
                   key={link.label}
                   href={link.href}
                   className="
+                    break-words
                     text-[12.5px]
                     font-medium
                     text-[#113858]/70
@@ -107,7 +108,7 @@ function Footer() {
           </div>
 
           {/* CONTACT */}
-          <div>
+          <div className="min-w-0">
             <p
               className="
                 mb-6
@@ -123,7 +124,7 @@ function Footer() {
 
             <div className="flex flex-col gap-6">
               {/* EMAIL */}
-              <div>
+              <div className="min-w-0">
                 <p
                   className="
                     text-[9px]
@@ -141,6 +142,7 @@ function Footer() {
                   className="
                     mt-1.5
                     inline-block
+                    break-words
                     text-[12.5px]
                     font-medium
                     text-[#113858]
@@ -156,7 +158,7 @@ function Footer() {
               </div>
 
               {/* PHONE */}
-              <div>
+              <div className="min-w-0">
                 <p
                   className="
                     text-[9px]
@@ -180,6 +182,7 @@ function Footer() {
                   <a
                     href="tel:+919892297764"
                     className="
+                      break-words
                       text-[12.5px]
                       font-medium
                       text-[#113858]
@@ -196,6 +199,7 @@ function Footer() {
                   <a
                     href="tel:02226627501"
                     className="
+                      break-words
                       text-[12.5px]
                       font-medium
                       text-[#113858]
@@ -212,7 +216,7 @@ function Footer() {
               </div>
 
               {/* ADDRESS */}
-              <div>
+              <div className="min-w-0">
                 <p
                   className="
                     text-[9px]
@@ -229,6 +233,7 @@ function Footer() {
                   className="
                     mt-1.5
                     max-w-[300px]
+                    break-words
 
                     text-[11.5px]
                     leading-[1.75]
@@ -245,7 +250,7 @@ function Footer() {
           </div>
 
           {/* SOCIAL */}
-          <div>
+          <div className="min-w-0">
             <p
               className="
                 mb-6
@@ -274,6 +279,7 @@ function Footer() {
                   target="_blank"
                   rel="noreferrer"
                   className="
+                    break-words
                     text-[12.5px]
                     font-medium
                     text-[#113858]/70
@@ -292,7 +298,7 @@ function Footer() {
           </div>
 
           {/* CTA + LOGO */}
-          <div>
+          <div className="min-w-0">
             <p
               className="
                 text-[10px]
@@ -309,6 +315,7 @@ function Footer() {
               className="
                 mt-4
                 max-w-[320px]
+                break-words
 
                 text-[25px]
                 font-semibold
@@ -329,6 +336,7 @@ function Footer() {
               className="
                 mt-4
                 max-w-[300px]
+                break-words
 
                 text-[11.5px]
                 leading-[1.75]
@@ -347,9 +355,11 @@ function Footer() {
 
                 inline-flex
                 h-[44px]
+                max-w-full
                 items-center
                 justify-center
 
+                whitespace-nowrap
                 rounded-full
 
                 border
@@ -379,11 +389,12 @@ function Footer() {
             {/* LOGO */}
             <div className="mt-9">
               <img
-                src="/images/logo/cottson-logo.png"
+                src="cottson.png"
                 alt="Cottson Clothing"
                 className="
                   h-auto
                   w-[190px]
+                  max-w-full
                   object-contain
 
                   sm:w-[210px]
@@ -420,6 +431,7 @@ function Footer() {
           >
             <p
               className="
+                break-words
                 text-[10.5px]
                 font-medium
                 text-[#607487]
@@ -441,6 +453,7 @@ function Footer() {
               <a
                 href="#"
                 className="
+                  whitespace-nowrap
                   text-[10.5px]
                   font-medium
                   text-[#607487]
@@ -457,6 +470,7 @@ function Footer() {
               <a
                 href="#"
                 className="
+                  whitespace-nowrap
                   text-[10.5px]
                   font-medium
                   text-[#607487]
@@ -482,10 +496,12 @@ function Footer() {
           max-w-[1450px]
           justify-center
           py-5
+          px-4
         "
       >
         <p
           className="
+            break-words
             text-center
             text-[9px]
             font-medium

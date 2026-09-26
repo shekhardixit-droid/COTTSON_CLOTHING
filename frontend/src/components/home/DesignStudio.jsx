@@ -73,9 +73,11 @@ function DesignStudio() {
             className="
               mb-6
               inline-flex
+              max-w-full
               items-center
               gap-2
 
+              whitespace-nowrap
               rounded-full
               border
               border-[#113858]/10
@@ -89,11 +91,12 @@ function DesignStudio() {
             <Sparkles
               size={12}
               strokeWidth={2}
-              className="text-[#113858]"
+              className="shrink-0 text-[#113858]"
             />
 
             <span
               className="
+                truncate
                 text-[9px]
                 font-semibold
                 uppercase
@@ -109,12 +112,15 @@ function DesignStudio() {
           <h2
             className="
               max-w-[610px]
+              break-words
 
-              text-[38px]
+              text-[32px]
               font-semibold
               leading-[1.04]
               tracking-[-0.05em]
               text-[#113858]
+
+              min-[380px]:text-[38px]
 
               sm:text-[48px]
 
@@ -136,6 +142,7 @@ function DesignStudio() {
             className="
               mt-6
               max-w-[530px]
+              break-words
 
               text-[13.5px]
               leading-[1.8]
@@ -193,7 +200,7 @@ function DesignStudio() {
                   />
                 </span>
 
-                {feature}
+                <span className="break-words">{feature}</span>
               </div>
             ))}
           </div>
@@ -208,10 +215,12 @@ function DesignStudio() {
 
               inline-flex
               h-[48px]
+              max-w-full
               items-center
               justify-center
               gap-2
 
+              whitespace-nowrap
               rounded-full
 
               border
@@ -241,6 +250,7 @@ function DesignStudio() {
               size={14}
               strokeWidth={2}
               className="
+                shrink-0
                 transition-transform
                 duration-300
 
@@ -257,8 +267,10 @@ function DesignStudio() {
         <div
           className="
             relative
-            min-h-[480px]
+            min-h-[420px]
             overflow-hidden
+
+            sm:min-h-[480px]
 
             lg:min-h-[650px]
           "
@@ -276,10 +288,12 @@ function DesignStudio() {
 
               whitespace-nowrap
 
-              text-[90px]
+              text-[64px]
               font-bold
               tracking-[-0.08em]
               text-[#113858]/[0.035]
+
+              min-[380px]:text-[90px]
 
               sm:text-[130px]
               lg:text-[150px]
@@ -295,8 +309,8 @@ function DesignStudio() {
               left-1/2
               top-1/2
 
-              h-[360px]
-              w-[360px]
+              h-[280px]
+              w-[280px]
 
               -translate-x-1/2
               -translate-y-1/2
@@ -305,6 +319,9 @@ function DesignStudio() {
 
               border
               border-[#113858]/10
+
+              min-[380px]:h-[360px]
+              min-[380px]:w-[360px]
 
               sm:h-[430px]
               sm:w-[430px]
@@ -320,8 +337,8 @@ function DesignStudio() {
               left-1/2
               top-1/2
 
-              h-[300px]
-              w-[300px]
+              h-[230px]
+              w-[230px]
 
               -translate-x-1/2
               -translate-y-1/2
@@ -329,6 +346,9 @@ function DesignStudio() {
               rounded-full
 
               bg-white/45
+
+              min-[380px]:h-[300px]
+              min-[380px]:w-[300px]
 
               sm:h-[370px]
               sm:w-[370px]
@@ -351,14 +371,17 @@ function DesignStudio() {
               left-1/2
               z-10
 
-              h-[390px]
-              w-[330px]
+              h-[300px]
+              w-[255px]
 
               -translate-x-[42%]
 
               object-contain
 
               drop-shadow-[0_25px_30px_rgba(17,56,88,0.14)]
+
+              min-[380px]:h-[390px]
+              min-[380px]:w-[330px]
 
               sm:h-[440px]
               sm:w-[390px]
@@ -376,24 +399,30 @@ function DesignStudio() {
           <div
             className="
               absolute
-              left-[6%]
-              top-[18%]
+              left-[4%]
+              top-[15%]
               z-20
 
-              w-[180px]
+              w-[145px]
 
-              rounded-[20px]
+              rounded-[16px]
 
               border
               border-white/60
 
               bg-white/90
 
-              p-4
+              p-3
 
               shadow-[0_15px_45px_rgba(17,56,88,0.12)]
 
               backdrop-blur-xl
+
+              min-[380px]:left-[6%]
+              min-[380px]:top-[18%]
+              min-[380px]:w-[180px]
+              min-[380px]:rounded-[20px]
+              min-[380px]:p-4
 
               sm:left-[10%]
               sm:w-[200px]
@@ -402,12 +431,13 @@ function DesignStudio() {
               lg:top-[24%]
             "
           >
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 items-center gap-2">
               <span
                 className="
                   flex
-                  h-[30px]
-                  w-[30px]
+                  h-[26px]
+                  w-[26px]
+                  shrink-0
                   items-center
                   justify-center
 
@@ -415,6 +445,9 @@ function DesignStudio() {
 
                   bg-[#E9F0F5]
                   text-[#113858]
+
+                  min-[380px]:h-[30px]
+                  min-[380px]:w-[30px]
                 "
               >
                 <Palette
@@ -423,9 +456,10 @@ function DesignStudio() {
                 />
               </span>
 
-              <div>
+              <div className="min-w-0">
                 <p
                   className="
+                    truncate
                     text-[9px]
                     font-semibold
                     uppercase
@@ -439,6 +473,7 @@ function DesignStudio() {
                 <p
                   className="
                     mt-[2px]
+                    truncate
                     text-[11px]
                     font-semibold
                     text-[#113858]
@@ -462,6 +497,7 @@ function DesignStudio() {
                 className="
                   h-[22px]
                   w-[22px]
+                  shrink-0
                   rounded-full
                   border-[3px]
                   border-white
@@ -474,6 +510,7 @@ function DesignStudio() {
                 className="
                   h-[22px]
                   w-[22px]
+                  shrink-0
                   rounded-full
                   bg-[#FFFFFF]
                   shadow-[0_0_0_1px_rgba(17,56,88,0.15)]
@@ -484,6 +521,7 @@ function DesignStudio() {
                 className="
                   h-[22px]
                   w-[22px]
+                  shrink-0
                   rounded-full
                   bg-[#9EB3C3]
                 "
@@ -493,6 +531,7 @@ function DesignStudio() {
                 className="
                   h-[22px]
                   w-[22px]
+                  shrink-0
                   rounded-full
                   bg-[#D7E1E8]
                 "
@@ -507,27 +546,36 @@ function DesignStudio() {
           <div
             className="
               absolute
-              bottom-[13%]
-              right-[5%]
+              bottom-[10%]
+              right-[4%]
               z-20
 
               flex
+              max-w-[68%]
               items-center
-              gap-3
+              gap-2
 
-              rounded-[18px]
+              rounded-[14px]
 
               border
               border-white/60
 
               bg-white/90
 
-              px-4
-              py-3
+              px-3
+              py-2.5
 
               shadow-[0_15px_45px_rgba(17,56,88,0.12)]
 
               backdrop-blur-xl
+
+              min-[380px]:bottom-[13%]
+              min-[380px]:right-[5%]
+              min-[380px]:max-w-none
+              min-[380px]:gap-3
+              min-[380px]:rounded-[18px]
+              min-[380px]:px-4
+              min-[380px]:py-3
 
               sm:right-[10%]
 
@@ -538,8 +586,9 @@ function DesignStudio() {
             <span
               className="
                 flex
-                h-[34px]
-                w-[34px]
+                h-[30px]
+                w-[30px]
+                shrink-0
                 items-center
                 justify-center
 
@@ -547,6 +596,9 @@ function DesignStudio() {
 
                 bg-[#113858]
                 text-white
+
+                min-[380px]:h-[34px]
+                min-[380px]:w-[34px]
               "
             >
               <Shirt
@@ -555,9 +607,10 @@ function DesignStudio() {
               />
             </span>
 
-            <div>
+            <div className="min-w-0">
               <p
                 className="
+                  truncate
                   text-[9px]
                   font-medium
                   text-[#607487]
@@ -569,6 +622,7 @@ function DesignStudio() {
               <p
                 className="
                   mt-[1px]
+                  truncate
                   text-[11px]
                   font-semibold
                   text-[#113858]

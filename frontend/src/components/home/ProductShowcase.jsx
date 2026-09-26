@@ -87,6 +87,7 @@ function ProductCard({ product }) {
         className="
           absolute left-5 top-5
           flex h-[32px] min-w-[32px]
+          shrink-0
           items-center justify-center
           rounded-full
           border border-white/30
@@ -112,7 +113,9 @@ function ProductCard({ product }) {
       >
         <h3
           className="
+            min-w-0
             max-w-[220px]
+            break-words
             text-[20px] font-semibold
             leading-[1.1]
             tracking-[-0.035em]
@@ -150,30 +153,30 @@ function ProductShowcase() {
   const repeatedProducts = [...products, ...products];
 
   return (
-   <section
-  className="
-    mx-3
-    overflow-hidden
-    rounded-[28px]
-    bg-[#113858]
-    pb-20
-    pt-20
+    <section
+      className="
+        mx-3
+        overflow-hidden
+        rounded-[28px]
+        bg-[#113858]
+        pb-20
+        pt-20
 
-    sm:mx-5
-    sm:rounded-[32px]
+        sm:mx-5
+        sm:rounded-[32px]
 
-    md:mx-7
-    md:rounded-[36px]
-    md:pb-24
-    md:pt-24
+        md:mx-7
+        md:rounded-[36px]
+        md:pb-24
+        md:pt-24
 
-    lg:mx-10
-    lg:rounded-[40px]
-    lg:pt-28
+        lg:mx-10
+        lg:rounded-[40px]
+        lg:pt-28
 
-    xl:mx-12
-  "
->
+        xl:mx-12
+      "
+    >
       {/* =====================================
           MAIN BRAND LOGO
       ====================================== */}
@@ -198,20 +201,18 @@ function ProductShowcase() {
         </p>
 
         {/* MAIN LOGO */}
-       <div className="flex justify-center">
-  <img
-    src="cottson-logo.png"
-    alt="Cottson Clothing"
-    className="
-      h-auto
-      w-[100px]
-      object-contain
-
-
-      
-    "
-  />
-</div>
+        <div className="flex justify-center">
+          <img
+            src="cottson-logo.png"
+            alt="Cottson Clothing"
+            className="
+              h-auto
+              w-[100px]
+              max-w-full
+              object-contain
+            "
+          />
+        </div>
 
         {/* Divider */}
         <div
@@ -247,6 +248,7 @@ function ProductShowcase() {
           <h3
             className="
               mt-4 max-w-[720px]
+              break-words
               text-[28px] font-medium
               leading-[1.25]
               tracking-[-0.04em]
@@ -265,6 +267,7 @@ function ProductShowcase() {
           <p
             className="
               mt-5 max-w-[590px]
+              break-words
               text-[13px]
               leading-[1.8]
               text-white/55
@@ -330,6 +333,7 @@ function ProductShowcase() {
         {/* MOVING TRACK */}
         <div
           className="
+            product-showcase-track
             flex w-max gap-4
             will-change-transform
 
@@ -353,12 +357,13 @@ function ProductShowcase() {
           BOTTOM LINK
       ====================================== */}
 
-      <div className="mt-12 flex justify-center">
+      <div className="mt-12 flex justify-center px-5">
         <a
           href="#products"
           className="
             group
             flex h-[46px]
+            max-w-full
             items-center justify-center
             gap-2 rounded-full
 
@@ -366,6 +371,7 @@ function ProductShowcase() {
             bg-white
             px-6
 
+            whitespace-nowrap
             text-[12px]
             font-semibold
             text-[#113858]
@@ -383,6 +389,7 @@ function ProductShowcase() {
             size={14}
             strokeWidth={2}
             className="
+              shrink-0
               transition-transform duration-300
 
               group-hover:translate-x-[2px]

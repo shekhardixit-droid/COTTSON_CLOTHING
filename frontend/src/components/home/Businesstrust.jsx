@@ -72,6 +72,7 @@ function BusinessTrust() {
               items-center
               gap-2
 
+              whitespace-nowrap
               rounded-full
               border
               border-[#113858]/10
@@ -86,6 +87,7 @@ function BusinessTrust() {
               className="
                 h-[6px]
                 w-[6px]
+                shrink-0
                 rounded-full
                 bg-[#113858]
               "
@@ -106,6 +108,7 @@ function BusinessTrust() {
 
           <h2
             className="
+              break-words
               text-[34px]
               font-semibold
               leading-[1.08]
@@ -148,8 +151,10 @@ function BusinessTrust() {
         <div
           className="
             grid
-            grid-cols-2
+            grid-cols-1
             gap-3
+
+            min-[380px]:grid-cols-2
 
             md:grid-cols-4
             md:gap-4
@@ -166,6 +171,7 @@ function BusinessTrust() {
 
                   flex
                   min-h-[190px]
+                  min-w-0
                   flex-col
                   justify-between
 
@@ -199,6 +205,7 @@ function BusinessTrust() {
                     flex
                     h-[42px]
                     w-[42px]
+                    shrink-0
                     items-center
                     justify-center
 
@@ -221,16 +228,18 @@ function BusinessTrust() {
                 </div>
 
                 {/* NUMBER */}
-                <div>
+                <div className="min-w-0">
                   <div
                     className="
                       flex
+                      flex-wrap
                       items-end
                       gap-1.5
                     "
                   >
                     <span
                       className="
+                        break-words
                         text-[30px]
                         font-semibold
                         leading-none
@@ -261,6 +270,7 @@ function BusinessTrust() {
                   <p
                     className="
                       mt-2
+                      break-words
                       text-[11px]
                       font-medium
                       text-[#607487]
@@ -304,7 +314,7 @@ function BusinessTrust() {
             className="
               group
               relative
-              min-h-[330px]
+              min-h-[280px]
               overflow-hidden
 
               sm:min-h-[400px]
@@ -347,7 +357,10 @@ function BusinessTrust() {
                 absolute
                 bottom-5
                 left-5
+                right-5
 
+                w-fit
+                max-w-[calc(100%-2.5rem)]
                 rounded-full
 
                 border
@@ -363,6 +376,7 @@ function BusinessTrust() {
             >
               <p
                 className="
+                  truncate
                   text-[9px]
                   font-semibold
                   uppercase
@@ -383,9 +397,10 @@ function BusinessTrust() {
             className="
               relative
               flex
+              min-w-0
               items-center
 
-              px-7
+              px-6
               py-12
 
               sm:px-10
@@ -431,7 +446,7 @@ function BusinessTrust() {
               "
             />
 
-            <div className="relative z-10">
+            <div className="relative z-10 min-w-0">
 
               {/* LABEL */}
               <p
@@ -451,6 +466,7 @@ function BusinessTrust() {
                 className="
                   mt-4
                   max-w-[500px]
+                  break-words
 
                   text-[32px]
                   font-semibold
@@ -475,6 +491,7 @@ function BusinessTrust() {
                 className="
                   mt-5
                   max-w-[440px]
+                  break-words
 
                   text-[13px]
                   leading-[1.8]
@@ -502,6 +519,7 @@ function BusinessTrust() {
                   justify-center
                   gap-2
 
+                  whitespace-nowrap
                   rounded-full
 
                   border

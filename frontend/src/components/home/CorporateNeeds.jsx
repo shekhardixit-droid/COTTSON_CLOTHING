@@ -32,7 +32,7 @@ const needs = [
 
 function CorporateNeedCard({ item }) {
   return (
-    <article className="group">
+    <article className="group min-w-0">
       {/* IMAGE */}
       <div
         className="
@@ -87,6 +87,7 @@ function CorporateNeedCard({ item }) {
             flex
             h-[42px]
             w-[42px]
+            shrink-0
             items-center
             justify-center
 
@@ -115,6 +116,7 @@ function CorporateNeedCard({ item }) {
       <div className="px-2 pt-6 text-center">
         <h3
           className="
+            break-words
             text-[21px]
             font-semibold
             leading-[1.2]
@@ -132,6 +134,7 @@ function CorporateNeedCard({ item }) {
             mx-auto
             mt-3
             max-w-[390px]
+            break-words
 
             text-[13px]
             leading-[1.7]
@@ -153,10 +156,12 @@ function CorporateNeedCard({ item }) {
 
             inline-flex
             h-[44px]
+            max-w-full
             items-center
             justify-center
             gap-2
 
+            whitespace-nowrap
             rounded-full
 
             border
@@ -186,6 +191,7 @@ function CorporateNeedCard({ item }) {
             size={13}
             strokeWidth={2}
             className="
+              shrink-0
               transition-transform
               duration-300
 
@@ -234,6 +240,7 @@ function CorporateNeeds() {
             items-center
             gap-2
 
+            whitespace-nowrap
             rounded-full
 
             border
@@ -249,6 +256,7 @@ function CorporateNeeds() {
             className="
               h-[6px]
               w-[6px]
+              shrink-0
               rounded-full
               bg-[#113858]
             "
@@ -270,6 +278,7 @@ function CorporateNeeds() {
         {/* HEADING */}
         <h2
           className="
+            break-words
             text-[34px]
             font-semibold
             leading-[1.08]
@@ -293,6 +302,7 @@ function CorporateNeeds() {
             mx-auto
             mt-5
             max-w-[650px]
+            break-words
 
             text-[13px]
             leading-[1.75]
