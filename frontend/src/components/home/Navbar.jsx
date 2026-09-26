@@ -3,12 +3,12 @@ import { ChevronDown, Menu, Search, ShoppingBag, X } from "lucide-react";
 
 const navItems = [
   { label: "Home", href: "#home" },
-  { label: "About Us", href: "#about" },
+  { label: "About Us", href: "/about" },
   { label: "Products", href: "#products", dropdown: true },
   { label: "Customisation", href: "#customise" },
-  { label: "Clients", href: "#clients" },
+  { label: "Clients", href: "/clients" },
   { label: "Process", href: "#process" },
-  { label: "Contact", href: "#contact" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export default function Navbar() {
@@ -31,7 +31,7 @@ export default function Navbar() {
           {/* Logo */}
           <a href="#home" className="flex min-w-0 shrink items-center">
             <img
-              src="cottson.png"
+              src="/cottson.png"
               alt="COTTSON"
               className="h-8 w-auto max-w-[110px] object-contain brightness-0 invert sm:h-9 sm:max-w-[130px] md:h-10 md:max-w-[150px]"
             />
