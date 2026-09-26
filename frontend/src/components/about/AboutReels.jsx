@@ -111,8 +111,10 @@ function ReelCard({ video, isInView, hasEntered }) {
 export function AboutReels() {
   const { ref: sectionRef, isInView, hasEntered } = useInView({ rootMargin: "300px" });
 
-  // 14 items per track = 4,144px wide per track, perfectly seamless infinite buffer for any screen
+  // 28 items per track = 8,288px wide per track, perfectly seamless infinite buffer for any screen size or zoom
   const reelItems = [
+    ...reelVideos,
+    ...reelVideos,
     ...reelVideos,
     ...reelVideos,
   ];
@@ -154,7 +156,7 @@ export function AboutReels() {
         <div
           className="flex w-max gap-4 will-change-transform hover:[animation-play-state:paused]"
           style={{
-            animation: "reelMarquee 75s linear infinite",
+            animation: "reelMarquee 130s linear infinite",
             animationPlayState: isInView ? "running" : "paused",
           }}
         >

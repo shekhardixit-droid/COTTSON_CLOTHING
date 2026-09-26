@@ -1,3 +1,4 @@
+import "./index.css";
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 

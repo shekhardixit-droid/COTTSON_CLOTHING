@@ -45,7 +45,6 @@ function ClientLogoCard({ client }) {
   return (
     <div
       className="
-        group
         flex
         h-[110px]
         w-[210px]
@@ -58,11 +57,6 @@ function ClientLogoCard({ client }) {
         border-[#113858]/10
         bg-white
         p-2.5
-        transition-all
-        duration-300
-        hover:-translate-y-[2px]
-        hover:border-[#113858]/20
-        hover:shadow-[0_12px_35px_rgba(17,56,88,0.08)]
         sm:h-[120px]
         sm:w-[230px]
         sm:p-3.5
@@ -78,19 +72,15 @@ function ClientLogoCard({ client }) {
           h-full
           w-full
           object-contain
-          transition-transform
-          duration-300
-          group-hover:scale-105
         "
       />
     </div>
   );
 }
 
-export function ClientLogoCarousel() {
+export function ClientMarqueeRows({ isInView = true }) {
   const [topClients, setTopClients] = useState(initialTopClients);
   const [bottomClients, setBottomClients] = useState(initialBottomClients);
-  const { ref: sectionRef, isInView } = useInView({ rootMargin: "250px" });
 
   useEffect(() => {
     fetch(CLIENTS_JSON_URL)
@@ -118,71 +108,89 @@ export function ClientLogoCarousel() {
       });
   }, []);
 
+  // Seamless buffer: 50 items per track (~12,300px wide), ensuring the marquee is truly infinite and never ends on any screen size or zoom
+  const bufferedTop = [...topClients, ...topClients];
+  const bufferedBottom = [...bottomClients, ...bottomClients];
+
   return (
-    <section ref={sectionRef} className="overflow-hidden bg-white py-16 sm:py-20">
-      {/* HEADER */}
-      <div className="mb-10 px-5 text-center sm:px-8">
-        <EyebrowPill text="Trusted by" />
+    <div className="relative">
+      {/* LEFT FADE */}
+      <div
+        className="
+          pointer-events-none
+          absolute
+          left-0
+          top-0
+          z-20
+          h-full
+          w-[40px]
+          bg-gradient-to-r
+          from-white
+          to-transparent
+          sm:w-[90px]
+          lg:w-[140px]
+        "
+      />
 
-        <h2
-          className="
-            text-[28px]
-            font-semibold
-            leading-[1.08]
-            tracking-[-0.045em]
-            text-[#113858]
-            sm:text-[34px]
-          "
-        >
-          Our Clients
-          <span className="text-[#113858]/45"> Trust Us</span>
-        </h2>
-      </div>
+      {/* RIGHT FADE */}
+      <div
+        className="
+          pointer-events-none
+          absolute
+          right-0
+          top-0
+          z-20
+          h-full
+          w-[40px]
+          bg-gradient-to-l
+          from-white
+          to-transparent
+          sm:w-[90px]
+          lg:w-[140px]
+        "
+      />
 
-      {/* MARQUEE ROWS */}
-      <div className="relative">
-        <div className="flex flex-col gap-3 sm:gap-4">
-          {/* ROW 1 — LEFT (FIRST 25 CLIENT LOGOS) */}
-          <div className="overflow-hidden">
-            <div
-              className="flex w-max gap-3 will-change-transform hover:[animation-play-state:paused] sm:gap-4"
-              style={{
-                animation: "aboutMarqueeLeft 80s linear infinite",
-                animationPlayState: isInView ? "running" : "paused",
-              }}
-            >
-              <div className="flex shrink-0 gap-3 sm:gap-4">
-                {topClients.map((client, index) => (
-                  <ClientLogoCard key={`top-1-${client.id}-${index}`} client={client} />
-                ))}
-              </div>
-              <div className="flex shrink-0 gap-3 sm:gap-4" aria-hidden="true">
-                {topClients.map((client, index) => (
-                  <ClientLogoCard key={`top-2-${client.id}-${index}`} client={client} />
-                ))}
-              </div>
+      <div className="flex flex-col gap-3 sm:gap-4">
+        {/* ROW 1 — LEFT (50 BUFFERED CLIENT LOGOS PER TRACK) */}
+        <div className="overflow-hidden">
+          <div
+            className="flex w-max gap-3 will-change-transform sm:gap-4"
+            style={{
+              animation: "aboutMarqueeLeft 140s linear infinite",
+              animationPlayState: isInView ? "running" : "paused",
+            }}
+          >
+            <div className="flex shrink-0 gap-3 sm:gap-4">
+              {bufferedTop.map((client, index) => (
+                <ClientLogoCard key={`top-1-${client.id}-${index}`} client={client} />
+              ))}
+            </div>
+            <div className="flex shrink-0 gap-3 sm:gap-4" aria-hidden="true">
+              {bufferedTop.map((client, index) => (
+                <ClientLogoCard key={`top-2-${client.id}-${index}`} client={client} />
+              ))}
             </div>
           </div>
+        </div>
 
-          {/* ROW 2 — RIGHT (REMAINING 25 CLIENT LOGOS) */}
-          <div className="overflow-hidden">
-            <div
-              className="flex w-max gap-3 will-change-transform hover:[animation-play-state:paused] sm:gap-4"
-              style={{
-                animation: "aboutMarqueeRight 85s linear infinite",
-                animationPlayState: isInView ? "running" : "paused",
-              }}
-            >
-              <div className="flex shrink-0 gap-3 sm:gap-4">
-                {bottomClients.map((client, index) => (
-                  <ClientLogoCard key={`bottom-1-${client.id}-${index}`} client={client} />
-                ))}
-              </div>
-              <div className="flex shrink-0 gap-3 sm:gap-4" aria-hidden="true">
-                {bottomClients.map((client, index) => (
-                  <ClientLogoCard key={`bottom-2-${client.id}-${index}`} client={client} />
-                ))}
-              </div>
+        {/* ROW 2 — RIGHT (50 BUFFERED CLIENT LOGOS PER TRACK) */}
+        <div className="overflow-hidden">
+          <div
+            className="flex w-max gap-3 will-change-transform sm:gap-4"
+            style={{
+              animation: "aboutMarqueeRight 145s linear infinite",
+              animationPlayState: isInView ? "running" : "paused",
+            }}
+          >
+            <div className="flex shrink-0 gap-3 sm:gap-4">
+              {bufferedBottom.map((client, index) => (
+                <ClientLogoCard key={`bottom-1-${client.id}-${index}`} client={client} />
+              ))}
+            </div>
+            <div className="flex shrink-0 gap-3 sm:gap-4" aria-hidden="true">
+              {bufferedBottom.map((client, index) => (
+                <ClientLogoCard key={`bottom-2-${client.id}-${index}`} client={client} />
+              ))}
             </div>
           </div>
         </div>
@@ -209,6 +217,40 @@ export function ClientLogoCarousel() {
           }
         `}
       </style>
+    </div>
+  );
+}
+
+export function ClientLogoCarousel({ id = "clients" }) {
+  const { ref: sectionRef, isInView } = useInView({ rootMargin: "250px" });
+
+  return (
+    <section
+      ref={sectionRef}
+      id={id}
+      className="overflow-hidden bg-white py-16 sm:py-20"
+    >
+      {/* HEADER */}
+      <div className="mb-10 px-5 text-center sm:px-8">
+        <EyebrowPill text="Trusted by" />
+
+        <h2
+          className="
+            text-[28px]
+            font-semibold
+            leading-[1.08]
+            tracking-[-0.045em]
+            text-[#113858]
+            sm:text-[34px]
+          "
+        >
+          Our Clients
+          <span className="text-[#113858]/45"> Trust Us</span>
+        </h2>
+      </div>
+
+      {/* MARQUEE ROWS */}
+      <ClientMarqueeRows isInView={isInView} />
     </section>
   );
 }

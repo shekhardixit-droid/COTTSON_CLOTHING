@@ -1,23 +1,121 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useInView } from "../../hooks/useInView";
 
-const rowOne = [
-  "/images/teams/team-01.jpg",
-  "/images/teams/team-02.jpg",
-  "/images/teams/team-03.jpg",
-  "/images/teams/team-04.jpg",
-  "/images/teams/team-05.jpg",
+const TEAM_IMAGES_JSON_URL =
+  "https://res.cloudinary.com/tpxo8m6a/image/list/team_images.json";
+
+function formatTeamItem(item) {
+  const ext = item.format || "jpg";
+  return {
+    id: item.public_id,
+    name: item.public_id.replace(/[_-]/g, " ").trim(),
+    url: `https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v${item.version}/${item.public_id}.${ext}`,
+  };
+}
+
+const initialRowOne = [
+  {
+    id: "Qodenext_team_images",
+    name: "Qodenext team images",
+    url: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790413275/Qodenext_team_images.jpg",
+  },
+  {
+    id: "Uniclan_Team_Images",
+    name: "Uniclan Team Images",
+    url: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790413275/Uniclan_Team_Images.jpg",
+  },
+  {
+    id: "Uniclan_Team_Images2",
+    name: "Uniclan Team Images 2",
+    url: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790413275/Uniclan_Team_Images2.jpg",
+  },
+  {
+    id: "Uniclan_Images",
+    name: "Uniclan Images",
+    url: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790413275/Uniclan_Images.jpg",
+  },
+  {
+    id: "Qodenext_Team_Image",
+    name: "Qodenext Team Image",
+    url: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790413274/Qodenext_Team_Image.gif",
+  },
+  {
+    id: "CJS_Image",
+    name: "CJS Image",
+    url: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790413274/CJS_Image.jpg",
+  },
+  {
+    id: "Chemco_Team_Image1",
+    name: "Chemco Team Image 1",
+    url: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790413274/Chemco_Team_Image1.jpg",
+  },
+  {
+    id: "Chemco_Team_Image",
+    name: "Chemco Team Image",
+    url: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790413274/Chemco_Team_Image.jpg",
+  },
+  {
+    id: "MaxSpare_Office_Image",
+    name: "MaxSpare Office Image",
+    url: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790413274/MaxSpare_Office_Image.jpg",
+  },
 ];
 
-const rowTwo = [
-  "/images/teams/team-06.jpg",
-  "/images/teams/team-07.jpg",
-  "/images/teams/team-08.jpg",
-  "/images/teams/team-09.jpg",
-  "/images/teams/team-10.jpg",
+const initialRowTwo = [
+  {
+    id: "Aurum_Tean",
+    name: "Aurum Team",
+    url: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790413273/Aurum_Tean.jpg",
+  },
+  {
+    id: "Aurum_Team_3",
+    name: "Aurum Team 3",
+    url: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790413273/Aurum_Team_3.jpg",
+  },
+  {
+    id: "Aurum_Team_2",
+    name: "Aurum Team 2",
+    url: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790413273/Aurum_Team_2.jpg",
+  },
+  {
+    id: "2-19-2",
+    name: "2 19 2",
+    url: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790413273/2-19-2.png",
+  },
+  {
+    id: "1742991027978",
+    name: "Team 1742991027978",
+    url: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790413273/1742991027978.jpg",
+  },
+  {
+    id: "Max_Space_Office_Image",
+    name: "Max Space Office Image",
+    url: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790413273/Max_Space_Office_Image.jpg",
+  },
+  {
+    id: "IMG_6087-Copy",
+    name: "IMG 6087 Copy",
+    url: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790413273/IMG_6087-Copy.jpg",
+  },
+  {
+    id: "1716135610941",
+    name: "Team 1716135610941",
+    url: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790413272/1716135610941.jpg",
+  },
+  {
+    id: "04",
+    name: "Team 04",
+    url: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790413272/04.jpg",
+  },
 ];
 
-function TeamImage({ src, index, onEnter, onLeave }) {
+function TeamImage({ item, index, onEnter, onLeave }) {
+  const src = typeof item === "string" ? item : item.url;
+  const name =
+    typeof item === "object" && item.name
+      ? item.name
+      : `Cottson team ${index + 1}`;
+
   return (
     <div
       onMouseEnter={onEnter}
@@ -31,6 +129,7 @@ function TeamImage({ src, index, onEnter, onLeave }) {
         cursor-pointer
         overflow-hidden
         rounded-[22px]
+        border border-[#113858]/[0.08]
         bg-[#F3F6F8]
 
         sm:h-[240px]
@@ -42,7 +141,7 @@ function TeamImage({ src, index, onEnter, onLeave }) {
     >
       <img
         src={src}
-        alt={`Cottson team ${index + 1}`}
+        alt={name}
         loading="lazy"
         decoding="async"
         draggable="false"
@@ -58,20 +157,6 @@ function TeamImage({ src, index, onEnter, onLeave }) {
           group-hover:scale-[1.045]
         "
       />
-
-      {/* subtle brand overlay */}
-      <div
-        className="
-          pointer-events-none
-          absolute
-          inset-0
-          bg-[#113858]/0
-          transition-colors
-          duration-500
-
-          group-hover:bg-[#113858]/10
-        "
-      />
     </div>
   );
 }
@@ -79,59 +164,16 @@ function TeamImage({ src, index, onEnter, onLeave }) {
 function MarqueeRow({
   images,
   direction = "left",
-  duration = 32,
+  duration = 45,
   isInView = true,
 }) {
   const [paused, setPaused] = useState(false);
 
   const animationName =
-    direction === "left"
-      ? "cottsonTeamLeft"
-      : "cottsonTeamRight";
+    direction === "left" ? "cottsonTeamLeft" : "cottsonTeamRight";
 
   return (
     <div className="relative w-full overflow-hidden">
-
-      {/* LEFT FADE */}
-      <div
-        className="
-          pointer-events-none
-          absolute
-          left-0
-          top-0
-          z-20
-          h-full
-          w-[40px]
-
-          bg-gradient-to-r
-          from-white
-          to-transparent
-
-          sm:w-[90px]
-          lg:w-[130px]
-        "
-      />
-
-      {/* RIGHT FADE */}
-      <div
-        className="
-          pointer-events-none
-          absolute
-          right-0
-          top-0
-          z-20
-          h-full
-          w-[40px]
-
-          bg-gradient-to-l
-          from-white
-          to-transparent
-
-          sm:w-[90px]
-          lg:w-[130px]
-        "
-      />
-
       {/* TRACK */}
       <div
         className="
@@ -150,10 +192,10 @@ function MarqueeRow({
       >
         {/* FIRST COPY */}
         <div className="flex shrink-0 gap-3 sm:gap-4">
-          {images.map((image, index) => (
+          {images.map((item, index) => (
             <TeamImage
-              key={`first-${index}`}
-              src={image}
+              key={`first-${item.id || index}`}
+              item={item}
               index={index}
               onEnter={() => setPaused(true)}
               onLeave={() => setPaused(false)}
@@ -162,14 +204,11 @@ function MarqueeRow({
         </div>
 
         {/* DUPLICATE COPY */}
-        <div
-          className="flex shrink-0 gap-3 sm:gap-4"
-          aria-hidden="true"
-        >
-          {images.map((image, index) => (
+        <div className="flex shrink-0 gap-3 sm:gap-4" aria-hidden="true">
+          {images.map((item, index) => (
             <TeamImage
-              key={`second-${index}`}
-              src={image}
+              key={`second-${item.id || index}`}
+              item={item}
               index={index}
               onEnter={() => setPaused(true)}
               onLeave={() => setPaused(false)}
@@ -182,7 +221,27 @@ function MarqueeRow({
 }
 
 function TeamMarquee() {
+  const [rowOne, setRowOne] = useState(initialRowOne);
+  const [rowTwo, setRowTwo] = useState(initialRowTwo);
   const { ref: sectionRef, isInView } = useInView({ rootMargin: "250px" });
+
+  useEffect(() => {
+    fetch(TEAM_IMAGES_JSON_URL)
+      .then((res) => res.json())
+      .then((data) => {
+        if (
+          data &&
+          Array.isArray(data.resources) &&
+          data.resources.length >= 18
+        ) {
+          setRowOne(data.resources.slice(0, 9).map(formatTeamItem));
+          setRowTwo(data.resources.slice(9, 18).map(formatTeamItem));
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch team_images.json:", err);
+      });
+  }, []);
 
   return (
     <section
@@ -240,9 +299,7 @@ function TeamMarquee() {
           "
         >
           One team.
-          <span className="text-[#113858]/45">
-            {" "}One identity.
-          </span>
+          <span className="text-[#113858]/45"> One identity.</span>
         </h2>
 
         <p
@@ -259,30 +316,28 @@ function TeamMarquee() {
             sm:text-[14px]
           "
         >
-          Custom apparel that brings people together and puts your
-          brand proudly at the centre of the team.
+          Custom apparel that brings people together and puts your brand
+          proudly at the centre of the team.
         </p>
       </div>
 
       {/* TWO OPPOSITE ROWS */}
       <div className="flex flex-col gap-3 sm:gap-4">
-
-        {/* ROW 1 — RIGHT TO LEFT */}
+        {/* ROW 1 — RIGHT TO LEFT (9 IMAGES) */}
         <MarqueeRow
           images={rowOne}
           direction="left"
-          duration={34}
+          duration={45}
           isInView={isInView}
         />
 
-        {/* ROW 2 — LEFT TO RIGHT */}
+        {/* ROW 2 — LEFT TO RIGHT (9 IMAGES) */}
         <MarqueeRow
           images={rowTwo}
           direction="right"
-          duration={38}
+          duration={48}
           isInView={isInView}
         />
-
       </div>
 
       {/* COMPONENT-LOCAL ANIMATION */}
