@@ -2,12 +2,12 @@ import { useState } from "react";
 import { ChevronDown, Menu, Search, ShoppingBag, X } from "lucide-react";
 
 const navItems = [
-  { label: "Home", href: "#home" },
+  { label: "Home", href: "/" },
   { label: "About Us", href: "/about" },
   { label: "Products", href: "#products", dropdown: true },
   { label: "Customisation", href: "#customise" },
   { label: "Clients", href: "/clients" },
-  { label: "Process", href: "#process" },
+  { label: "resources", href: "/resources" },
   { label: "Contact", href: "/contact" },
 ];
 

@@ -34,8 +34,50 @@ function EyebrowPill({ text }) {
   );
 }
 
+function ReelCard({ video }) {
+  return (
+    <div
+      className="
+        group relative
+        aspect-[9/16] w-[260px] shrink-0
+        overflow-hidden rounded-[24px]
+        border border-[#113858]/[0.08]
+        bg-white
+        sm:w-[280px] sm:rounded-[28px]
+      "
+    >
+      <video
+        src={video}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        className="
+          h-full w-full object-cover
+          transition-transform duration-700 ease-out
+          group-hover:scale-[1.04]
+        "
+      />
+      <div
+        className="
+          pointer-events-none absolute inset-x-0 bottom-0
+          h-28 bg-gradient-to-t from-[#113858]/25 to-transparent
+          opacity-0 transition-opacity duration-500
+          group-hover:opacity-100
+        "
+      />
+    </div>
+  );
+}
+
 export function AboutReels() {
-  const doubled = [...reelVideos, ...reelVideos];
+  // Triple the set so each track is 6,000px+ wide — ensuring it never runs out even on 4K/zoomed-out screens
+  const reelItems = [
+    ...reelVideos,
+    ...reelVideos,
+    ...reelVideos,
+  ];
 
   return (
     <section className="overflow-hidden bg-[#F5F8FA] py-20 md:py-24 lg:py-28">
@@ -69,57 +111,39 @@ export function AboutReels() {
         </div>
       </div>
 
-      {/* MARQUEE */}
-      <div className="relative">
+      {/* MARQUEE — TRULY INFINITE DUAL-TRACK BUFFER */}
+      <div className="relative overflow-hidden">
         <div
-          className="flex w-max gap-4 will-change-transform"
+          className="flex w-max gap-4 will-change-transform hover:[animation-play-state:paused]"
           style={{
-            animation: "reelMarquee 45s linear infinite",
+            animation: "reelMarquee 75s linear infinite",
           }}
         >
-          {doubled.map((video, index) => (
-            <div
-              key={index}
-              className="
-                group relative
-                aspect-[9/16] w-[260px] shrink-0
-                overflow-hidden rounded-[24px]
-                border border-[#113858]/[0.08]
-                bg-white
-                sm:w-[280px] sm:rounded-[28px]
-              "
-            >
-              <video
-                src={video}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                className="
-                  h-full w-full object-cover
-                  transition-transform duration-700 ease-out
-                  group-hover:scale-[1.04]
-                "
-              />
-              <div
-                className="
-                  pointer-events-none absolute inset-x-0 bottom-0
-                  h-28 bg-gradient-to-t from-[#113858]/25 to-transparent
-                  opacity-0 transition-opacity duration-500
-                  group-hover:opacity-100
-                "
-              />
-            </div>
-          ))}
+          {/* Track 1 */}
+          <div className="flex shrink-0 gap-4">
+            {reelItems.map((video, index) => (
+              <ReelCard key={`reel-track1-${index}`} video={video} />
+            ))}
+          </div>
+
+          {/* Track 2 (seamless continuation) */}
+          <div className="flex shrink-0 gap-4" aria-hidden="true">
+            {reelItems.map((video, index) => (
+              <ReelCard key={`reel-track2-${index}`} video={video} />
+            ))}
+          </div>
         </div>
       </div>
 
       <style>
         {`
           @keyframes reelMarquee {
-            from { transform: translateX(0); }
-            to   { transform: translateX(-50%); }
+            from {
+              transform: translateX(0);
+            }
+            to {
+              transform: translateX(calc(-50% - 8px));
+            }
           }
         `}
       </style>

@@ -23,7 +23,7 @@ const contactDetails = [
 
 export default function ContactDetails() {
   return (
-    <section className="bg-white px-6 py-20 sm:px-8 sm:py-24 lg:px-12 lg:py-28">
+    <section id="query" className="bg-white px-6 py-20 sm:px-8 sm:py-24 lg:px-12 lg:py-28">
       <div className="mx-auto grid max-w-[1120px] gap-16 lg:grid-cols-[0.72fr_1.28fr] lg:gap-20">
 
         {/* =====================================================

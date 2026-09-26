@@ -3,9 +3,9 @@ export default function ContactHero() {
     <section className="relative w-full overflow-hidden">
       {/* Background Image */}
       <img
-        src="contacthero.png"
+        src="/contacthero.png"
         alt="Contact Cottson"
-        className="block min-h-[700px] w-full object-cover"
+        className="block min-h-[700px] w-full object-cover object-[78%_center] sm:object-[80%_center] md:object-right"
       />
 
       {/* Left Content */}
@@ -22,7 +22,7 @@ export default function ContactHero() {
             </div>
 
             {/* Paragraph */}
-<p className="max-w-[390px] text-left text-[16px] whitespace-nowrap leading-[1.7] tracking-[-0.01em] text-black sm:text-[17px]">
+<p className="max-w-[390px] text-left text-[16px] sm:whitespace-nowrap leading-[1.7] tracking-[-0.01em] text-black sm:text-[17px]">
   Let&apos;s bring your next corporate wear project to life.
   <br />
   Talk to our team about your requirements and customisation.
@@ -31,7 +31,7 @@ export default function ContactHero() {
 {/* Buttons */}
 <div className="mt-9 flex flex-col gap-3 sm:flex-row">
   <a
-    href="mailto:"
+    href="mailto:contact@cottson.com"
     className="
       inline-flex h-[54px] min-w-[165px] items-center justify-center
       rounded-full
