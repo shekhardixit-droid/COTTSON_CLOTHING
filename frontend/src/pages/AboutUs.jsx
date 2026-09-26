@@ -12,9 +12,9 @@ import {
   PackageCheck,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import Navbar from "../components/Navbar";
-import Hero from "../components/Hero";
-import Footer from "../components/Footer";
+import Navbar from "../components/home/Navbar";
+import Hero from "../components/home/Hero";
+import Footer from "../components/home/Footer";
 import {
   CLIENTS_JSON_URL,
   initialTopClients,
