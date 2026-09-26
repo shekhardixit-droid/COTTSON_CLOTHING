@@ -391,6 +391,8 @@ function Footer() {
               <img
                 src="cottson.png"
                 alt="Cottson Clothing"
+                loading="lazy"
+                decoding="async"
                 className="
                   h-auto
                   w-[190px]

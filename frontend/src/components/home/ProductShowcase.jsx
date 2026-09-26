@@ -61,6 +61,8 @@ function ProductCard({ product }) {
       <img
         src={product.image}
         alt={product.name}
+        loading="lazy"
+        decoding="async"
         draggable="false"
         className="
           h-full w-full object-cover

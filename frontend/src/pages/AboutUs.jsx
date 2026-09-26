@@ -223,7 +223,7 @@ const storyMilestones = [
     title: "A Legacy Born in Bombay's Iconic Cotton Mills",
     body: storyParagraphs[0],
     highlight: "Apollo Mills · Kamala Mills · Bombay Textiles",
-    image: "https://res.cloudinary.com/tpxo8m6a/image/upload/v1790315520/Mill_Worker.avif",
+    image: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790315520/Mill_Worker.avif",
     caption: "Apollo Mills Loom Artisan, Bombay",
     subtitle: "The formative era of our family's cotton craftsmanship",
     location: "Apollo Mills, Bombay",
@@ -235,7 +235,7 @@ const storyMilestones = [
     title: "Bacoola Apparels & The D2C Inception",
     body: storyParagraphs[1],
     highlight: "Amazon · Flipkart · Peachmode · Nationwide Retail",
-    image: "https://res.cloudinary.com/tpxo8m6a/image/upload/v1790315513/Bombay_Dyeing_Mills_Image.avif",
+    image: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790315513/Bombay_Dyeing_Mills_Image.avif",
     caption: "Bombay Dyeing Mills Heritage",
     subtitle: "Carrying generational fabric expertise into modern e-commerce",
     location: "Textile District, Mumbai",
@@ -247,7 +247,7 @@ const storyMilestones = [
     title: "Enterprise Demand for Retail-Grade Workwear",
     body: storyParagraphs[2],
     highlight: "Custom corporate apparel · Event merchandise",
-    image: "https://res.cloudinary.com/tpxo8m6a/image/upload/v1790315529/Mills_of_Bombay.avif",
+    image: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790315529/Mills_of_Bombay.avif",
     caption: "Historic Mills of Bombay",
     subtitle: "Extending fine retail craftsmanship into corporate uniforms",
     location: "Central Mills, Mumbai",
@@ -259,7 +259,7 @@ const storyMilestones = [
     title: "Cottson Clothing Officially Born",
     body: storyParagraphs[3],
     highlight: "Dedicated corporate clothing & uniform manufacturing",
-    image: "https://res.cloudinary.com/tpxo8m6a/image/upload/v1790315506/Apollo_Bunder_Image.avif",
+    image: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v1790315506/Apollo_Bunder_Image.avif",
     caption: "Apollo Bunder & Gateway Harbour",
     subtitle: "A dedicated brand created exclusively for enterprise apparel",
     location: "Apollo Bunder, Mumbai",
@@ -271,7 +271,7 @@ const storyMilestones = [
     title: "80+ Team Members · 100+ Enterprise Clients",
     body: storyParagraphs[4],
     highlight: "Pan-India presence · Customer-first craftsmanship",
-    image: "https://res.cloudinary.com/tpxo8m6a/image/upload/ChatGPT_Image_Sep_25_2026_04_04_13_PM.png",
+    image: "https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_400/ChatGPT_Image_Sep_25_2026_04_04_13_PM.png",
     caption: "Cottson Clothing Today",
     subtitle: "From a family legacy to a trusted national enterprise partner",
     location: "Pan-India Presence",
@@ -426,6 +426,7 @@ function HowItAllBegan() {
                                 alt={item.caption}
                                 className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                                 loading="lazy"
+                                decoding="async"
                               />
                               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#113858]/85 via-transparent to-transparent opacity-80" />
                             </>

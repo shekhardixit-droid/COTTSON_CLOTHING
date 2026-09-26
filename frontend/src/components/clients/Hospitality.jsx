@@ -88,6 +88,8 @@ export default function HospitalityClients() {
                 <img
                   src={logo}
                   alt={`Hospitality client ${index + 1}`}
+                  loading="lazy"
+                  decoding="async"
                   className="
                     h-full
                     w-full

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useInView } from "../../hooks/useInView";
 
 const rowOne = [
   "/images/teams/team-01.jpg",
@@ -42,6 +43,8 @@ function TeamImage({ src, index, onEnter, onLeave }) {
       <img
         src={src}
         alt={`Cottson team ${index + 1}`}
+        loading="lazy"
+        decoding="async"
         draggable="false"
         className="
           h-full
@@ -77,6 +80,7 @@ function MarqueeRow({
   images,
   direction = "left",
   duration = 32,
+  isInView = true,
 }) {
   const [paused, setPaused] = useState(false);
 
@@ -141,7 +145,7 @@ function MarqueeRow({
         "
         style={{
           animation: `${animationName} ${duration}s linear infinite`,
-          animationPlayState: paused ? "paused" : "running",
+          animationPlayState: !isInView || paused ? "paused" : "running",
         }}
       >
         {/* FIRST COPY */}
@@ -178,8 +182,11 @@ function MarqueeRow({
 }
 
 function TeamMarquee() {
+  const { ref: sectionRef, isInView } = useInView({ rootMargin: "250px" });
+
   return (
     <section
+      ref={sectionRef}
       className="
         overflow-hidden
         bg-white
@@ -265,6 +272,7 @@ function TeamMarquee() {
           images={rowOne}
           direction="left"
           duration={34}
+          isInView={isInView}
         />
 
         {/* ROW 2 — LEFT TO RIGHT */}
@@ -272,6 +280,7 @@ function TeamMarquee() {
           images={rowTwo}
           direction="right"
           duration={38}
+          isInView={isInView}
         />
 
       </div>

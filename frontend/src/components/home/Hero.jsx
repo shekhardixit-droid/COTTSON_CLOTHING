@@ -123,6 +123,7 @@ function Hero() {
                 <img
                   src="jacket.png"
                   alt="Cottson corporate jacket"
+                  decoding="async"
                   className="relative h-[390px] w-[360px] object-contain drop-shadow-[0_18px_20px_rgba(17,56,88,0.09)] transition-transform duration-700 ease-out group-hover:-translate-y-2 group-hover:scale-[1.02]"
                 />
               </div>
@@ -135,6 +136,7 @@ function Hero() {
                 <img
                   src="shirt.png"
                   alt="Cottson corporate shirt"
+                  decoding="async"
                   className="relative h-[390px] w-[360px] object-contain drop-shadow-[0_18px_20px_rgba(17,56,88,0.08)] transition-transform duration-700 ease-out group-hover:-translate-y-2 group-hover:-rotate-1"
                 />
               </div>
@@ -147,6 +149,7 @@ function Hero() {
                 <img
                   src="polo.png"
                   alt="Cottson custom polo"
+                  decoding="async"
                   className="relative h-[390px] w-[360px] object-contain drop-shadow-[0_18px_20px_rgba(17,56,88,0.08)] transition-transform duration-700 ease-out group-hover:-translate-y-2 group-hover:rotate-1"
                 />
               </div>
@@ -155,16 +158,16 @@ function Hero() {
 
           {/* TABLET PRODUCT COMPOSITION (fills the md–lg gap, doesn't touch desktop) */}
           <div className="relative z-10 mx-auto hidden w-full max-w-[420px] md:grid md:grid-cols-3 md:items-end md:gap-2 lg:hidden">
-            <img src="shirt.png" alt="Corporate shirt" className="h-auto max-h-[220px] w-full object-contain" />
-            <img src="jacket.png" alt="Corporate jacket" className="h-auto max-h-[240px] w-full object-contain" />
-            <img src="polo.png" alt="Corporate polo" className="h-auto max-h-[220px] w-full object-contain" />
+            <img src="shirt.png" alt="Corporate shirt" decoding="async" className="h-auto max-h-[220px] w-full object-contain" />
+            <img src="jacket.png" alt="Corporate jacket" decoding="async" className="h-auto max-h-[240px] w-full object-contain" />
+            <img src="polo.png" alt="Corporate polo" decoding="async" className="h-auto max-h-[220px] w-full object-contain" />
           </div>
 
           {/* MOBILE PRODUCT COMPOSITION */}
           <div className="relative z-10 mx-auto grid w-full max-w-[500px] grid-cols-3 items-end gap-1 md:hidden">
-            <img src="shirt.png" alt="Corporate shirt" className="h-auto max-h-[160px] w-full object-contain" />
-            <img src="jacket.png" alt="Corporate jacket" className="h-auto max-h-[175px] w-full object-contain" />
-            <img src="polo.png" alt="Corporate polo" className="h-auto max-h-[160px] w-full object-contain" />
+            <img src="shirt.png" alt="Corporate shirt" decoding="async" className="h-auto max-h-[160px] w-full object-contain" />
+            <img src="jacket.png" alt="Corporate jacket" decoding="async" className="h-auto max-h-[175px] w-full object-contain" />
+            <img src="polo.png" alt="Corporate polo" decoding="async" className="h-auto max-h-[160px] w-full object-contain" />
           </div>
         </div>
       </section>

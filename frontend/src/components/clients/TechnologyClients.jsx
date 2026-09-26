@@ -82,6 +82,8 @@ export default function TechnologyClients() {
                 <img
                   src={logo}
                   alt={`Technology and fintech client ${index + 1}`}
+                  loading="lazy"
+                  decoding="async"
                   className="h-full w-full object-contain"
                 />
               </div>

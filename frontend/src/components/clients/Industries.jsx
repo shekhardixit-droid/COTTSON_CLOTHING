@@ -124,6 +124,8 @@ export default function Industries() {
               <img
                 src={industry.image}
                 alt={industry.title.replace("\n", " ")}
+                loading="lazy"
+                decoding="async"
                 className="
                   absolute inset-0
                   h-full w-full

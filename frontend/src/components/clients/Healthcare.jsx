@@ -84,6 +84,8 @@ export default function HealthcareClients() {
                 <img
                   src={logo}
                   alt={`Healthcare client ${index + 1}`}
+                  loading="lazy"
+                  decoding="async"
                   className="
                     h-full
                     w-full

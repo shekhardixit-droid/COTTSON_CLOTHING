@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useInView } from "../../hooks/useInView";
 
 const products = [
   {
@@ -91,6 +92,8 @@ function ProductCard({ product, onEnter, onLeave }) {
       <img
         src={product.image}
         alt={product.name}
+        loading="lazy"
+        decoding="async"
         draggable="false"
         className="
           h-full
@@ -206,9 +209,11 @@ function ProductCard({ product, onEnter, onLeave }) {
 
 function ProductMarquee() {
   const [isPaused, setIsPaused] = useState(false);
+  const { ref: sectionRef, isInView } = useInView({ rootMargin: "250px" });
 
   return (
     <section
+      ref={sectionRef}
       id="products"
       className="
         overflow-hidden
@@ -348,7 +353,7 @@ function ProductMarquee() {
           "
           style={{
             animation: "cottsonMarquee 32s linear infinite",
-            animationPlayState: isPaused ? "paused" : "running",
+            animationPlayState: !isInView || isPaused ? "paused" : "running",
           }}
         >
           {/* ORIGINAL SET */}

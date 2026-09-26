@@ -84,6 +84,8 @@ export default function RetailClients() {
                 <img
                   src={logo}
                   alt={`Retail client ${index + 1}`}
+                  loading="lazy"
+                  decoding="async"
                   className="
                     h-full
                     w-full

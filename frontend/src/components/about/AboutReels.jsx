@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
+import { useInView } from "../../hooks/useInView";
 
 const reelVideos = [
   "https://res.cloudinary.com/tpxo8m6a/video/upload/v1790330914/IMG_6707.mp4",
@@ -9,6 +10,24 @@ const reelVideos = [
   "https://res.cloudinary.com/tpxo8m6a/video/upload/v1790330904/IMG_6650.mp4",
   "https://res.cloudinary.com/tpxo8m6a/video/upload/v1790330596/BRAND_PROCESS.mp4",
 ];
+
+function getOptimizedVideoUrl(url) {
+  if (!url || typeof url !== "string") return url;
+  if (url.includes("/video/upload/") && !url.includes("/q_auto")) {
+    return url.replace("/video/upload/", "/video/upload/q_auto,w_400,vc_auto/");
+  }
+  return url;
+}
+
+function getPosterUrl(url) {
+  if (!url || typeof url !== "string") return undefined;
+  if (url.includes("/video/upload/")) {
+    return url
+      .replace("/video/upload/", "/video/upload/so_0,q_auto,f_auto,w_400/")
+      .replace(/\.mp4$/i, ".jpg");
+  }
+  return undefined;
+}
 
 function EyebrowPill({ text }) {
   return (
@@ -34,7 +53,24 @@ function EyebrowPill({ text }) {
   );
 }
 
-function ReelCard({ video }) {
+function ReelCard({ video, isInView, hasEntered }) {
+  const videoRef = useRef(null);
+  const optimizedVideo = getOptimizedVideoUrl(video);
+  const poster = getPosterUrl(video);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+    if (isInView && hasEntered) {
+      const playPromise = el.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {});
+      }
+    } else {
+      el.pause();
+    }
+  }, [isInView, hasEntered]);
+
   return (
     <div
       className="
@@ -42,17 +78,18 @@ function ReelCard({ video }) {
         aspect-[9/16] w-[260px] shrink-0
         overflow-hidden rounded-[24px]
         border border-[#113858]/[0.08]
-        bg-white
+        bg-[#E9F0F5]
         sm:w-[280px] sm:rounded-[28px]
       "
     >
       <video
-        src={video}
-        autoPlay
+        ref={videoRef}
+        src={hasEntered ? optimizedVideo : undefined}
+        poster={poster}
         muted
         loop
         playsInline
-        preload="metadata"
+        preload={hasEntered ? "metadata" : "none"}
         className="
           h-full w-full object-cover
           transition-transform duration-700 ease-out
@@ -72,15 +109,16 @@ function ReelCard({ video }) {
 }
 
 export function AboutReels() {
-  // Triple the set so each track is 6,000px+ wide — ensuring it never runs out even on 4K/zoomed-out screens
+  const { ref: sectionRef, isInView, hasEntered } = useInView({ rootMargin: "300px" });
+
+  // 14 items per track = 4,144px wide per track, perfectly seamless infinite buffer for any screen
   const reelItems = [
-    ...reelVideos,
     ...reelVideos,
     ...reelVideos,
   ];
 
   return (
-    <section className="overflow-hidden bg-[#F5F8FA] py-20 md:py-24 lg:py-28">
+    <section ref={sectionRef} className="overflow-hidden bg-[#F5F8FA] py-20 md:py-24 lg:py-28">
       {/* HEADER */}
       <div className="mx-auto mb-12 max-w-[1380px] px-5 sm:px-6 lg:px-8">
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
@@ -117,19 +155,30 @@ export function AboutReels() {
           className="flex w-max gap-4 will-change-transform hover:[animation-play-state:paused]"
           style={{
             animation: "reelMarquee 75s linear infinite",
+            animationPlayState: isInView ? "running" : "paused",
           }}
         >
           {/* Track 1 */}
           <div className="flex shrink-0 gap-4">
             {reelItems.map((video, index) => (
-              <ReelCard key={`reel-track1-${index}`} video={video} />
+              <ReelCard
+                key={`reel-track1-${index}`}
+                video={video}
+                isInView={isInView}
+                hasEntered={hasEntered}
+              />
             ))}
           </div>
 
           {/* Track 2 (seamless continuation) */}
           <div className="flex shrink-0 gap-4" aria-hidden="true">
             {reelItems.map((video, index) => (
-              <ReelCard key={`reel-track2-${index}`} video={video} />
+              <ReelCard
+                key={`reel-track2-${index}`}
+                video={video}
+                isInView={isInView}
+                hasEntered={hasEntered}
+              />
             ))}
           </div>
         </div>

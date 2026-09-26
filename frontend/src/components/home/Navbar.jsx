@@ -33,6 +33,7 @@ export default function Navbar() {
             <img
               src="/cottson.png"
               alt="COTTSON"
+              decoding="async"
               className="h-8 w-auto max-w-[110px] object-contain brightness-0 invert sm:h-9 sm:max-w-[130px] md:h-10 md:max-w-[150px]"
             />
           </a>

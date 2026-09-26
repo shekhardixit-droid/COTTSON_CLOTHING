@@ -90,6 +90,8 @@ export default function ManufacturingClients() {
                 <img
                   src={logo}
                   alt={`Manufacturing client ${index + 1}`}
+                  loading="lazy"
+                  decoding="async"
                   className="
                     h-full
                     w-full

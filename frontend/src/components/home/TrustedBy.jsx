@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useInView } from "../../hooks/useInView";
 
 const rowOne = [
   {
@@ -103,6 +104,8 @@ function ClientCard({ client, onEnter, onLeave }) {
       <img
         src={client.image}
         alt={client.name}
+        loading="lazy"
+        decoding="async"
         draggable="false"
         className="
           max-h-[52px]
@@ -133,6 +136,7 @@ function TrustedRow({
   clients,
   direction = "left",
   duration = 30,
+  isInView = true,
 }) {
   const [paused, setPaused] = useState(false);
 
@@ -197,7 +201,7 @@ function TrustedRow({
         "
         style={{
           animation: `${animationName} ${duration}s linear infinite`,
-          animationPlayState: paused ? "paused" : "running",
+          animationPlayState: !isInView || paused ? "paused" : "running",
         }}
       >
         {/* ORIGINAL */}
@@ -232,8 +236,11 @@ function TrustedRow({
 }
 
 function TrustedBy() {
+  const { ref: sectionRef, isInView } = useInView({ rootMargin: "250px" });
+
   return (
     <section
+      ref={sectionRef}
       id="clients"
       className="
         overflow-hidden
@@ -351,6 +358,7 @@ function TrustedBy() {
           clients={rowOne}
           direction="left"
           duration={30}
+          isInView={isInView}
         />
 
         {/* ROW 2 — RIGHT */}
@@ -358,6 +366,7 @@ function TrustedBy() {
           clients={rowTwo}
           direction="right"
           duration={34}
+          isInView={isInView}
         />
 
       </div>

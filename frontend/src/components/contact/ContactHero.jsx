@@ -5,6 +5,7 @@ export default function ContactHero() {
       <img
         src="/contacthero.png"
         alt="Contact Cottson"
+        decoding="async"
         className="block min-h-[700px] w-full object-cover object-[78%_center] sm:object-[80%_center] md:object-right"
       />
 
@@ -17,6 +18,7 @@ export default function ContactHero() {
               <img
                 src="/cottson_logo.png"
                 alt="Cottson"
+                decoding="async"
                 className="h-auto w-[450px]"
               />
             </div>

@@ -4,6 +4,18 @@ import {
   initialTopClients,
   initialBottomClients,
 } from "../../data/cottsonClients";
+import { useInView } from "../../hooks/useInView";
+
+function optimizeCloudinaryUrl(url, width = 240) {
+  if (!url || typeof url !== "string") return url;
+  if (url.includes("/image/upload/") && !url.includes("/f_auto")) {
+    return url.replace(
+      "/image/upload/",
+      `/image/upload/f_auto,q_auto,w_${width},c_limit/`
+    );
+  }
+  return url;
+}
 
 function EyebrowPill({ text }) {
   return (
@@ -57,9 +69,10 @@ function ClientLogoCard({ client }) {
       "
     >
       <img
-        src={client.url}
+        src={optimizeCloudinaryUrl(client.url, 240)}
         alt={client.name || "Client Logo"}
         loading="lazy"
+        decoding="async"
         draggable="false"
         className="
           h-full
@@ -77,6 +90,7 @@ function ClientLogoCard({ client }) {
 export function ClientLogoCarousel() {
   const [topClients, setTopClients] = useState(initialTopClients);
   const [bottomClients, setBottomClients] = useState(initialBottomClients);
+  const { ref: sectionRef, isInView } = useInView({ rootMargin: "250px" });
 
   useEffect(() => {
     fetch(CLIENTS_JSON_URL)
@@ -91,7 +105,7 @@ export function ClientLogoCarousel() {
             return {
               id: item.public_id,
               name: item.public_id.replace(/[_-]/g, " ").trim(),
-              url: `https://res.cloudinary.com/tpxo8m6a/image/upload/v${item.version}/${item.public_id}.${ext}`,
+              url: `https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_240,c_limit/v${item.version}/${item.public_id}.${ext}`,
             };
           };
 
@@ -105,7 +119,7 @@ export function ClientLogoCarousel() {
   }, []);
 
   return (
-    <section className="overflow-hidden bg-white py-16 sm:py-20">
+    <section ref={sectionRef} className="overflow-hidden bg-white py-16 sm:py-20">
       {/* HEADER */}
       <div className="mb-10 px-5 text-center sm:px-8">
         <EyebrowPill text="Trusted by" />
@@ -134,6 +148,7 @@ export function ClientLogoCarousel() {
               className="flex w-max gap-3 will-change-transform hover:[animation-play-state:paused] sm:gap-4"
               style={{
                 animation: "aboutMarqueeLeft 80s linear infinite",
+                animationPlayState: isInView ? "running" : "paused",
               }}
             >
               <div className="flex shrink-0 gap-3 sm:gap-4">
@@ -155,6 +170,7 @@ export function ClientLogoCarousel() {
               className="flex w-max gap-3 will-change-transform hover:[animation-play-state:paused] sm:gap-4"
               style={{
                 animation: "aboutMarqueeRight 85s linear infinite",
+                animationPlayState: isInView ? "running" : "paused",
               }}
             >
               <div className="flex shrink-0 gap-3 sm:gap-4">

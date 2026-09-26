@@ -272,6 +272,8 @@ export default function ProductResources() {
                 <img
                   src={product.image}
                   alt={product.name}
+                  loading="lazy"
+                  decoding="async"
                   className="
                     h-full
                     w-full

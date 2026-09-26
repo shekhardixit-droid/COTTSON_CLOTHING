@@ -55,6 +55,8 @@ export default function CorporateWearShow() {
               <img
                 src={images[0]}
                 alt="Corporate team wearing custom apparel"
+                loading="lazy"
+                decoding="async"
                 className="h-full w-full object-cover"
               />
             </div>
@@ -63,6 +65,8 @@ export default function CorporateWearShow() {
               <img
                 src={images[1]}
                 alt="Corporate team wearing custom apparel"
+                loading="lazy"
+                decoding="async"
                 className="h-full w-full object-cover"
               />
             </div>
@@ -74,6 +78,8 @@ export default function CorporateWearShow() {
               <img
                 src={images[2]}
                 alt="Corporate team"
+                loading="lazy"
+                decoding="async"
                 className="h-full w-full object-cover"
               />
             </div>
@@ -82,6 +88,8 @@ export default function CorporateWearShow() {
               <img
                 src={images[3]}
                 alt="Corporate team plantation event"
+                loading="lazy"
+                decoding="async"
                 className="h-full w-full object-cover"
               />
             </div>
@@ -90,6 +98,8 @@ export default function CorporateWearShow() {
               <img
                 src={images[4]}
                 alt="Corporate event"
+                loading="lazy"
+                decoding="async"
                 className="h-full w-full object-cover"
               />
             </div>

@@ -84,6 +84,8 @@ export default function Energy() {
                 <img
                   src={logo}
                   alt={`Energy and infrastructure client ${index + 1}`}
+                  loading="lazy"
+                  decoding="async"
                   className="
                     h-full
                     w-full
