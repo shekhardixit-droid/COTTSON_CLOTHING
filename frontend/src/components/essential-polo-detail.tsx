@@ -103,12 +103,10 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">
-      <div className="grid overflow-hidden rounded-2xl border lg:h-[calc(100vh-9rem)] lg:grid-cols-2">
-        {/* Left: photo with the wave-sweep color swap, zoomed in on the logo once there is one.
-            Fixed to the column's height (not scrollable) so it never moves — only the options
-            column on the right scrolls, separated by the divider line. */}
-        <div className="relative bg-white lg:h-full">
-          <div className="relative grid aspect-square w-full place-items-center overflow-hidden lg:aspect-auto lg:h-full">
+      <div className="grid gap-10 lg:grid-cols-2">
+        {/* Left: photo with the wave-sweep color swap, zoomed in on the logo once there is one */}
+        <div className="relative">
+          <div className="relative grid aspect-square w-full place-items-center overflow-hidden rounded-2xl bg-white">
             <GarmentPhoto ref={frameRef} product={product} colorId={colorId} focus={focus}>
               {logo && logoArt && (
                 <LogoLayer
@@ -136,10 +134,8 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
           )}
         </div>
 
-        {/* Right: title, design studio CTA, logo, trim color, sizes, price + add to cart.
-            Scrolls on its own within the capped card height, divided from the photo by
-            the border. */}
-        <div className="border-t p-6 sm:p-8 lg:h-full lg:overflow-y-auto lg:border-l lg:border-t-0">
+        {/* Right: title, design studio CTA, logo, trim color, sizes, price + add to cart */}
+        <div>
           <div className="flex items-start justify-between gap-4">
             <h1 className="text-3xl font-bold text-brand">{product.title}</h1>
             <Link
