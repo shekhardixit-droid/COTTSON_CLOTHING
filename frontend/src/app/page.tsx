@@ -1,220 +1,169 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ImageIcon, ChevronLeft, ChevronRight } from "lucide-react";
-import { NeedsGrid } from "@/components/needs-grid";
-import { DesignShowcase } from "@/components/design-showcase";
-import { StatsRow } from "@/components/stats-row";
-import { FaqAccordion } from "@/components/faq-accordion";
+import { Check, MessageSquare, Palette, Shirt, Truck, Users } from "lucide-react";
+import { PRODUCTS, COLORS } from "@/lib/catalog";
+import { ProductCard } from "@/components/product-card";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { QuoteForm } from "@/components/quote-form";
 
-const CLIENTS = [
-  "OMS", "Morgan Stanley", "Mullenlowe Lintas Group", "NDTS India", "Aurum", "Western", "Hoshizaki",
-  "Antony Waste", "Chemco", "Lupin", "Uniclan Healthcare", "Glocutis Healthcare", "Essens Renewable",
-  "Supreme Allied Services", "Tubestar", "Dry Chem", "Walplast", "Aurum PropTech",
-];
-
-const WHATSAPP = "https://wa.me/919892297764?text=Hi%2C%20I%20have%20a%20requirement";
-
-function ImageSlot({ className }: { className?: string }) {
-  return (
-    <div className={`grid place-items-center rounded-2xl border-2 border-dashed bg-muted text-muted-foreground ${className ?? ""}`}>
-      <ImageIcon className="size-6" strokeWidth={1.5} />
-    </div>
-  );
-}
+export const revalidate = 3600; // ISR: rebuilt at most hourly, served from the CDN
 
 export default function HomePage() {
   return (
     <>
-      {/* Hero: headline centered between two flanking product photos (added later) */}
-      <section className="relative isolate overflow-hidden bg-background pb-14 pt-14">
-        {/* Shirt photos bleed to the viewport edges, staggered like the reference (not aligned to the same top) */}
-        <div className="pointer-events-none absolute left-0 top-24 hidden w-[260px] lg:block xl:w-[340px]">
-          <Image src="/shirt2.png" alt="COTTSON shirt" width={399} height={417} sizes="340px" className="h-auto w-full object-contain" />
-        </div>
-        <div className="pointer-events-none absolute right-0 top-0 hidden w-[200px] lg:block xl:w-[260px]">
-          <Image src="/shirt1.png" alt="COTTSON shirt" width={368} height={417} sizes="260px" className="h-auto w-full object-contain" />
-        </div>
+      {/* Hero: a white card sits over a full-bleed photo, like a storefront window display */}
+      <section className="relative isolate min-h-[640px] overflow-hidden bg-[#b9bcc2]">
+        <Image
+          src="/hero-bg.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="-z-10 object-cover"
+        />
 
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="mx-auto grid max-w-xs grid-cols-2 gap-3 lg:hidden">
-            <div className="relative aspect-[3/4] w-full">
-              <Image src="/shirt2.png" alt="COTTSON shirt" fill sizes="180px" className="object-cover" />
-            </div>
-            <div className="relative aspect-[3/4] w-full">
-              <Image src="/shirt1.png" alt="COTTSON shirt" fill sizes="180px" className="object-cover" />
-            </div>
-          </div>
-
-          <div className="relative mx-auto mt-6 max-w-2xl text-center lg:mt-0">
-            <h1 className="text-3xl font-bold leading-tight tracking-tight text-brand sm:text-5xl">
-              Custom Corporate Clothing
+        <div className="relative mx-auto max-w-7xl px-4 pb-16">
+          <div className="max-w-[500px] rounded-b-2xl bg-background px-5 pb-11 pt-11 shadow-2xl sm:px-6">
+            <span className="inline-flex items-center gap-1.5 rounded-full border bg-background px-2 py-0.5 text-xs font-medium text-brand">
+              <span className="size-1.5 rounded-full bg-brand-accent" /> Custom cotton clothing
+            </span>
+            <h1 className="mt-4 text-4xl font-bold leading-[1.05] tracking-tight text-brand sm:text-5xl">
+              Your team.
               <br />
-              for Mumbai Companies<span className="text-brand-accent">.</span>
+              Your colors.
+              <br />
+              Our cotton<span className="text-brand-accent">.</span>
             </h1>
-            <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground sm:text-base">
-              Branded T-shirts, polos &amp; shirts for events, office staff &amp; team outings.
-              <br /> MOQ 25 pieces. Delivered in 7–10 days.
-            </p>
-            <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-              <a
-                href={WHATSAPP}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="grid h-11 place-items-center rounded-full bg-brand px-7 text-sm font-semibold text-white shadow-sm hover:bg-brand/90"
-              >
-                Talk To Our Team
-              </a>
-              <Link href="/products" className="grid h-11 place-items-center rounded-full border border-brand px-7 text-sm font-semibold text-brand hover:bg-muted">
-                View Products
+            <ul className="mt-7 grid gap-x-5 gap-y-3 text-sm font-semibold sm:grid-cols-2">
+              {["Premium cotton", "Any color, any logo", "Live design studio", "Bulk pricing from 25", "Made to order", "Delivered in 7–10 days"].map((t) => (
+                <li key={t} className="flex items-center gap-2">
+                  <Check className="size-3.5 shrink-0 text-brand" strokeWidth={3} />
+                  {t}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8 grid gap-2 sm:grid-cols-2">
+              <Link href="/studio" className="grid h-12 place-items-center rounded-md bg-brand text-sm font-semibold text-white shadow-sm hover:bg-brand/90">
+                Talk to us
+              </Link>
+              <Link href="/products" className="grid h-12 place-items-center rounded-md bg-muted text-sm font-semibold text-brand hover:bg-muted/70">
+                Browse catalog
               </Link>
             </div>
           </div>
 
-          <ImageSlot className="relative mx-auto mt-8 aspect-[4/3] h-[180px] rotate-180" />
-        </div>
-
-        <a
-          href={WHATSAPP}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Chat with us on WhatsApp"
-          className="fixed bottom-6 right-6 z-50 grid size-16 place-items-center rounded-full shadow-lg hover:opacity-90"
-        >
-          <Image src="/whatsapp.png" alt="WhatsApp" width={64} height={64} className="size-16" />
-        </a>
-      </section>
-
-      {/* Your Brand. Your Colours. Your Style — garment photos go in later */}
-      <section className="mx-auto max-w-7xl px-4 pt-32 text-center">
-        <h2 className="mt-8 text-3xl font-bold tracking-tight text-brand sm:text-4xl">
-          Your Brand. Your Colours. Your Style
-        </h2>
-        <p className="mt-3 text-muted-foreground">Classic polos, custom collars and everything in between.</p>
-
-        <div className="relative mt-8">
-          <button
-            type="button"
-            aria-label="Previous"
-            className="absolute -left-4 top-1/2 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full border bg-background shadow-sm hover:bg-muted"
-          >
-            <ChevronLeft className="size-4" />
-          </button>
-          <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 py-1 [scrollbar-width:none]">
-            {Array.from({ length: 7 }).map((_, i) => (
-              <ImageSlot key={i} className="aspect-[3/4] w-40 shrink-0 snap-start sm:w-44" />
-            ))}
+          {/* Small badge card, peeking out below the main card like a certification tag */}
+          <div className="mt-6 inline-flex items-center gap-4 rounded-2xl bg-background px-6 py-4 shadow-lg">
+            <span className="grid size-12 shrink-0 place-items-center rounded-full border-2 border-brand text-xs font-bold text-brand">
+              100%
+            </span>
+            <div>
+              <div className="text-lg font-semibold text-brand">Pure cotton</div>
+              <div className="text-sm text-muted-foreground">Designed and made in India</div>
+            </div>
           </div>
-          <button
-            type="button"
-            aria-label="Next"
-            className="absolute -right-4 top-1/2 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full border bg-background shadow-sm hover:bg-muted"
-          >
-            <ChevronRight className="size-4" />
-          </button>
+        </div>
+
+        {/* Floating second product photo, standing on the ground at the bottom of the hero */}
+        <Link
+          href="/products/polo-black"
+          className="absolute bottom-0 right-8 hidden h-[560px] w-[420px] transition-transform hover:scale-[1.02] lg:block"
+        >
+          <Image
+            src="/products/polo-black/cutout.png"
+            alt="Model wearing a COTTSON essential polo"
+            fill
+            sizes="420px"
+            unoptimized
+            className="object-contain object-bottom"
+          />
+        </Link>
+
+        <Link
+          href="/#bulk"
+          aria-label="Chat with us"
+          className="fixed bottom-6 right-6 z-50 grid size-16 place-items-center rounded-full bg-brand text-white shadow-lg hover:bg-brand/90"
+        >
+          <MessageSquare className="size-7" />
+        </Link>
+      </section>
+
+      {/* Color strip */}
+      <section className="border-y bg-muted/30">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-3 px-4 py-6">
+          <span className="mr-2 text-sm text-muted-foreground">{COLORS.length} colors in stock:</span>
+          {COLORS.map((c) => (
+            <span key={c.id} title={c.name} className="size-6 rounded-full ring-1 ring-border" style={{ background: c.hex }} />
+          ))}
         </div>
       </section>
 
-      {/* Real Teams. Real Events. Real Cottson. — two scrollable rows of client/event photos (added later) */}
+      {/* Products */}
       <section className="mx-auto max-w-7xl px-4 pt-20">
-        <h2 className="text-center text-3xl font-bold tracking-tight text-brand sm:text-4xl">
-          Real Teams. Real Events. Real Cottson.
-        </h2>
-        <p className="mt-3 text-center text-muted-foreground">Trusted by Mumbai&apos;s leading companies.</p>
+        <div className="flex items-end justify-between">
+          <h2 className="text-3xl font-semibold tracking-tight">Bestsellers</h2>
+          <Link href="/products" className="text-sm font-medium hover:underline">
+            View all
+          </Link>
+        </div>
+        <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {PRODUCTS.map((p) => (
+            <ProductCard key={p.slug} product={p} />
+          ))}
+        </div>
+      </section>
 
-        <div className="mt-8 space-y-3">
-          {[0, 1].map((row) => (
-            <div key={row} className="flex gap-3 overflow-x-auto px-1 py-1 [scrollbar-width:none]">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <ImageSlot key={i} className="aspect-[4/3] w-64 shrink-0 sm:w-72" />
+      {/* How it works */}
+      <section id="how" className="mx-auto max-w-7xl scroll-mt-24 px-4 pt-24">
+        <h2 className="text-3xl font-semibold tracking-tight">How it works</h2>
+        <div className="mt-8 grid gap-6 md:grid-cols-4">
+          {[
+            [Shirt, "Pick a product", "Shirts and polos in premium cotton."],
+            [Palette, "Choose any color", "See it on the real garment, folds and all."],
+            [Users, "Add your logo", "Upload your artwork, place and size it."],
+            [Truck, "We make & ship", "Printed or embroidered, delivered in 7–10 days."],
+          ].map(([Icon, title, text], i) => {
+            const I = Icon as typeof Shirt;
+            return (
+              <div key={i} className="rounded-2xl border p-6">
+                <div className="flex items-center gap-3">
+                  <span className="grid size-10 place-items-center rounded-full bg-muted">
+                    <I className="size-5" />
+                  </span>
+                  <span className="text-sm text-muted-foreground">Step {i + 1}</span>
+                </div>
+                <div className="mt-4 font-medium">{title as string}</div>
+                <p className="mt-1 text-sm text-muted-foreground">{text as string}</p>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Bulk */}
+      <section id="bulk" className="mx-auto max-w-7xl scroll-mt-24 px-4 pt-24">
+        <div className="grid items-center gap-10 overflow-hidden rounded-3xl bg-foreground p-10 text-background lg:grid-cols-2">
+          <div>
+            <h2 className="text-3xl font-semibold tracking-tight">Uniforms and merch for your team</h2>
+            <p className="mt-4 max-w-md opacity-80">
+              Order 25+ pieces and save up to 20%. Mix sizes and colors in one order, with your logo embroidered or printed.
+            </p>
+            <div className="mt-6 grid max-w-sm grid-cols-3 gap-3 text-center">
+              {[["25+", "10% off"], ["50+", "15% off"], ["100+", "20% off"]].map(([q, d]) => (
+                <div key={q} className="rounded-xl bg-background/10 p-3">
+                  <div className="text-xl font-semibold">{q}</div>
+                  <div className="text-xs opacity-80">{d}</div>
+                </div>
               ))}
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* T-Shirts, Polos & Shirts for Your Team — logo mark + product carousel (added later) */}
-      <section className="mx-auto max-w-7xl px-4 pt-20 text-center">
-        <div className="mx-auto grid size-14 place-items-center rounded-full border-2 border-dashed text-muted-foreground">
-          <ImageIcon className="size-6" strokeWidth={1.5} />
-        </div>
-        <h2 className="mt-6 text-3xl font-bold tracking-tight text-brand sm:text-4xl">T-Shirts, Polos &amp; Shirts for Your Team</h2>
-        <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
-          Built for corporate events, office staff and team outings. Find your fabric and order a free swatch before
-          you commit.
-        </p>
-
-        <div className="relative mt-10">
-          <button
-            type="button"
-            aria-label="Previous"
-            className="absolute -left-4 top-1/2 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full border bg-background shadow-sm hover:bg-muted"
-          >
-            <ChevronLeft className="size-4" />
-          </button>
-          <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 py-1 text-left [scrollbar-width:none]">
-            {["Edge", "Stride", "Cosmo", "Evolve", "Elite", "Prime"].map((name, i) => (
-              <div key={name} className="relative w-52 shrink-0 snap-start">
-                {i === 4 && (
-                  <span className="absolute left-3 top-3 z-10 rounded-full bg-brand-accent px-2.5 py-1 text-[11px] font-semibold text-white">
-                    Best Seller
-                  </span>
-                )}
-                <ImageSlot className="aspect-[3/4] w-full" />
-                <p className="mt-3 text-sm font-medium text-brand">{name} - Full Sleeve Formal Shirt</p>
-              </div>
-            ))}
+            <Link href="/studio" className={cn(buttonVariants({ variant: "secondary", size: "lg" }), "mt-8 h-11 px-6")}>
+              Design for your team
+            </Link>
           </div>
-          <button
-            type="button"
-            aria-label="Next"
-            className="absolute -right-4 top-1/2 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full border bg-background shadow-sm hover:bg-muted"
-          >
-            <ChevronRight className="size-4" />
-          </button>
+          <QuoteForm />
         </div>
       </section>
-
-      {/* Trusted by 250+ companies across Mumbai — client word-marks (logos to come later) */}
-      <section className="mx-auto max-w-7xl px-4 pt-20 text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-brand sm:text-4xl">Trusted by 250+ companies across Mumbai</h2>
-        <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4 lg:grid-cols-7">
-          {CLIENTS.map((name) => (
-            <div key={name} className="text-sm font-semibold text-muted-foreground">
-              {name}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <NeedsGrid />
-
-      <DesignShowcase />
-
-      <StatsRow />
-
-      {/* Ready To Create Your Corporate Clothing? — garment rack photo (added later) + CTA */}
-      <section className="mx-auto max-w-7xl px-4 pt-20">
-        <div className="grid items-center gap-8 overflow-hidden rounded-2xl border lg:grid-cols-2">
-          <ImageSlot className="aspect-[4/3] rounded-none border-0 lg:aspect-auto lg:h-full" />
-          <div className="px-6 py-10 text-center sm:px-10">
-            <h2 className="text-2xl font-bold tracking-tight text-brand sm:text-3xl">Ready To Create Your Corporate Clothing?</h2>
-            <p className="mx-auto mt-4 max-w-md text-muted-foreground">
-              Talk to our team to discuss your requirements, explore customisation options and get a tailored
-              solution for your business.
-            </p>
-            <a
-              href={WHATSAPP}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 inline-grid h-11 place-items-center rounded-full bg-brand px-8 text-sm font-semibold text-white shadow-sm hover:bg-brand/90"
-            >
-              Talk To Our Team
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <FaqAccordion />
     </>
   );
 }
