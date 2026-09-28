@@ -39,30 +39,34 @@ export function ProductConfigurator({ product, initialColor }: { product: Produc
   return (
     <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 lg:grid-cols-[1.1fr_1fr]">
       <div className="lg:sticky lg:top-28 lg:self-start">
-        <RecolorCanvas
-          slug={product.slug}
-          topColor={colorId === product.originalColor ? null : color.hex}
-          pose={product.poses ? pose : undefined}
-          className="rounded-2xl"
-        />
-        <p className="mt-2 text-center text-xs text-muted-foreground">Live preview on the real garment</p>
-        {product.poses && product.poses > 1 && (
-          <div className="mt-3 flex gap-2 overflow-x-auto">
-            {Array.from({ length: product.poses }, (_, i) => (
-              <button
-                key={i}
-                onClick={() => setPose(i)}
-                aria-label={`Pose ${i + 1}`}
-                className={cn(
-                  "relative size-16 shrink-0 overflow-hidden rounded-lg border-2 bg-muted",
-                  pose === i ? "border-foreground" : "border-transparent hover:border-muted-foreground/40"
-                )}
-              >
-                <Image src={assetUrl(product.slug, "model-photo.png", i)} alt={`Pose ${i + 1}`} fill className="object-cover" />
-              </button>
-            ))}
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
+          {product.poses && product.poses > 1 && (
+            <div className="order-2 flex gap-2 overflow-x-auto lg:order-1 lg:max-h-[36rem] lg:flex-col lg:overflow-y-auto lg:overflow-x-visible">
+              {Array.from({ length: product.poses }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPose(i)}
+                  aria-label={`Pose ${i + 1}`}
+                  className={cn(
+                    "relative size-16 shrink-0 overflow-hidden rounded-lg border-2 bg-muted",
+                    pose === i ? "border-foreground" : "border-transparent hover:border-muted-foreground/40"
+                  )}
+                >
+                  <Image src={assetUrl(product.slug, "model-photo.png", i)} alt={`Pose ${i + 1}`} fill className="object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="order-1 min-w-0 flex-1 lg:order-2">
+            <RecolorCanvas
+              slug={product.slug}
+              topColor={colorId === product.originalColor ? null : color.hex}
+              pose={product.poses ? pose : undefined}
+              className="mx-auto max-w-md rounded-2xl lg:max-w-none"
+            />
+            <p className="mt-2 text-center text-xs text-muted-foreground">Live preview on the real garment</p>
           </div>
-        )}
+        </div>
       </div>
 
       <div>

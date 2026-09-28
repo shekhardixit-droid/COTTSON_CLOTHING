@@ -633,8 +633,7 @@
         "grey",
         "navy"
       ],
-<<<<<<< HEAD
-=======
+
       "minBulk": 25
     },
     {
@@ -661,7 +660,6 @@
         "red",
         "white"
       ],
->>>>>>> origin/main
       "minBulk": 25
     }
   ]

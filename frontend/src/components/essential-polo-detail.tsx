@@ -2,13 +2,15 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
+import NextImage from "next/image";
 import { toast } from "sonner";
-import { ImagePlus, Minus, Move, Palette, Plus, X, ZoomIn, ZoomOut } from "lucide-react";
-import { type Product, colorById, formatPrice } from "@/lib/catalog";
+import { ChevronRight, ImagePlus, Minus, Move, Palette, Plus, X, ZoomIn, ZoomOut } from "lucide-react";
+import { type Product, assetUrl, colorById, formatPrice } from "@/lib/catalog";
 import { useCart } from "@/lib/cart-store";
 import { cn } from "@/lib/utils";
 import {
   FINISHINGS,
+  IMAGE_ASPECT,
   finishingById,
   focusOn,
   largestWidthFor,
@@ -30,6 +32,7 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
   const add = useCart((s) => s.add);
   const [colorId, setColorId] = useState(initialColor);
   const [sizes, setSizes] = useState<Record<string, number>>({});
+  const [pose, setPose] = useState(0);
 
   const [logo, setLogo] = useState<LogoFile | null>(null);
   const [placement, setPlacement] = useState<Placement>(placeAt("left-chest", 8, 1));
@@ -84,9 +87,10 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
   const setSize = (s: string, qty: number) => setSizes((prev) => ({ ...prev, [s]: Math.max(0, qty) }));
 
   const selectColor = (id: string) => {
-    if (id === colorId) return;
+    if (id !== colorId) window.history.replaceState(null, "", `?color=${id}`);
     setColorId(id);
-    window.history.replaceState(null, "", `?color=${id}`);
+    // Only pose 0 has color-swap variants — jump back to it so the new color is actually visible
+    setPose(0);
   };
 
   const addToCart = () => {
@@ -102,37 +106,76 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
-      <div className="grid gap-10 lg:grid-cols-2">
-        {/* Left: photo with the wave-sweep color swap, zoomed in on the logo once there is one.
-            Sticky so it stays on screen while the (usually longer) options column scrolls. */}
-        <div className="relative lg:sticky lg:top-24 lg:self-start">
-          <div className="relative grid aspect-square w-full place-items-center justify-items-start overflow-hidden rounded-2xl bg-white">
-            <GarmentPhoto ref={frameRef} product={product} colorId={colorId} focus={focus}>
-              {logo && logoArt && (
-                <LogoLayer
-                  src={logoArt}
-                  embroidered={embroidered}
-                  placement={placement}
-                  aspect={logo.aspect}
-                  maxWidth={maxW}
-                  onChange={onPlacement}
-                  frameRef={frameRef}
-                  zoom={focus?.z ?? 1}
-                />
+    <div className="mx-auto max-w-7xl px-4 py-6">
+      <nav className="mb-4 flex items-center gap-1.5 text-sm text-muted-foreground">
+        <Link href="/" className="hover:text-foreground hover:underline">Home</Link>
+        <ChevronRight className="size-3.5" />
+        <Link href="/products" className="hover:text-foreground hover:underline">All Products</Link>
+        <ChevronRight className="size-3.5" />
+        <span className="text-foreground">{product.title}</span>
+      </nav>
+      <div className="grid gap-10 lg:grid-cols-[3fr_2fr]">
+        {/* Left: alternate-angle thumbnails in a rail beside the main (centered) photo, which
+            has the wave-sweep color swap and zooms in on the logo once there is one. Sticky so
+            it stays on screen while the (usually longer) options column scrolls. */}
+        <div className="lg:sticky lg:top-24 lg:self-start">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
+            {product.poses && product.poses > 1 && (
+              <div className="order-2 flex gap-2 overflow-x-auto lg:order-1 lg:w-20 lg:max-h-[32rem] lg:flex-col lg:overflow-x-visible lg:overflow-y-auto">
+                {Array.from({ length: product.poses }, (_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setPose(i)}
+                    aria-label={`Angle ${i + 1}`}
+                    className={cn(
+                      "relative aspect-square w-16 shrink-0 overflow-hidden rounded-lg border-2 bg-muted lg:w-full",
+                      pose === i ? "border-brand" : "border-transparent hover:border-muted-foreground/40"
+                    )}
+                  >
+                    <NextImage
+                      src={assetUrl(product.slug, "model-photo.png", i)}
+                      alt={`Angle ${i + 1}`}
+                      fill
+                      unoptimized
+                      className="object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+            <div className="relative order-1 min-w-0 flex-1 lg:order-2">
+              <div
+                className="relative w-full overflow-hidden rounded-2xl bg-white"
+                style={{ aspectRatio: IMAGE_ASPECT }}
+              >
+                <GarmentPhoto ref={frameRef} product={product} colorId={colorId} pose={pose} focus={focus}>
+                  {logo && logoArt && (
+                    <LogoLayer
+                      src={logoArt}
+                      embroidered={embroidered}
+                      placement={placement}
+                      aspect={logo.aspect}
+                      maxWidth={maxW}
+                      onChange={onPlacement}
+                      frameRef={frameRef}
+                      zoom={focus?.z ?? 1}
+                    />
+                  )}
+                </GarmentPhoto>
+              </div>
+              {logo && (
+                <button
+                  type="button"
+                  onClick={() => setFocus((f) => (f ? null : focusOn(placement, logo.aspect)))}
+                  className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium shadow-sm hover:bg-background"
+                >
+                  {focus ? <ZoomOut className="size-3.5" /> : <ZoomIn className="size-3.5" />}
+                  {focus ? "Zoom out" : "Zoom to logo"}
+                </button>
               )}
-            </GarmentPhoto>
+            </div>
           </div>
-          {logo && (
-            <button
-              type="button"
-              onClick={() => setFocus((f) => (f ? null : focusOn(placement, logo.aspect)))}
-              className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium shadow-sm hover:bg-background"
-            >
-              {focus ? <ZoomOut className="size-3.5" /> : <ZoomIn className="size-3.5" />}
-              {focus ? "Zoom out" : "Zoom to logo"}
-            </button>
-          )}
         </div>
 
         {/* Right: title, design studio CTA, logo, trim color, sizes, price + add to cart */}
