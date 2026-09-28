@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 // Every category we sell in, even ones with no live product yet — so the sidebar reads as a
 // real catalog nav rather than growing/shrinking with whatever happens to be in stock.
-const CATEGORIES = ["Shirts", "T-Shirts", "Jacket", "Hoodies", "Sweatshirt", "Towels", "Cap", "Trousers"];
+const CATEGORIES = ["Polos", "Shirts", "T-Shirts", "Jacket", "Hoodies", "Sweatshirt", "Towels", "Cap", "Trousers"];
 
 export function CategoryFilter({ products }: { products: Product[] }) {
   const [active, setActive] = useState<string | null>(null);
