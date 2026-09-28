@@ -282,36 +282,55 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
               ))}
             </div>
 
-            {totalQty > 0 && (
-              <div className="mt-4 rounded-lg border bg-muted/30 p-3">
-                <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Selected</div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {product.sizes
-                    .filter((s) => (sizes[s] ?? 0) > 0)
-                    .map((s) => (
-                      <span key={s} className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white">
-                        {s} × {sizes[s]}
-                      </span>
-                    ))}
-                </div>
-              </div>
-            )}
           </div>
 
-          <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t pt-6">
-            <div className="text-sm">
-              <div className="text-muted-foreground">Lead time</div>
-              <div className="font-semibold text-brand">7–10 business days</div>
-              <div className="mt-1 text-muted-foreground">Price</div>
-              <div className="font-semibold text-brand">{formatPrice(product.price, product.currency)} per piece</div>
+          <div className="mt-8 border-t pt-6">
+            {totalQty > 0 && (
+              <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {product.sizes
+                  .filter((s) => (sizes[s] ?? 0) > 0)
+                  .map((s) => (
+                    <div key={s} className="flex items-center justify-between rounded-lg border px-3 py-2">
+                      <span className="text-sm font-semibold">{s}</span>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setSize(s, (sizes[s] ?? 0) - 1)}
+                          className="grid size-6 place-items-center rounded-md hover:bg-muted"
+                          aria-label={`Fewer ${s}`}
+                        >
+                          <Minus className="size-3" />
+                        </button>
+                        <span className="w-5 text-center text-sm tabular-nums">{sizes[s]}</span>
+                        <button
+                          type="button"
+                          onClick={() => setSize(s, (sizes[s] ?? 0) + 1)}
+                          className="grid size-6 place-items-center rounded-md hover:bg-muted"
+                          aria-label={`More ${s}`}
+                        >
+                          <Plus className="size-3" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="text-sm">
+                <div className="text-muted-foreground">Lead time</div>
+                <div className="font-semibold text-brand">7–10 business days</div>
+                <div className="mt-1 text-muted-foreground">Price</div>
+                <div className="font-semibold text-brand">{formatPrice(product.price, product.currency)} per piece</div>
+              </div>
+              <button
+                type="button"
+                onClick={addToCart}
+                className="h-11 shrink-0 rounded-lg bg-brand px-6 text-sm font-semibold text-white hover:bg-brand/90"
+              >
+                Add to cart ({totalQty})
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={addToCart}
-              className="h-11 shrink-0 rounded-lg bg-brand px-6 text-sm font-semibold text-white hover:bg-brand/90"
-            >
-              Add to cart ({totalQty})
-            </button>
           </div>
         </div>
       </div>
