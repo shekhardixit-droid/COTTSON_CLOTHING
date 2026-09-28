@@ -44,11 +44,12 @@ export function SiteHeader() {
       const rect = el.getBoundingClientRect();
       if (rect.width > 0) originalTopRef.current = rect.top + window.scrollY;
     };
-    measure();
     const onScroll = () => {
       if (originalTopRef.current == null) measure();
       if (originalTopRef.current != null) setFloating(window.scrollY > originalTopRef.current - 16);
     };
+    measure();
+    onScroll(); // check immediately too — the page can already be scrolled on load (e.g. a #hash jump), when no "scroll" event ever fires
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", measure);
     return () => {
