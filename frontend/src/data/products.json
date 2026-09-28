@@ -64,6 +64,11 @@
       "id": "yellow",
       "name": "Butter Yellow",
       "hex": "#f2e08a"
+    },
+    {
+      "id": "green",
+      "name": "Green Trim",
+      "hex": "#7ac142"
     }
   ],
   "products": [
@@ -135,30 +140,6 @@
         "black",
         "navy",
         "red",
-        "grey"
-      ],
-      "minBulk": 25
-    },
-    {
-      "slug": "contrast-trim-shirt",
-      "title": "Contrast Trim Shirt",
-      "category": "Shirts",
-      "description": "Crisp cotton shirt with a bold patterned collar, cuffs and pocket trim. A sharper layer for nights out or dressed-down office days.",
-      "price": 1799,
-      "currency": "INR",
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL",
-        "XXL"
-      ],
-      "originalColor": "white",
-      "colors": [
-        "white",
-        "black",
-        "navy",
-        "maroon",
         "grey"
       ],
       "minBulk": 25
@@ -449,6 +430,7 @@
         "XL",
         "XXL"
       ],
+
       "originalColor": "black",
       "colors": [
         "black",
@@ -651,6 +633,35 @@
         "grey",
         "navy"
       ],
+<<<<<<< HEAD
+=======
+      "minBulk": 25
+    },
+    {
+      "slug": "essential-polo",
+      "title": "Essential Polo",
+      "category": "T-Shirts",
+      "description": "A classic pique polo with a tipped collar and sleeve trim, available in your choice of trim color. Made to order for corporate events, office staff and team outings.",
+      "price": 499,
+      "currency": "INR",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL",
+        "2XL",
+        "3XL"
+      ],
+      "originalColor": "green",
+      "colors": [
+        "green",
+        "black",
+        "navy",
+        "red",
+        "white"
+      ],
+>>>>>>> origin/main
       "minBulk": 25
     }
   ]

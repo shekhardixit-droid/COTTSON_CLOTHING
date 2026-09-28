@@ -1,35 +1,95 @@
 import Link from "next/link";
+import Image from "next/image";
 
-const COLUMNS = [
-  { title: "Shop", links: [["All products", "/products"], ["Shirts", "/products?category=Shirts"], ["Polos", "/products?category=Polos"]] },
-  { title: "Customize", links: [["Design Studio", "/studio"], ["Bulk orders", "/#bulk"], ["How it works", "/#how"]] },
-  { title: "Help", links: [["Shipping", "#"], ["Returns", "#"], ["Contact", "#"]] },
+const WHATSAPP = "https://wa.me/919892297764?text=Hi%2C%20I%20have%20a%20requirement";
+
+const PAGES = [
+  ["Home", "/"],
+  ["Products", "/products"],
+  ["Customisation", "/studio"],
+  ["Contact Us", "#contact"],
+];
+
+const SOCIAL = [
+  ["WhatsApp", WHATSAPP],
+  ["Instagram", "#"],
+  ["Youtube", "#"],
+  ["LinkedIn", "#"],
 ];
 
 export function SiteFooter() {
   return (
-    <footer className="mt-24 border-t bg-muted/40">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-4">
-        <div>
+    <footer id="contact" className="mt-24 scroll-mt-24 bg-brand text-background">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="lg:col-span-2">
           <div className="text-lg font-bold tracking-[0.2em]">COTTSON</div>
-          <p className="mt-3 max-w-xs text-sm text-muted-foreground">Premium cotton essentials, customized for you and your team.</p>
+          <p className="mt-3 max-w-xs text-sm opacity-75">
+            Custom corporate clothing for Mumbai, Thane &amp; Navi Mumbai companies. Branded T-shirts, polos and
+            shirts, delivered in 7–10 days.
+          </p>
         </div>
-        {COLUMNS.map((col) => (
-          <div key={col.title}>
-            <div className="text-sm font-semibold">{col.title}</div>
-            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-              {col.links.map(([label, href]) => (
-                <li key={label}>
-                  <Link href={href} className="hover:text-foreground">
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-wider opacity-60">Pages</div>
+          <ul className="mt-3 space-y-2 text-sm">
+            {PAGES.map(([label, href]) => (
+              <li key={label}>
+                <Link href={href} className="opacity-80 hover:opacity-100">
+                  {label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-wider opacity-60">Location</div>
+          <ul className="mt-3 space-y-2 text-sm">
+            <li>
+              <a href="mailto:contact@cottson.com" className="opacity-80 hover:opacity-100">
+                contact@cottson.com
+              </a>
+            </li>
+            <li className="opacity-80">
+              <a href="tel:+919892297764" className="hover:opacity-100">
+                +91 98922 97764
+              </a>{" "}
+              / 022 26627501
+            </li>
+            <li className="opacity-80">
+              Registered Office No. 721, Centura Square IT Park, Road No. 27, Wagle Estate, Thane (W) - 400604,
+              Maharashtra, India.
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-wider opacity-60">Contact our team</div>
+          <p className="mt-3 text-sm opacity-80">Tell us about your requirement</p>
+          <a
+            href={WHATSAPP}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex h-10 items-center gap-2 rounded-full bg-background px-5 text-sm font-semibold text-brand hover:bg-background/90"
+          >
+            <Image src="/whatsapp.png" alt="" width={20} height={20} className="size-5" />
+            WhatsApp
+          </a>
+          <div className="mt-5 text-xs font-semibold uppercase tracking-wider opacity-60">Social</div>
+          <ul className="mt-2 space-y-1.5 text-sm">
+            {SOCIAL.map(([label, href]) => (
+              <li key={label}>
+                <a href={href} target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100">
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-      <div className="border-t py-5 text-center text-xs text-muted-foreground">© {new Date().getFullYear()} COTTSON Clothing</div>
+      <div className="border-t border-background/15 py-5 text-center text-xs opacity-70">
+        © {new Date().getFullYear()} by Cottson Clothing. All Rights Reserved
+      </div>
     </footer>
   );
 }
