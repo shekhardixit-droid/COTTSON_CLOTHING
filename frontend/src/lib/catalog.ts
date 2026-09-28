@@ -1,6 +1,7 @@
 // Catalog access. Today it reads local JSON; the functions are shaped so they can be
 // swapped for Medusa Store API calls (GET /store/products) without changing the pages.
 import data from "@/data/products.json";
+import colorData from "@/data/colors.json";
 
 export type Color = { id: string; name: string; hex: string };
 export type Product = {
@@ -29,7 +30,12 @@ export type Fit = { chest: number; top: number; cx: number };
 /** From the live overlay-blend recolor canvas: image size + the garment's bounding box (for print-area placement) */
 export type GarmentMeta = { width: number; height: number; bbox: [number, number, number, number] };
 
-export const COLORS: Color[] = data.colors;
+/** Body / sleeve / collar swatches */
+export const GARMENT_COLORS: Color[] = colorData.garment;
+/** Collar and sleeve tipping swatches */
+export const TRIM_COLORS: Color[] = colorData.trim;
+/** Every stock colour once (ids are shared between the two lists) */
+export const COLORS: Color[] = [...GARMENT_COLORS, ...TRIM_COLORS.filter((t) => !GARMENT_COLORS.some((g) => g.id === t.id))];
 export const PRODUCTS: Product[] = data.products;
 
 export const colorById = (id: string) => COLORS.find((c) => c.id === id)!;

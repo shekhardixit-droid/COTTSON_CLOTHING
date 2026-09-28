@@ -19,6 +19,9 @@ export type EmbroideryOptions = {
   thickenMm?: number;
   /** Stitch direction in degrees (0 = horizontal, 90 = vertical); default 45 */
   angleDeg?: number;
+  /** Stitch every visible pixel, including a solid background colour (e.g. a logo on a filled
+   * square). Default false: the colour at the corners of an opaque image is treated as background. */
+  keepBackground?: boolean;
 };
 
 /** Stock embroidery thread colors offered in the thread picker */
@@ -75,6 +78,13 @@ const shade = ([r, g, b]: RGB, f: number) => {
 };
 
 /** Which pixels belong to the logo: real transparency if the file has it, else "not the background color" */
+/** Every non-transparent pixel */
+function alphaMask(data: Uint8ClampedArray, n: number) {
+  const mask = new Uint8Array(n);
+  for (let i = 0; i < n; i++) mask[i] = data[i * 4 + 3] >= 128 ? 1 : 0;
+  return mask;
+}
+
 function logoMask(data: Uint8ClampedArray, w: number, h: number) {
   const n = w * h;
   const mask = new Uint8Array(n);
@@ -149,7 +159,7 @@ export async function renderEmbroidery(src: string, opts: EmbroideryOptions): Pr
   rctx.drawImage(img, 0, 0, W, H);
   const { data } = rctx.getImageData(0, 0, W, H);
 
-  const mask = logoMask(data, W, H);
+  const mask = opts.keepBackground ? alphaMask(data, W * H) : logoMask(data, W, H);
   const palette = (opts.thread ? [hexToRgb(opts.thread)] : threadPalette(data, mask, Math.max(1, opts.maxColors))).map((c) =>
     threadTone(c)
   );

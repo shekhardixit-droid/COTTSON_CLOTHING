@@ -16,6 +16,7 @@ const NAV = [
   ["About Us", "/about"],
   ["Resources", "/resources"],
   ["Contact Us", "/#contact"],
+  ["Mockup", "/mockup-lab"],
 ];
 
 // The cart lives in localStorage, so only show its count after hydration

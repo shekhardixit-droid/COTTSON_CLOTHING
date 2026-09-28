@@ -216,9 +216,13 @@ for (const product of manifest.products) {
 const catalogPath = path.join(root, 'src/data/products.json');
 const catalog = JSON.parse(await fs.readFile(catalogPath, 'utf8'));
 
-for (const c of manifest.newColors) {
-  if (!catalog.colors.some((x) => x.id === c.id)) catalog.colors.push(c);
+// Stock colours live in src/data/colors.json (garment + trim lists); new ones join the garment list
+const colorsPath = path.join(root, 'src/data/colors.json');
+const colorList = JSON.parse(await fs.readFile(colorsPath, 'utf8'));
+for (const c of manifest.newColors ?? []) {
+  if (![...colorList.garment, ...colorList.trim].some((x) => x.id === c.id)) colorList.garment.push(c);
 }
+await fs.writeFile(colorsPath, JSON.stringify(colorList, null, 2) + '\n');
 for (const product of manifest.products) {
   if (only && !only.has(product.slug)) continue;
   const poseCount = results.find((r) => r.slug === product.slug)?.poses;

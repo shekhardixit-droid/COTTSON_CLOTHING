@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Check, MessageSquare, Palette, Shirt, Truck, Users } from "lucide-react";
-import { PRODUCTS, COLORS } from "@/lib/catalog";
+import { PRODUCTS, GARMENT_COLORS } from "@/lib/catalog";
 import { ProductCard } from "@/components/product-card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -92,8 +92,8 @@ export default function HomePage() {
       {/* Color strip */}
       <section className="border-y bg-muted/30">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-3 px-4 py-6">
-          <span className="mr-2 text-sm text-muted-foreground">{COLORS.length} colors in stock:</span>
-          {COLORS.map((c) => (
+          <span className="mr-2 text-sm text-muted-foreground">{GARMENT_COLORS.length} colors in stock:</span>
+          {GARMENT_COLORS.map((c) => (
             <span key={c.id} title={c.name} className="size-6 rounded-full ring-1 ring-border" style={{ background: c.hex }} />
           ))}
         </div>

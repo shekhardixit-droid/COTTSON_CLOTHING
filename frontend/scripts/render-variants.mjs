@@ -14,7 +14,8 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const catalog = JSON.parse(await fs.readFile(path.join(root, 'src/data/products.json'), 'utf8'));
-const colorHex = Object.fromEntries(catalog.colors.map((c) => [c.id, c.hex]));
+const colorList = JSON.parse(await fs.readFile(path.join(root, 'src/data/colors.json'), 'utf8'));
+const colorHex = Object.fromEntries([...colorList.garment, ...colorList.trim].map((c) => [c.id, c.hex]));
 
 const hexToNorm = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
 
