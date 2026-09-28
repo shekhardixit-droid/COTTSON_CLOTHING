@@ -281,6 +281,21 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
                 </div>
               ))}
             </div>
+
+            {totalQty > 0 && (
+              <div className="mt-4 rounded-lg border bg-muted/30 p-3">
+                <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Selected</div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {product.sizes
+                    .filter((s) => (sizes[s] ?? 0) > 0)
+                    .map((s) => (
+                      <span key={s} className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white">
+                        {s} × {sizes[s]}
+                      </span>
+                    ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t pt-6">
