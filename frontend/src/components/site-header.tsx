@@ -11,13 +11,10 @@ const WHATSAPP = "https://wa.me/919892297764?text=Hi%2C%20I%20have%20a%20require
 
 const NAV = [
   ["Home", "/"],
-  ["About Us", "/about"],
   ["Products", "/products"],
-  ["Mockup", "/mockup"],
-  ["Customisation", "/studio"],
   ["Clients", "/clients"],
+  ["About Us", "/about"],
   ["Resources", "/resources"],
-  ["Process", "/process"],
   ["Contact Us", "/#contact"],
 ];
 
