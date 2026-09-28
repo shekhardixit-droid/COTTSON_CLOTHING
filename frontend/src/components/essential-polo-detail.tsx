@@ -286,31 +286,13 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
 
           <div className="mt-8 border-t pt-6">
             {totalQty > 0 && (
-              <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-3">
+              <div className="mb-6 flex flex-wrap gap-2">
                 {product.sizes
                   .filter((s) => (sizes[s] ?? 0) > 0)
                   .map((s) => (
-                    <div key={s} className="flex items-center justify-between rounded-lg border px-3 py-2">
+                    <div key={s} className="flex items-center gap-2 rounded-lg bg-[#EAEAEA] px-3 py-2">
                       <span className="text-sm font-semibold">{s}</span>
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => setSize(s, (sizes[s] ?? 0) - 1)}
-                          className="grid size-6 place-items-center rounded-md hover:bg-muted"
-                          aria-label={`Fewer ${s}`}
-                        >
-                          <Minus className="size-3" />
-                        </button>
-                        <span className="w-5 text-center text-sm tabular-nums">{sizes[s]}</span>
-                        <button
-                          type="button"
-                          onClick={() => setSize(s, (sizes[s] ?? 0) + 1)}
-                          className="grid size-6 place-items-center rounded-md hover:bg-muted"
-                          aria-label={`More ${s}`}
-                        >
-                          <Plus className="size-3" />
-                        </button>
-                      </div>
+                      <span className="text-sm tabular-nums text-muted-foreground">{sizes[s]}</span>
                     </div>
                   ))}
               </div>
