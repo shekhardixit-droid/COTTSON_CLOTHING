@@ -10,17 +10,22 @@ import { ColorSwatches } from "@/components/color-swatches";
 export function ProductCard({ product }: { product: Product }) {
   const [color, setColor] = useState(product.originalColor);
   return (
-    <div className="group mx-auto w-2/3">
-      <Link href={`/products/${product.slug}?color=${color}`} className="block overflow-hidden rounded-xl bg-muted">
-        <Image
-          src={variantUrl(product, color)}
-          alt={`${product.title} in ${color}`}
-          width={1080}
-          height={1440}
-          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-          className="aspect-[3/4] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-        />
-      </Link>
+    <div className="group mx-auto w-full">
+      <div className="relative overflow-hidden rounded-xl bg-muted">
+        <Link href={`/products/${product.slug}?color=${color}`} className="block">
+          <Image
+            src={variantUrl(product, color)}
+            alt={`${product.title} in ${color}`}
+            width={1080}
+            height={1440}
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            className="aspect-[4/5] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+          />
+        </Link>
+        <div className="absolute inset-x-0 bottom-0 flex justify-end gap-1.5 bg-gradient-to-t from-black/20 to-transparent px-3 pb-3 pt-8">
+          <ColorSwatches colorIds={product.colors} value={color} onChange={setColor} size="sm" />
+        </div>
+      </div>
       <div className="mt-3 flex items-start justify-between gap-3">
         <div>
           <Link href={`/products/${product.slug}?color=${color}`} className="font-medium hover:underline">
@@ -29,9 +34,6 @@ export function ProductCard({ product }: { product: Product }) {
           <div className="text-sm text-muted-foreground">{product.category}</div>
         </div>
         <div className="font-medium">{formatPrice(product.price, product.currency)}</div>
-      </div>
-      <div className="mt-3">
-        <ColorSwatches colorIds={product.colors} value={color} onChange={setColor} size="sm" />
       </div>
     </div>
   );

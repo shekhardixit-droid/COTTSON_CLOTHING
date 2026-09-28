@@ -7,6 +7,38 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useCart, cartCount } from "@/lib/cart-store";
 import { cn } from "@/lib/utils";
 
+// Tracks an element's natural in-flow top and reports once the page has scrolled
+// past it — so the caller can switch the element to `fixed` and keep it floating
+// at the top, without it being fixed from the very start.
+function useFloatOnScroll<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  const [floating, setFloating] = useState(false);
+  const originalTopRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const measure = () => {
+      const el = ref.current;
+      if (!el || floating) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.width > 0) originalTopRef.current = rect.top + window.scrollY;
+    };
+    const onScroll = () => {
+      if (originalTopRef.current == null) measure();
+      if (originalTopRef.current != null) setFloating(window.scrollY > originalTopRef.current - 16);
+    };
+    measure();
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", measure);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", measure);
+    };
+  }, [floating]);
+
+  return { ref, floating };
+}
+
 const WHATSAPP = "https://wa.me/919892297764?text=Hi%2C%20I%20have%20a%20requirement";
 
 const NAV = [
@@ -26,53 +58,49 @@ export function SiteHeader() {
   const mounted = useMounted();
   const count = mounted ? cartCount(items) : 0;
   const pathname = usePathname();
-
-  // The nav pill sits in its normal spot in the header row until you scroll past that
-  // spot, then it switches to fixed so it keeps floating at the top — not fixed from
-  // the very start, and not stuck to the logo/icons beside it.
-  const navRef = useRef<HTMLElement>(null);
-  const [floating, setFloating] = useState(false);
-  const originalTopRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    // Only remeasure while not floating: that's the only time the nav's rect reflects
-    // its natural in-flow position rather than the fixed one. A zero-width rect means
-    // it's currently display:none (e.g. below the lg breakpoint) — skip until it isn't.
-    const measure = () => {
-      const el = navRef.current;
-      if (!el || floating) return;
-      const rect = el.getBoundingClientRect();
-      if (rect.width > 0) originalTopRef.current = rect.top + window.scrollY;
-    };
-    const onScroll = () => {
-      if (originalTopRef.current == null) measure();
-      if (originalTopRef.current != null) setFloating(window.scrollY > originalTopRef.current - 16);
-    };
-    measure();
-    onScroll(); // check immediately too — the page can already be scrolled on load (e.g. a #hash jump), when no "scroll" event ever fires
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", measure);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", measure);
-    };
-  }, [floating]);
+  const nav = useFloatOnScroll<HTMLElement>();
+  const logo = useFloatOnScroll<HTMLAnchorElement>();
 
   return (
     <header className="bg-background">
       <div className="relative mx-auto flex h-16 max-w-7xl items-center gap-6 px-4">
-        <Link href="/" className="flex shrink-0 items-center gap-2.5">
-          {/* Logo mark — placeholder until the real asset is added */}
-          <span className="grid size-9 shrink-0 place-items-center rounded-full border-2 border-brand" aria-hidden />
-          <span className="text-lg font-extrabold uppercase leading-tight tracking-tight text-brand">
-            Cottson
-            <br />
-            Clothing
-          </span>
-        </Link>
+        {/* Placeholder keeps the nav/icons from jumping once the logo below goes fixed */}
+        {logo.floating && (
+          <div className="flex shrink-0 items-center gap-2.5" style={{ visibility: "hidden" }}>
+            <span className="grid size-9 shrink-0 place-items-center rounded-full border-2 border-brand" aria-hidden />
+            <span className="text-lg font-extrabold uppercase leading-tight tracking-tight">
+              Cottson
+              <br />
+              Clothing
+            </span>
+          </div>
+        )}
+        {logo.floating ? (
+          <div className="pointer-events-none fixed inset-x-0 top-4 z-40">
+            <div className="mx-auto max-w-7xl px-4">
+              <Link ref={logo.ref} href="/" className="pointer-events-auto flex w-fit shrink-0 items-center gap-2.5">
+                <span className="grid size-9 shrink-0 place-items-center rounded-full border-2 border-brand" aria-hidden />
+                <span className="text-lg font-extrabold uppercase leading-tight tracking-tight text-brand">
+                  Cottson
+                  <br />
+                  Clothing
+                </span>
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <Link ref={logo.ref} href="/" className="flex shrink-0 items-center gap-2.5">
+            <span className="grid size-9 shrink-0 place-items-center rounded-full border-2 border-brand" aria-hidden />
+            <span className="text-lg font-extrabold uppercase leading-tight tracking-tight text-brand">
+              Cottson
+              <br />
+              Clothing
+            </span>
+          </Link>
+        )}
 
         {/* Placeholder keeps the logo/icons from jumping once the real nav below goes fixed */}
-        {floating && (
+        {nav.floating && (
           <div className="mx-auto hidden w-fit lg:block" style={{ visibility: "hidden" }}>
             <nav className="flex items-center gap-1 rounded-full bg-brand px-2 py-1.5">
               {NAV.map(([label]) => (
@@ -85,10 +113,10 @@ export function SiteHeader() {
         )}
 
         <nav
-          ref={navRef}
+          ref={nav.ref}
           className={cn(
             "hidden w-fit items-center gap-1 rounded-full bg-brand px-2 py-1.5 lg:flex",
-            floating ? "fixed left-1/2 top-4 z-40 -translate-x-1/2 shadow-lg" : "absolute left-1/2 top-3 -translate-x-1/2"
+            nav.floating ? "fixed left-1/2 top-4 z-40 -translate-x-1/2 shadow-lg" : "absolute left-1/2 top-3 -translate-x-1/2"
           )}
         >
           {NAV.map(([label, href]) => {

@@ -26,7 +26,7 @@ export function CategoryFilter({ products }: { products: Product[] }) {
 
   return (
     <div className="grid gap-10 lg:grid-cols-[260px_1fr]">
-      <aside>
+      <aside className="h-fit self-start lg:sticky lg:top-1/2 lg:-translate-y-1/2">
         <h1 className="text-2xl font-bold tracking-tight text-brand">All Products</h1>
         <p className="mt-1 text-sm text-muted-foreground">Browse through all our corporate clothing.</p>
 
@@ -37,7 +37,7 @@ export function CategoryFilter({ products }: { products: Product[] }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search..."
-            className="h-11 w-full rounded-lg border bg-muted/30 pl-9 pr-3 text-sm outline-none focus:border-brand focus:bg-background"
+            className="h-11 w-full rounded-[25px] border bg-muted/30 pl-9 pr-3 text-sm outline-none focus:border-brand focus:bg-background"
           />
         </div>
 
