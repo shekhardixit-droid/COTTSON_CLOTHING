@@ -23,8 +23,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Suspense fallback={null}>
             <RouteProgress />
           </Suspense>
-          <TrustTicker />
-          <SiteHeader />
+          {/* Ticker strip + navbar stay pinned to the top while the page scrolls */}
+          <div className="sticky top-0 z-40">
+            <TrustTicker />
+            <SiteHeader />
+          </div>
           <main className="flex-1">{children}</main>
           <SiteFooter />
         </Providers>

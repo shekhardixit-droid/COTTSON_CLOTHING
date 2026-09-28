@@ -15,18 +15,19 @@ import {
   X,
 } from "lucide-react";
 import {
-  IMAGE_WIDTH_CM,
+  DEFAULT_FRAME,
   POSITIONS,
   maxWidthFor,
   placeAt,
+  positionCenter,
   printArea,
   type Finishing,
+  type Frame,
   type Placement,
   type PositionId,
 } from "./placement";
 
 const STEP = 0.5;
-const PX_TO_CM = IMAGE_WIDTH_CM / 682; // the line drawing is traced over the 682 px wide photo
 
 /** "Centimeter" number box with −/+ steppers; commits typed values on blur / Enter */
 function CmField({ label, value, onCommit }: { label: string; value: number; onCommit: (cm: number) => void }) {
@@ -76,11 +77,15 @@ const Btn = ({ label, onClick, children }: { label: string; onClick: () => void;
   </button>
 );
 
-/** Front of the polo as a technical line drawing, traced over the product photo (px of the 682×1024 image) */
-function PoloLines() {
+/** Front of the polo as a technical line drawing, traced over the Essential Polo photo (px of its
+ * 682×1024 image, where the frame is 90 cm wide). Drawn at that true-cm scale and shifted so its
+ * left chest sits on this product's left-chest point, so the print area lands on the drawn chest. */
+function PoloLines({ frame }: { frame: Frame }) {
+  const ref = positionCenter(DEFAULT_FRAME, "left-chest");
+  const here = positionCenter(frame, "left-chest");
   return (
     <g
-      transform={`scale(${PX_TO_CM})`}
+      transform={`translate(${here.cx - ref.cx} ${here.cy - ref.cy}) scale(${DEFAULT_FRAME.w / 682})`}
       fill="none"
       stroke="currentColor"
       strokeWidth={2.6}
@@ -109,6 +114,7 @@ function PoloLines() {
  * right the print area drawn on the garment with the logo and its size. Edits are a draft
  * until "Apply". */
 export function PositionDialog({
+  frame,
   logoSrc,
   aspect,
   finishing,
@@ -117,6 +123,7 @@ export function PositionDialog({
   onApply,
   onClose,
 }: {
+  frame: Frame;
   logoSrc: string;
   aspect: number;
   finishing: Finishing;
@@ -127,7 +134,7 @@ export function PositionDialog({
 }) {
   const [pos, setPos] = useState(positionId);
   const [p, setP] = useState(placement);
-  const area = printArea(pos, finishing);
+  const area = printArea(frame, pos, finishing);
   const maxW = maxWidthFor(finishing, aspect);
   const h = p.w / aspect;
 
@@ -186,7 +193,7 @@ export function PositionDialog({
                     onChange={(e) => {
                       const id = e.target.value as PositionId;
                       setPos(id);
-                      setP(placeAt(id, p.w, aspect, p.rotation));
+                      setP(placeAt(frame, id, p.w, aspect, p.rotation));
                     }}
                     className="h-10 w-full appearance-none rounded-md bg-white pl-3 pr-8 text-sm font-semibold text-brand shadow-[0_1px_3px_rgba(16,24,40,0.12)] outline-none"
                   >
@@ -258,7 +265,7 @@ export function PositionDialog({
                 role="img"
                 aria-label={`Print area ${area.size} by ${area.size} cm with your logo`}
               >
-                <PoloLines />
+                <PoloLines frame={frame} />
                 <rect
                   x={area.x}
                   y={area.y}

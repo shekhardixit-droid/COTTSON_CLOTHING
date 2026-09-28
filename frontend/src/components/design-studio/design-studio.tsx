@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -36,8 +36,10 @@ import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import {
   FINISHINGS,
-  IMAGE_HEIGHT_CM,
-  IMAGE_WIDTH_CM,
+  DEFAULT_LOGO_CM,
+  IMAGE_ASPECT,
+  frameFor,
+  type Frame,
   POSITIONS,
   finishingById,
   finishingHint,
@@ -50,7 +52,7 @@ import {
   type Placement,
   type PositionId,
 } from "./placement";
-import { LogoLayer } from "./logo-layer";
+import { LogoLayer, blendFor } from "./logo-layer";
 import { PositionDialog } from "./position-dialog";
 import { FabricCloseup, GarmentPhoto, useFabricColor } from "./garment-photo";
 import { readLogoFile, useLogoArt, type LogoFile } from "./use-logo-artwork";
@@ -71,11 +73,11 @@ type FrontPrint = {
 };
 type Saved = { slug: string; colorId: string; sizes: Record<string, number>; print: FrontPrint | null };
 
-const newPrint = (): FrontPrint => ({
+const newPrint = (frame: Frame): FrontPrint => ({
   finishingId: "emb-standard",
   positionId: "left-chest",
   logo: null,
-  placement: placeAt("left-chest", 8, 1),
+  placement: placeAt(frame, "left-chest", DEFAULT_LOGO_CM, 1),
   thread: null,
 });
 
@@ -131,10 +133,12 @@ function PillSelect<T extends string>({
 export function DesignStudio({ product, initialColor }: { product: Product; initialColor: string }) {
   const router = useRouter();
   const addToCart = useCart((s) => s.add);
+  // Real-world size of this product's photo frame, so the logo is sized in true cm
+  const frame = useMemo(() => frameFor(product.fit), [product.fit]);
 
   const [colorId, setColorId] = useState(initialColor);
   const [sizes, setSizes] = useState<Record<string, number>>({});
-  const [print, setPrint] = useState<FrontPrint | null>(newPrint);
+  const [print, setPrint] = useState<FrontPrint | null>(() => newPrint(frame));
   const [active, setActive] = useState<"overview" | "front">("front");
   const [sizesOpen, setSizesOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
@@ -181,8 +185,8 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
 
   const fabric = useFabricColor(
     variantUrl(product, colorId),
-    print ? (print.placement.x + print.placement.w / 2) / IMAGE_WIDTH_CM : 0.5,
-    print && logo ? (print.placement.y + print.placement.w / logo.aspect / 2) / IMAGE_HEIGHT_CM : 0.4
+    print ? (print.placement.x + print.placement.w / 2) / frame.w : 0.5,
+    print && logo ? (print.placement.y + print.placement.w / logo.aspect / 2) / frame.h : 0.4
   );
 
   const updatePrint = (p: Partial<FrontPrint>) => setPrint((cur) => (cur ? { ...cur, ...p } : cur));
@@ -206,12 +210,14 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
     try {
       const l = await readLogoFile(file);
       const f = finishingById(print.finishingId);
-      const w = Math.min(maxWidthFor(f, l.aspect), print.positionId === "center-chest" ? 20 : 8);
-      const placement = placeAt(print.positionId, w, l.aspect);
+      // Standard sizes: longer side ~8 cm on the chest, up to 20 cm for a centre-chest print
+      const size = print.positionId === "center-chest" ? 20 : DEFAULT_LOGO_CM;
+      const w = Math.min(maxWidthFor(f, l.aspect), size, size * l.aspect);
+      const placement = placeAt(frame, print.positionId, w, l.aspect);
       updatePrint({ logo: l, placement, thread: null });
       // Zoom the photo in on the logo right away
       setSlide(0);
-      setFocus(focusOn(placement, l.aspect));
+      setFocus(focusOn(frame, placement, l.aspect));
       if (f.kind === "embroidery" && l.palette.length > f.maxColors)
         toast.message(`Your logo has ${l.palette.length} colors`, {
           description: `${f.label} stitches up to ${f.maxColors} thread colors, so we've reduced it. Choose Premium for up to 4.`,
@@ -236,9 +242,9 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
 
   const changePosition = (id: PositionId) => {
     if (!print) return;
-    const placement = placeAt(id, print.placement.w, logo?.aspect ?? 1, print.placement.rotation);
+    const placement = placeAt(frame, id, print.placement.w, logo?.aspect ?? 1, print.placement.rotation);
     updatePrint({ positionId: id, placement });
-    if (logo && focus) setFocus(focusOn(placement, logo.aspect));
+    if (logo && focus) setFocus(focusOn(frame, placement, logo.aspect));
   };
 
   const removePrint = () => {
@@ -252,7 +258,7 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
   const startOver = () => {
     setColorId(product.originalColor);
     setSizes({});
-    setPrint(newPrint());
+    setPrint(newPrint(frame));
     setActive("front");
     setPositionOpen(false);
     setSlide(0);
@@ -290,11 +296,20 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
     if (print && logo && logoArt) {
       const art = await load(logoArt);
       const { x, y, w, rotation } = print.placement;
-      const pw = (w / IMAGE_WIDTH_CM) * c.width, ph = pw / logo.aspect;
-      const px = (x / IMAGE_WIDTH_CM) * c.width, py = (y / IMAGE_HEIGHT_CM) * c.height;
+      // The page shows the photo in a 2:3 frame (object-cover), so map cm onto that centred slice
+      const fw = Math.min(c.width, c.height * IMAGE_ASPECT), fh = fw / IMAGE_ASPECT;
+      const fx = (c.width - fw) / 2, fy = (c.height - fh) / 2;
+      const pw = (w / frame.w) * fw, ph = pw / logo.aspect;
+      const px = fx + (x / frame.w) * fw, py = fy + (y / frame.h) * fh;
       ctx.save();
       ctx.translate(px + pw / 2, py + ph / 2);
       ctx.rotate((rotation * Math.PI) / 180);
+      if (embroidered) {
+        // Same contact shadow the on-screen preview adds with CSS (the stitch render has none baked in)
+        ctx.shadowColor = "rgba(0,0,0,0.45)";
+        ctx.shadowBlur = 1;
+        ctx.shadowOffsetY = 1;
+      }
       ctx.drawImage(art, -pw / 2, -ph / 2, pw, ph);
       ctx.restore();
     }
@@ -319,8 +334,8 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
           body: JSON.stringify({
             product: product.slug,
             color: colorId,
-            width: IMAGE_WIDTH_CM,
-            height: IMAGE_HEIGHT_CM,
+            width: frame.w,
+            height: frame.h,
             elements: [
               {
                 type: "logo",
@@ -396,6 +411,9 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
               <LogoLayer
                 src={logoArt}
                 embroidered={!!embroidered}
+                fabricSrc={variantUrl(product, colorId)}
+                blend={blendFor(fabric, print.thread ? [print.thread] : logo.palette.slice(0, finishing?.maxColors ?? 2))}
+                frame={frame}
                 placement={print.placement}
                 aspect={logo.aspect}
                 maxWidth={maxW}
@@ -409,7 +427,7 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
           {editable && print && logo && (
             <button
               type="button"
-              onClick={() => setFocus((f) => (f ? null : focusOn(print.placement, logo.aspect)))}
+              onClick={() => setFocus((f) => (f ? null : focusOn(frame, print.placement, logo.aspect)))}
               className="absolute bottom-4 right-4 flex items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-xs font-semibold text-brand shadow-sm hover:bg-muted"
             >
               {focus ? <ZoomOut className="size-3.5" /> : <ZoomIn className="size-3.5" />}
@@ -881,6 +899,7 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
 
       {positionOpen && print && logo && logoArt && finishing && (
         <PositionDialog
+          frame={frame}
           logoSrc={logoArt}
           aspect={logo.aspect}
           finishing={finishing}
@@ -891,7 +910,7 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
             updatePrint({ placement, positionId });
             setPositionOpen(false);
             setSlide(0);
-            setFocus(focusOn(placement, logo.aspect));
+            setFocus(focusOn(frame, placement, logo.aspect));
           }}
         />
       )}
@@ -977,7 +996,7 @@ export function DesignStudio({ product, initialColor }: { product: Product; init
                       type="button"
                       disabled={added}
                       onClick={() => {
-                        setPrint(newPrint());
+                        setPrint(newPrint(frame));
                         setActive("front");
                         setAddOpen(false);
                       }}

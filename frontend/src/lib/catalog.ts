@@ -18,7 +18,13 @@ export type Product = {
    * model-photo.png + garment-layer.png (see scripts/import-poses.mjs). Products without this
    * field only have the single root-level photo (the older single-pose layout). */
   poses?: number;
+  /** Where the garment sits in the product photo, as fractions of the 2:3 photo frame
+   * (scripts/measure-fit.mjs): torso width, top of the garment, torso centre. Lets logos be
+   * sized and placed in real cm; without it the Essential Polo photo's framing is assumed. */
+  fit?: Fit;
 };
+
+export type Fit = { chest: number; top: number; cx: number };
 
 /** From the live overlay-blend recolor canvas: image size + the garment's bounding box (for print-area placement) */
 export type GarmentMeta = { width: number; height: number; bbox: [number, number, number, number] };
