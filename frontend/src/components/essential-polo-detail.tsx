@@ -106,7 +106,7 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
       <div className="grid gap-10 lg:grid-cols-2">
         {/* Left: photo with the wave-sweep color swap, zoomed in on the logo once there is one */}
         <div className="relative">
-          <div className="relative grid aspect-square w-full place-items-center overflow-hidden rounded-2xl bg-white">
+          <div className="relative grid aspect-square w-full place-items-center justify-items-start overflow-hidden rounded-2xl bg-white">
             <GarmentPhoto ref={frameRef} product={product} colorId={colorId} focus={focus}>
               {logo && logoArt && (
                 <LogoLayer
