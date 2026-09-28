@@ -1,63 +1,82 @@
 "use client";
 
-import { useState } from "react";
-import { Shirt } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Search } from "lucide-react";
 import { type Product } from "@/lib/catalog";
 import { ProductCard } from "@/components/product-card";
 import { cn } from "@/lib/utils";
 
-// Every category we sell in, even ones with no live product yet — so the row reads as a
+// Every category we sell in, even ones with no live product yet — so the sidebar reads as a
 // real catalog nav rather than growing/shrinking with whatever happens to be in stock.
 const CATEGORIES = ["Shirts", "T-Shirts", "Jacket", "Hoodies", "Sweatshirt", "Towels", "Cap", "Trousers"];
 
 export function CategoryFilter({ products }: { products: Product[] }) {
   const [active, setActive] = useState<string | null>(null);
-  const visible = active ? products.filter((p) => p.category === active) : products;
+  const [query, setQuery] = useState("");
+
+  const counts = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const p of products) m.set(p.category, (m.get(p.category) ?? 0) + 1);
+    return m;
+  }, [products]);
+
+  const visible = products
+    .filter((p) => (active ? p.category === active : true))
+    .filter((p) => p.title.toLowerCase().includes(query.trim().toLowerCase()));
 
   return (
-    <div>
-      <h2 className="text-sm font-semibold text-brand">Narrow your search</h2>
-      <div className="mt-3 flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none]">
-        <button
-          type="button"
-          onClick={() => setActive(null)}
-          className={cn(
-            "flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-            active === null ? "border-brand bg-brand text-white" : "hover:border-brand"
-          )}
-        >
-          <span className="grid size-7 place-items-center rounded-full bg-muted text-current">
-            <Shirt className="size-4" strokeWidth={1.6} />
-          </span>
-          All
-        </button>
-        {CATEGORIES.map((c) => (
-          <button
-            key={c}
-            type="button"
-            onClick={() => setActive(c)}
-            className={cn(
-              "flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-              active === c ? "border-brand bg-brand text-white" : "hover:border-brand"
-            )}
-          >
-            <span className={cn("grid size-7 place-items-center rounded-full", active === c ? "bg-white/20" : "bg-muted")}>
-              <Shirt className="size-4" strokeWidth={1.6} />
-            </span>
-            {c}
-          </button>
-        ))}
-      </div>
+    <div className="grid gap-10 lg:grid-cols-[260px_1fr]">
+      <aside>
+        <h1 className="text-2xl font-bold tracking-tight text-brand">All Products</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Browse through all our corporate clothing.</p>
 
-      {visible.length > 0 ? (
-        <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {visible.map((p) => (
-            <ProductCard key={p.slug} product={p} />
-          ))}
+        <div className="relative mt-5">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search..."
+            className="h-11 w-full rounded-lg border bg-muted/30 pl-9 pr-3 text-sm outline-none focus:border-brand focus:bg-background"
+          />
         </div>
-      ) : (
-        <p className="mt-10 text-sm text-muted-foreground">No products in this category yet — check back soon.</p>
-      )}
+
+        <ul className="mt-6 space-y-3 text-sm">
+          <li>
+            <button
+              type="button"
+              onClick={() => setActive(null)}
+              className={cn("font-semibold hover:text-brand", active === null ? "text-brand" : "text-foreground")}
+            >
+              Show All ({products.length})
+            </button>
+          </li>
+          {CATEGORIES.map((c) => (
+            <li key={c}>
+              <button
+                type="button"
+                onClick={() => setActive(c)}
+                className={cn("hover:text-brand", active === c ? "font-semibold text-brand" : "text-foreground")}
+              >
+                {c} ({counts.get(c) ?? 0})
+              </button>
+            </li>
+          ))}
+        </ul>
+      </aside>
+
+      <div>
+        <p className="text-sm text-muted-foreground">{visible.length} results</p>
+        {visible.length > 0 ? (
+          <div className="mt-4 grid gap-8 sm:grid-cols-2 xl:grid-cols-3">
+            {visible.map((p) => (
+              <ProductCard key={p.slug} product={p} />
+            ))}
+          </div>
+        ) : (
+          <p className="mt-10 text-sm text-muted-foreground">No products match yet — check back soon.</p>
+        )}
+      </div>
     </div>
   );
 }
