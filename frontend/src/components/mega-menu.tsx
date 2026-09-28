@@ -26,7 +26,7 @@ const MENUS: Menu[] = [
       {
         heading: "New Arrivals",
         items: [
-          { title: "Contrast Trim Shirt", text: "Our newest statement piece.", href: "/products/contrast-trim-shirt" },
+          { title: "Classic Polo", text: "Our newest statement piece.", href: "/products/classic-polo-black" },
           { title: "Classic Crew Tee", text: "An everyday essential.", href: "/products/classic-white-tee" },
         ],
       },
