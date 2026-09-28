@@ -7,8 +7,7 @@ export const metadata: Metadata = { title: "Shop" };
 export default function ProductsPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-16">
-      <h1 className="text-3xl font-semibold tracking-tight">Shop</h1>
-      <div className="mt-10">
+      <div>
         <CategoryFilter products={PRODUCTS} />
       </div>
     </div>
