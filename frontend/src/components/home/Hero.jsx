@@ -32,94 +32,134 @@ function Hero() {
         >
 
           {/* =====================================================
-              LEFT — CUSTOM T-SHIRT SHOWCASE
+              LEFT — CUSTOM CLIENT SHOWCASE
+              MATCHING COMPOSITION OF RIGHT SIDE
           ===================================================== */}
           <div
             className="
               absolute left-[-7%] top-1/2
-              hidden h-[620px] w-[400px]
+              hidden h-[620px] w-[560px]
               -translate-y-1/2
               lg:block
               xl:left-[-4%]
               2xl:left-[-2%]
             "
           >
-            {/* Soft background */}
-            <div
-              className="
-                absolute left-[35px] top-[90px]
-                h-[330px] w-[330px]
-                rounded-full
-                bg-[#f5f8fa]
-              "
-            />
-
-            {/* CUSTOM T-SHIRT 1 */}
+            {/* TOP SHIRT — DOMS */}
             <a
               href="#products"
               className="
-                group absolute left-[5px] top-[95px]
+                group absolute
+                left-[70px] top-[5px]
                 z-20
               "
             >
-              <img
-                src="/custom-tshirt-1.png"
-                alt="Custom branded T-shirt"
-                decoding="async"
-                className="
-                  h-[280px] w-[260px]
-                  object-contain
-                  drop-shadow-[0_18px_20px_rgba(17,56,88,0.09)]
-                  transition-transform duration-700 ease-out
-                  group-hover:-translate-y-2
-                  group-hover:rotate-[-2deg]
-                "
-              />
+              <div className="relative">
+                <div
+                  className="
+                    absolute bottom-[35px] left-1/2
+                    h-[35px] w-[220px]
+                    -translate-x-1/2
+                    rounded-full
+                    bg-[#113858]/10
+                    blur-xl
+                  "
+                />
+                <img
+                  src="/client-doms.png"
+                  alt="Custom DOMS corporate shirt"
+                  decoding="async"
+                  className="
+                    relative
+                    h-[390px] w-[360px]
+                    object-contain
+                    drop-shadow-[0_18px_20px_rgba(17,56,88,0.09)]
+                    transition-transform
+                    duration-700
+                    ease-out
+                    group-hover:-translate-y-2
+                    group-hover:scale-[1.02]
+                  "
+                />
+              </div>
             </a>
 
-            {/* CUSTOM T-SHIRT 2 */}
+            {/* BOTTOM LEFT — ICICI POLO */}
             <a
               href="#products"
               className="
-                group absolute right-[0px] top-[20px]
-                z-10
-              "
-            >
-              <img
-                src="/custom-tshirt-2.png"
-                alt="Customized company T-shirt"
-                decoding="async"
-                className="
-                  h-[280px] w-[260px]
-                  object-contain
-                  drop-shadow-[0_18px_20px_rgba(17,56,88,0.09)]
-                  transition-transform duration-700 ease-out
-                  group-hover:-translate-y-2
-                  group-hover:rotate-[2deg]
-                "
-              />
-            </a>
-
-            {/* CUSTOM T-SHIRT 3 */}
-            <a
-              href="#products"
-              className="
-                group absolute bottom-[15px] left-[100px]
+                group absolute
+                bottom-[25px] -left-[40px]
                 z-30
               "
             >
-              <img
-                src="/custom-tshirt-3.png"
-                alt="Custom printed T-shirt"
-                decoding="async"
-                className="
-                  h-[270px] w-[250px]
-                  object-contain
-                  drop-shadow-[0_18px_20px_rgba(17,56,88,0.09)]
-                  transition-transform duration-700 ease-out
-                  group-hover:-translate-y-2
-                "
-              />
+              <div className="relative">
+                <div
+                  className="
+                    absolute bottom-[25px] left-1/2
+                    h-[28px] w-[170px]
+                    -translate-x-1/2
+                    rounded-full
+                    bg-[#113858]/10
+                    blur-xl
+                  "
+                />
+                <img
+                  src="/client-icici.png"
+                  alt="Custom ICICI Bank polo"
+                  decoding="async"
+                  className="
+                    relative
+                    h-[390px] w-[360px]
+                    object-contain
+                    drop-shadow-[0_18px_20px_rgba(17,56,88,0.08)]
+                    transition-transform
+                    duration-700
+                    ease-out
+                    group-hover:-translate-y-2
+                    group-hover:-rotate-1
+                  "
+                />
+              </div>
+            </a>
+
+            {/* BOTTOM RIGHT — TVS SHIRT */}
+            <a
+              href="#products"
+              className="
+                group absolute
+                bottom-[25px] right-[40px]
+                z-30
+              "
+            >
+              <div className="relative">
+                <div
+                  className="
+                    absolute bottom-[25px] left-1/2
+                    h-[28px] w-[170px]
+                    -translate-x-1/2
+                    rounded-full
+                    bg-[#113858]/10
+                    blur-xl
+                  "
+                />
+                <img
+                  src="/client-tvs.png"
+                  alt="Custom TVS company shirt"
+                  decoding="async"
+                  className="
+                    relative
+                    h-[390px] w-[360px]
+                    object-contain
+                    drop-shadow-[0_18px_20px_rgba(17,56,88,0.08)]
+                    transition-transform
+                    duration-700
+                    ease-out
+                    group-hover:-translate-y-2
+                    group-hover:rotate-1
+                  "
+                />
+              </div>
             </a>
 
             {/* Label */}
@@ -138,7 +178,7 @@ function Hero() {
                 shadow-[0_10px_30px_rgba(17,56,88,0.08)]
               "
             >
-              Custom T-Shirts
+              Custom Apparel
             </div>
           </div>
 
@@ -455,8 +495,8 @@ function Hero() {
             "
           >
             <img
-              src="/custom-tshirt-1.png"
-              alt="Custom T-shirt"
+              src="/client-icici.png"
+              alt="Custom Corporate Apparel"
               decoding="async"
               className="
                 h-auto max-h-[210px]
@@ -499,8 +539,8 @@ function Hero() {
             "
           >
             <img
-              src="/custom-tshirt-1.png"
-              alt="Custom T-shirt"
+              src="/client-icici.png"
+              alt="Custom Corporate Apparel"
               decoding="async"
               className="
                 h-auto max-h-[125px]

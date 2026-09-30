@@ -214,7 +214,7 @@ function ProductMarquee() {
   return (
     <section
       ref={sectionRef}
-      id="products"
+      id="product-range"
       className="
         overflow-hidden
         bg-white

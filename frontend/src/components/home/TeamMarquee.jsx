@@ -298,8 +298,8 @@ function TeamMarquee() {
             lg:text-[48px]
           "
         >
-          One team.
-          <span className="text-[#113858]/45"> One identity.</span>
+          One Team.
+          <span className="text-[#113858]/45"> One Identity.</span>
         </h2>
 
         <p

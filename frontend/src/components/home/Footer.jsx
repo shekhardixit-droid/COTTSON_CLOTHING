@@ -297,97 +297,9 @@ function Footer() {
             </div>
           </div>
 
-          {/* CTA + LOGO */}
+          {/* BRAND */}
           <div className="min-w-0">
-            <p
-              className="
-                text-[10px]
-                font-semibold
-                uppercase
-                tracking-[0.18em]
-                text-[#113858]/45
-              "
-            >
-              Let's work together
-            </p>
-
-            <h3
-              className="
-                mt-4
-                max-w-[320px]
-                break-words
-
-                text-[25px]
-                font-semibold
-                leading-[1.12]
-                tracking-[-0.04em]
-                text-[#113858]
-
-                lg:text-[28px]
-              "
-            >
-              Ready to dress
-              <span className="text-[#113858]/45">
-                {" "}your team?
-              </span>
-            </h3>
-
-            <p
-              className="
-                mt-4
-                max-w-[300px]
-                break-words
-
-                text-[11.5px]
-                leading-[1.75]
-                text-[#607487]
-              "
-            >
-              Tell us what you're looking for and we'll help
-              you create the right corporate apparel.
-            </p>
-
-            {/* WHATSAPP BUTTON */}
-            <a
-              href="#contact"
-              className="
-                mt-6
-
-                inline-flex
-                h-[44px]
-                max-w-full
-                items-center
-                justify-center
-
-                whitespace-nowrap
-                rounded-full
-
-                border
-                border-[#113858]
-
-                bg-[#113858]
-
-                px-6
-
-                text-[11.5px]
-                font-semibold
-                text-white
-
-                transition-all
-                duration-300
-
-                hover:-translate-y-[2px]
-                hover:bg-white
-                hover:text-[#113858]
-
-                hover:shadow-[0_8px_22px_rgba(17,56,88,0.10)]
-              "
-            >
-              WhatsApp Us
-            </a>
-
-            {/* LOGO */}
-            <div className="mt-9">
+            <div>
               <img
                 src="cottson.png"
                 alt="Cottson Clothing"
@@ -395,14 +307,26 @@ function Footer() {
                 decoding="async"
                 className="
                   h-auto
-                  w-[190px]
+                  w-[180px]
                   max-w-full
                   object-contain
-
-                  sm:w-[210px]
+                  sm:w-[200px]
                 "
               />
             </div>
+
+            <p
+              className="
+                mt-5
+                max-w-[300px]
+                break-words
+                text-[12px]
+                leading-[1.8]
+                text-[#607487]
+              "
+            >
+              Premium corporate clothing & custom workwear manufactured for teams of every size across India.
+            </p>
           </div>
         </div>
 

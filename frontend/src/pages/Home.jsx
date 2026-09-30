@@ -1,15 +1,12 @@
 import Navbar from "../components/home/Navbar";
 import Hero from "../components/home/Hero";
-import ProductMarquee from "../components/home/ProductMarquee";
-import TeamMarquee from "../components/home/TeamMarquee";
 import ProductShowcase from "../components/home/ProductShowcase";
-import TrustedBy from "../components/home/TrustedBy";
-import AboutReels from "../components/about/AboutReels";
-import WhatsAppCTA from "../components/about/WhatsAppCTA";
-import CorporateNeeds from "../components/home/CorporateNeeds";
 import DesignStudio from "../components/home/DesignStudio";
+import AboutReels from "../components/about/AboutReels";
+import TeamMarquee from "../components/home/TeamMarquee";
+import TrustedBy from "../components/home/TrustedBy";
 import BusinessTrust from "../components/home/Businesstrust";
-import FAQ from "../components/home/FAQ";
+import WhatsAppCTA from "../components/about/WhatsAppCTA";
 import Footer from "../components/home/Footer";
 
 function Home() {
@@ -17,16 +14,13 @@ function Home() {
     <>
       <Navbar />
       <Hero />
-      <ProductMarquee />
-      <TeamMarquee />
       <ProductShowcase />
-      <TrustedBy />
-      <AboutReels />
-      <WhatsAppCTA />
-      <CorporateNeeds />
       <DesignStudio />
+      <AboutReels />
+      <TeamMarquee />
+      <TrustedBy />
       <BusinessTrust />
-      <FAQ />
+      <WhatsAppCTA />
       <Footer />
     </>
   );

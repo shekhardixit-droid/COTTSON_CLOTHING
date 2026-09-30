@@ -1,15 +1,31 @@
 import {
   ArrowRight,
-  Check,
   Palette,
   Shirt,
   Sparkles,
 } from "lucide-react";
 
-const features = [
-  "Preview your brand colours",
-  "Position your logo accurately",
-  "Review before production",
+const steps = [
+  {
+    step: "1",
+    title: "Choose Garment",
+    desc: "Select styles, fabrics & colours for your team",
+  },
+  {
+    step: "2",
+    title: "Add Branding",
+    desc: "Custom embroidery, printing or silicone patches",
+  },
+  {
+    step: "3",
+    title: "Approve Sample",
+    desc: "Digital preview & physical sample approval",
+  },
+  {
+    step: "4",
+    title: "Production & Delivery",
+    desc: "Bulk manufacturing with Pan-India dispatch",
+  },
 ];
 
 function DesignStudio() {
@@ -157,57 +173,31 @@ function DesignStudio() {
             product will look like.
           </p>
 
-          {/* FEATURES */}
-          <div
-            className="
-              mt-7
-              flex
-              flex-col
-              gap-3
-            "
-          >
-            {features.map((feature) => (
+          {/* 4-STEP PROCESS */}
+          <div className="mt-8 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            {steps.map((item) => (
               <div
-                key={feature}
-                className="
-                  flex
-                  items-center
-                  gap-3
-
-                  text-[12px]
-                  font-medium
-                  text-[#113858]/75
-                "
+                key={item.step}
+                className="flex items-start gap-3 rounded-2xl bg-white/70 p-3.5 border border-[#113858]/5 shadow-sm"
               >
-                <span
-                  className="
-                    flex
-                    h-[22px]
-                    w-[22px]
-                    shrink-0
-                    items-center
-                    justify-center
-
-                    rounded-full
-
-                    bg-[#113858]
-                    text-white
-                  "
-                >
-                  <Check
-                    size={11}
-                    strokeWidth={2.5}
-                  />
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#113858] text-[10px] font-bold text-white">
+                  {item.step}
                 </span>
-
-                <span className="break-words">{feature}</span>
+                <div className="min-w-0">
+                  <p className="text-[12.5px] font-semibold text-[#113858]">
+                    {item.title}
+                  </p>
+                  <p className="text-[11px] leading-[1.45] text-[#607487] mt-0.5">
+                    {item.desc}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
 
           {/* CTA */}
           <a
-            href="/customise"
+            href="#contact"
             className="
               group
 
@@ -228,9 +218,9 @@ function DesignStudio() {
 
               bg-[#113858]
 
-              px-6
+              px-7
 
-              text-[12px]
+              text-[12.5px]
               font-semibold
               text-white
 
@@ -244,7 +234,7 @@ function DesignStudio() {
               hover:shadow-[0_10px_30px_rgba(17,56,88,0.12)]
             "
           >
-            Start Designing
+            Start Your Custom Order
 
             <ArrowRight
               size={14}

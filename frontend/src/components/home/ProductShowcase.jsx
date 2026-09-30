@@ -1,132 +1,170 @@
-import { ArrowUpRight } from "lucide-react";
+import { useState } from "react";
+import { ArrowUpRight, ArrowRight } from "lucide-react";
+
+const CATEGORIES = ["ALL", "POLOS", "T-SHIRTS", "SHIRTS", "JACKETS", "HOODIES"];
 
 const products = [
   {
     id: 1,
-    name: "Polo T-Shirts",
-   
-    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/02_1.jpg",
+    name: "Classic Corporate Polo",
+    category: "POLOS",
+    badge: "Popular Product",
+    feature: "240 GSM Pique · MOQ 25 pcs",
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/03_1.jpg",
   },
   {
     id: 2,
-    name: "Corporate Shirts",
-    
-    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/07_1.jpg",
-  },
-  {
-    id: 3,
-    name: "Round Neck T-Shirts",
-   
+    name: "Round Neck Team T-Shirt",
+    category: "T-SHIRTS",
+    badge: "Popular Product",
+    feature: "100% Combed Cotton · MOQ 30 pcs",
     image: "https://ik.imagekit.io/qiap0iq38/COTTSON/05_1.jpg",
   },
   {
+    id: 3,
+    name: "Executive Oxford Shirt",
+    category: "SHIRTS",
+    badge: "Popular Product",
+    feature: "Wrinkle-Resistant Cotton · MOQ 25 pcs",
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/08_1.jpg",
+  },
+  {
     id: 4,
-    name: "Jackets",
-    
+    name: "Custom Corporate Jacket",
+    category: "JACKETS",
+    badge: "Popular Product",
+    feature: "Micro-Fleece Lined · MOQ 20 pcs",
     image: "https://ik.imagekit.io/qiap0iq38/COTTSON/13_1.jpg",
   },
   {
     id: 5,
-    name: "Hoodies",
-    
-    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/12_1.jpg",
+    name: "Signature Pique Polo",
+    category: "POLOS",
+    feature: "Breathable Cotton · MOQ 25 pcs",
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/02_1.jpg",
   },
   {
     id: 6,
-    name: "Sweatshirts",
-   
-    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/14_1.jpg",
+    name: "Heavyweight Team Tee",
+    category: "T-SHIRTS",
+    feature: "240 GSM Luxury Feel · MOQ 30 pcs",
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/09_1.jpg",
+  },
+  {
+    id: 7,
+    name: "Tailored Formal Shirt",
+    category: "SHIRTS",
+    feature: "Giza Cotton Blend · MOQ 25 pcs",
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/07_1.jpg",
+  },
+  {
+    id: 8,
+    name: "Team Pullover Hoodie",
+    category: "HOODIES",
+    badge: "Popular Product",
+    feature: "380 GSM Heavy Fleece · MOQ 20 pcs",
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/12_1.jpg",
   },
 ];
 
 function ProductCard({ product }) {
   return (
     <a
-      href="#products"
+      href="#"
       className="
-        group relative
-        block h-[380px] w-[290px]
-        shrink-0 overflow-hidden
-        rounded-[24px]
-        bg-white/[0.08]
-
-        sm:h-[430px]
-        sm:w-[330px]
-
-        lg:h-[470px]
-        lg:w-[360px]
+        group relative flex flex-col justify-between
+        overflow-hidden rounded-2xl
+        border border-slate-200/90 bg-white
+        p-2.5 sm:p-3.5
+        transition-all duration-300
+        hover:-translate-y-1 hover:border-[#113858]/30
+        hover:shadow-xl hover:shadow-[#113858]/6
       "
     >
-      {/* IMAGE */}
-      <img
-        src={product.image}
-        alt={product.name}
-        loading="lazy"
-        decoding="async"
-        draggable="false"
-        className="
-          h-full w-full object-cover
-          transition-transform
-          duration-700 ease-out
-
-          group-hover:scale-[1.045]
-        "
-      />
-
-      {/* DARK OVERLAY */}
-      <div
-        className="
-          absolute inset-0
-          bg-gradient-to-t
-          from-[#113858]/90
-          via-[#113858]/10
-          to-transparent
-        "
-      />
-
-      
-      {/* BOTTOM CONTENT */}
-      <div
-        className="
-          absolute inset-x-0 bottom-0
-          flex items-end justify-between
-          gap-4 p-5
-
-          sm:p-6
-        "
-      >
-        <h3
+      {/* IMAGE CONTAINER */}
+      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#F0F4F7]">
+        <img
+          src={product.image}
+          alt={product.name}
+          loading="lazy"
+          decoding="async"
+          draggable="false"
           className="
-            min-w-0
-            max-w-[220px]
-            break-words
-            text-[20px] font-semibold
-            leading-[1.1]
-            tracking-[-0.035em]
-            text-white
-
-            sm:text-[22px]
+            h-full w-full object-cover object-top
+            transition-transform duration-500 ease-out
+            group-hover:scale-105
           "
-        >
-          {product.name}
-        </h3>
+        />
 
-        <div
-          className="
-            flex h-[40px] w-[40px]
-            shrink-0 items-center justify-center
-            rounded-full
-            bg-white
-            text-[#113858]
+        {/* POPULAR PRODUCT BADGE (ONLY SHOWN FOR ONE PRODUCT PER CATEGORY) */}
+        {product.badge && (
+          <div className="absolute left-2 top-2 sm:left-2.5 sm:top-2.5">
+            <span
+              className="
+                inline-flex items-center rounded-full
+                bg-white/95 px-2.5 py-1
+                text-[8.5px] sm:text-[10px] font-semibold
+                tracking-wider uppercase text-[#113858]
+                shadow-xs backdrop-blur-xs
+              "
+            >
+              {product.badge}
+            </span>
+          </div>
+        )}
+      </div>
 
-            transition-all duration-300
+      {/* PRODUCT DETAILS */}
+      <div className="flex flex-1 flex-col justify-between pt-3 pb-0.5 px-0.5 sm:px-1">
+        <div>
+          <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.14em] text-[#607487]">
+            {product.category}
+          </p>
 
-            group-hover:rotate-45
-            group-hover:bg-[#113858]
-            group-hover:text-white
-          "
-        >
-          <ArrowUpRight size={16} strokeWidth={2} />
+          <h3
+            className="
+              mt-1
+              text-[13.5px] sm:text-[16px]
+              font-bold leading-snug tracking-tight
+              text-[#113858]
+              transition-colors duration-200
+              group-hover:text-[#1d5b8c]
+            "
+          >
+            {product.name}
+          </h3>
+
+          <p className="mt-1 text-[11px] sm:text-[12px] text-[#607487] line-clamp-1">
+            {product.feature}
+          </p>
+        </div>
+
+        {/* ACTION ROW */}
+        <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2.5">
+          <span
+            className="
+              text-[11px] sm:text-[12px]
+              font-semibold text-[#113858]
+              transition-colors duration-200
+              group-hover:text-[#1d5b8c]
+            "
+          >
+            Inquire for Team
+          </span>
+
+          <div
+            className="
+              flex h-6 w-6 sm:h-7 sm:w-7
+              items-center justify-center
+              rounded-full bg-slate-100
+              text-[#113858]
+              transition-all duration-300
+              group-hover:bg-[#113858] group-hover:text-white
+              group-hover:translate-x-0.5
+            "
+          >
+            <ArrowUpRight size={13} strokeWidth={2.2} />
+          </div>
         </div>
       </div>
     </a>
@@ -134,245 +172,146 @@ function ProductCard({ product }) {
 }
 
 function ProductShowcase() {
-  const repeatedProducts = [...products, ...products];
+  const [activeCategory, setActiveCategory] = useState("ALL");
+
+  const filteredProducts =
+    activeCategory === "ALL"
+      ? products
+      : products.filter((p) => p.category === activeCategory);
 
   return (
     <section
+      id="products"
       className="
-        mx-3
-        overflow-hidden
-        rounded-[28px]
-        bg-[#113858]
-        pb-20
-        pt-20
-
-        sm:mx-5
-        sm:rounded-[32px]
-
-        md:mx-7
-        md:rounded-[36px]
-        md:pb-24
-        md:pt-24
-
-        lg:mx-10
-        lg:rounded-[40px]
-        lg:pt-28
-
-        xl:mx-12
+        relative w-full
+        border-y border-slate-100
+        bg-[#F8FAFC]
+        py-16 sm:py-20 lg:py-24
       "
     >
-      {/* =====================================
-          MAIN BRAND LOGO
-      ====================================== */}
+      <div className="mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-8">
+        {/* =====================================
+            SECTION HEADER
+        ====================================== */}
+        <div className="mx-auto max-w-[760px] text-center">
+          <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#607487]">
+            OUR COLLECTION
+          </p>
 
-      <div
-        className="
-          mx-auto max-w-[1200px]
-          px-5 text-center
-
-          sm:px-6
-        "
-      >
-        <p
-          className="
-            mb-5
-            text-[9px] font-semibold
-            uppercase tracking-[0.28em]
-            text-white/45
-          "
-        >
-          Corporate clothing by
-        </p>
-
-        {/* MAIN LOGO */}
-        <div className="flex justify-center">
-          <img
-            src="cottson-logo.png"
-            alt="Cottson Clothing"
+          <h2
             className="
-              h-auto
-              w-[100px]
-              max-w-full
-              object-contain
+              mt-3
+              text-[30px] sm:text-[38px] md:text-[44px]
+              font-bold leading-[1.15]
+              tracking-[-0.035em] text-[#113858]
             "
-          />
-        </div>
+          >
+            Explore Our Collection
+            <span className="block mt-1 text-[17px] sm:text-[22px] md:text-[25px] font-normal text-[#607487]">
+              Corporate apparel made to represent your brand.
+            </span>
+          </h2>
 
-        {/* Divider */}
-        <div
-          className="
-            mx-auto mt-10
-            h-px max-w-[820px]
-            bg-white/15
-          "
-        />
+          <p
+            className="
+              mx-auto mt-4 max-w-[620px]
+              text-[13px] sm:text-[14px]
+              leading-relaxed text-[#607487]
+            "
+          >
+            From everyday team essentials to premium corporate wear, our products
+            can be customized with your colours, logo and identity to create
+            clothing your team is proud to wear.
+          </p>
+        </div>
 
         {/* =====================================
-            PRODUCT INTRODUCTION
+            CATEGORY NAVIGATION TABS
         ====================================== */}
-
-        <div
-          className="
-            mx-auto mt-10
-            flex max-w-[820px]
-            flex-col items-center
-          "
-        >
-          <p
+        <div className="mt-8 sm:mt-10 flex justify-center">
+          <div
             className="
-              text-[10px]
-              font-semibold uppercase
-              tracking-[0.2em]
-              text-white/45
+              flex max-w-full items-center gap-1.5 sm:gap-2
+              overflow-x-auto px-2 py-1.5
+              scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
             "
           >
-            Our Products
-          </p>
-
-          <h3
-            className="
-              mt-4 max-w-[720px]
-              break-words
-              text-[28px] font-medium
-              leading-[1.25]
-              tracking-[-0.04em]
-              text-white
-
-              sm:text-[34px]
-              md:text-[40px]
-            "
-          >
-            Corporate apparel made to
-            <span className="text-white/45">
-              {" "}represent your brand.
-            </span>
-          </h3>
-
-          <p
-            className="
-              mt-5 max-w-[590px]
-              break-words
-              text-[13px]
-              leading-[1.8]
-              text-white/55
-
-              sm:text-[14px]
-            "
-          >
-            From everyday team essentials to premium corporate
-            wear, our products can be customised with your colours,
-            logo and identity to create clothing your team is proud
-            to wear.
-          </p>
+            {CATEGORIES.map((cat) => {
+              const isActive = activeCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setActiveCategory(cat)}
+                  className={`
+                    shrink-0 rounded-full px-4 sm:px-5 py-2
+                    text-[11px] sm:text-[12px] font-semibold tracking-[0.08em] uppercase
+                    transition-all duration-200 cursor-pointer
+                    ${
+                      isActive
+                        ? "bg-[#113858] text-white shadow-sm shadow-[#113858]/20"
+                        : "bg-white text-[#607487] hover:text-[#113858] hover:bg-slate-100 border border-slate-200/90"
+                    }
+                  `}
+                >
+                  {cat}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      {/* =====================================
-          PRODUCT MARQUEE
-      ====================================== */}
-
-      <div
-        className="
-          group/marquee
-          relative mt-14
-          w-full overflow-hidden
-
-          md:mt-16
-        "
-      >
-        
-        {/* MOVING TRACK */}
+        {/* =====================================
+            PRODUCT GRID (2 mobile, 3 tablet, 4 desktop)
+        ====================================== */}
         <div
           className="
-            product-showcase-track
-            flex w-max gap-4
-            will-change-transform
-
-            group-hover/marquee:[animation-play-state:paused]
+            mt-10 sm:mt-12
+            grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4
+            gap-3.5 sm:gap-5 lg:gap-6
           "
-          style={{
-            animation:
-              "cottsonProductShowcase 35s linear infinite",
-          }}
         >
-          {repeatedProducts.map((product, index) => (
-            <ProductCard
-              key={`${product.id}-${index}`}
-              product={product}
-            />
+          {filteredProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
-      </div>
 
-      {/* =====================================
-          BOTTOM LINK
-      ====================================== */}
+        {/* =====================================
+            BOTTOM ACTIONS
+        ====================================== */}
+        <div className="mt-12 sm:mt-14 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4">
+          {activeCategory !== "ALL" && (
+            <button
+              type="button"
+              onClick={() => setActiveCategory("ALL")}
+              className="
+                inline-flex h-[46px] items-center justify-center gap-2
+                rounded-full border border-slate-300 bg-white px-6
+                text-[12px] sm:text-[13px] font-semibold text-[#113858]
+                transition-all duration-200 hover:bg-slate-50 hover:border-[#113858]/30
+                cursor-pointer
+              "
+            >
+              View All Categories
+            </button>
+          )}
 
-      <div className="mt-12 flex justify-center px-5">
-        <a
-          href="#products"
-          className="
-            group
-            flex h-[46px]
-            max-w-full
-            items-center justify-center
-            gap-2 rounded-full
-
-            border border-white
-            bg-white
-            px-6
-
-            whitespace-nowrap
-            text-[12px]
-            font-semibold
-            text-[#113858]
-
-            transition-all duration-300
-
-            hover:-translate-y-[2px]
-            hover:bg-[#113858]
-            hover:text-white
-          "
-        >
-          Explore All Products
-
-          <ArrowUpRight
-            size={14}
-            strokeWidth={2}
+          <a
+            href="#"
             className="
-              shrink-0
-              transition-transform duration-300
-
-              group-hover:translate-x-[2px]
-              group-hover:-translate-y-[2px]
+              inline-flex h-[46px] items-center justify-center gap-2
+              rounded-full bg-[#113858] px-7
+              text-[12px] sm:text-[13px] font-semibold text-white
+              shadow-sm shadow-[#113858]/20
+              transition-all duration-300
+              hover:-translate-y-0.5 hover:bg-[#0b243a] hover:shadow-md
             "
-          />
-        </a>
+          >
+            <span>Customize the Clothes</span>
+            <ArrowRight size={15} strokeWidth={2} />
+          </a>
+        </div>
       </div>
-
-      {/* =====================================
-          LOCAL ANIMATION
-      ====================================== */}
-
-      <style>
-        {`
-          @keyframes cottsonProductShowcase {
-            from {
-              transform: translateX(0);
-            }
-
-            to {
-              transform: translateX(calc(-50% - 8px));
-            }
-          }
-
-          @media (prefers-reduced-motion: reduce) {
-            .product-showcase-track {
-              animation: none !important;
-            }
-          }
-        `}
-      </style>
     </section>
   );
 }

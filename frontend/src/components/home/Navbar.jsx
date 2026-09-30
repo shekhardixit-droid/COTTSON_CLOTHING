@@ -7,7 +7,7 @@ const navItems = [
   { label: "Products", href: "#products", dropdown: true },
   { label: "Customisation", href: "#customise" },
   { label: "Clients", href: "/clients" },
-  { label: "resources", href: "/resources" },
+  { label: "Resources", href: "/resources" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -82,12 +82,12 @@ export default function Navbar() {
               <Search size={16} strokeWidth={2} />
             </button>
 
-            {/* Shopping bag */}
-            <button
-              type="button"
-              aria-label="Shopping bag"
+            {/* Enquiry */}
+            <a
+              href="#contact"
+              aria-label="Enquiry"
               className="
-                relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full
+                flex h-9 w-9 shrink-0 items-center justify-center rounded-full
                 bg-white text-[#113858]
                 transition duration-200
                 hover:bg-[#F2F6F9]
@@ -95,19 +95,7 @@ export default function Navbar() {
               "
             >
               <ShoppingBag size={16} strokeWidth={2} />
-              <span
-                className="
-                  absolute -right-[1px] -top-[2px]
-                  flex h-[14px] min-w-[14px]
-                  items-center justify-center
-                  rounded-full border-2 border-[#113858]
-                  bg-white px-[2px]
-                  text-[7px] font-bold text-[#113858]
-                "
-              >
-                0
-              </span>
-            </button>
+            </a>
 
             {/* Get a Quote */}
             <a
@@ -194,17 +182,15 @@ export default function Navbar() {
                 <Search size={15} strokeWidth={2} />
                 Search
               </button>
-              <button
-                type="button"
-                aria-label="Shopping bag"
-                className="relative flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-white/10 text-[13px] font-medium text-white transition hover:bg-white/15"
+              <a
+                href="#contact"
+                onClick={() => setMenuOpen(false)}
+                aria-label="Enquiry"
+                className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-white/10 text-[13px] font-medium text-white transition hover:bg-white/15"
               >
                 <ShoppingBag size={15} strokeWidth={2} />
-                Bag
-                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-white px-1 text-[9px] font-bold text-[#113858]">
-                  0
-                </span>
-              </button>
+                Enquiry
+              </a>
             </div>
 
             <a
