@@ -90,24 +90,6 @@
       "w": 103,
       "h": 82,
       "rotation": 0
-    },
-    {
-      "id": "left-sleeve",
-      "label": "Left sleeve",
-      "x": 943,
-      "y": 408,
-      "w": 64,
-      "h": 64,
-      "rotation": 0
-    },
-    {
-      "id": "right-sleeve",
-      "label": "Right sleeve",
-      "x": 193,
-      "y": 408,
-      "w": 64,
-      "h": 64,
-      "rotation": 0
     }
   ]
 }

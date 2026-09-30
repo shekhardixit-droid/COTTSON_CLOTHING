@@ -12,10 +12,13 @@
 // - every logo zone lies ≥95% inside the mask of the part it's on (sleeve zones: mask-sleeve;
 //   chest zones: mask-body, clear of mask-placket and mask-collar), with its centre ≥12 px
 //   from that mask's edge
+// Mannequin templates (style "mannequin", e.g. mannequin/polo-front) run the checks in
+// check-mannequin.mjs instead; a folder with family.json expands to all of its views.
 // Exit code 1 if anything fails, so it can gate a commit.
 import sharp from "sharp";
 import { readFile, readdir, access } from "node:fs/promises";
 import path from "node:path";
+import { checkMannequinFamily, checkMannequinTemplate } from "./check-mannequin.mjs";
 
 const ROOT = "public/mockups";
 const ALPHA_ON = 128; // a pixel counts as "in" a mask above this alpha
@@ -28,15 +31,38 @@ const ZONE_CLASH_MAX = 0.005; // share of a chest zone allowed over the placket 
 /** Which part a logo zone is stitched onto, and which parts it must stay off */
 const zoneRule = (id) =>
   id.includes("sleeve")
-    ? { inside: "sleeve", clear: [] }
+    ? { inside: "sleeve", clear: [], away: ["cuff", "sleeve-tip"] }
     : id.includes("chest")
-      ? { inside: "body", clear: ["placket", "collar"] }
+      ? { inside: "body", clear: ["placket", "collar", "neckband", "neck-tip"], away: [] }
       : null;
 
 const args = process.argv.slice(2);
-const types = args.includes("--all")
-  ? (await readdir(ROOT, { withFileTypes: true })).filter((d) => d.isDirectory()).map((d) => d.name)
-  : args.filter((a) => !a.startsWith("-"));
+const hasFile = async (p) => {
+  try {
+    await access(p);
+    return true;
+  } catch {
+    return false;
+  }
+};
+// A folder with family.json (mannequin families) stands for its view folders
+const families = [];
+async function expand(name) {
+  if (await hasFile(path.join(ROOT, name, "family.json"))) {
+    families.push(name);
+    const subs = (await readdir(path.join(ROOT, name), { withFileTypes: true })).filter((d) => d.isDirectory());
+    return subs.map((d) => `${name}/${d.name}`);
+  }
+  return [name];
+}
+const types = (
+  await Promise.all(
+    (args.includes("--all")
+      ? (await readdir(ROOT, { withFileTypes: true })).filter((d) => d.isDirectory()).map((d) => d.name)
+      : args.filter((a) => !a.startsWith("-"))
+    ).map(expand)
+  )
+).flat();
 if (!types.length) {
   console.error("Usage: npm run check-template <type>   |   npm run check-template -- --all");
   process.exit(2);
@@ -63,6 +89,15 @@ for (const type of types) {
   } catch (e) {
     console.log(`  ✗ template.json: ${e.code === "ENOENT" ? "missing" : e.message}`);
     failed = true;
+    continue;
+  }
+  if (config.style === "mannequin") {
+    const r = await checkMannequinTemplate(dir, config);
+    for (const m of r.oks) ok(m);
+    for (const w of r.warnings) console.log(`  ! ${w}`);
+    for (const e of r.errors) console.log(`  ✗ ${e}`);
+    console.log(r.errors.length ? `  FAILED (${r.errors.length} error${r.errors.length > 1 ? "s" : ""})` : "  OK");
+    if (r.errors.length) failed = true;
     continue;
   }
   if (config.version !== 2) errors.push(`template.json version is ${config.version}, expected 2`);
@@ -131,6 +166,21 @@ for (const type of types) {
       if (both / Math.min(a.count, b.count) > OVERLAP_TOLERANCE)
         errors.push(`${a.id} and ${b.id} overlap by ${both.toLocaleString()} px — each pixel should belong to one part`);
     }
+  // "partition" templates are composited additively, so their masks must add up to the garment
+  if (config.masks === "partition" && base && masks.length === (config.regions ?? []).length) {
+    let n = 0, err = 0, off = 0;
+    for (let k = 0; k < base.data.length; k++) {
+      let sum = 0;
+      for (const m of masks) sum += m.data[k];
+      if (base.data[k] < 8 && sum < 8) continue;
+      n++;
+      err += Math.abs(sum - base.data[k]);
+      if (Math.abs(sum - base.data[k]) > 20) off++;
+    }
+    if (off / n > 0.005 || err / n > 2)
+      errors.push(`masks: "partition" but the masks don't add up to base.png's alpha (mean error ${(err / n).toFixed(1)}, ${((off / n) * 100).toFixed(1)}% of pixels off by >20)`);
+    else ok(`partition: masks sum to the garment alpha (mean error ${(err / n).toFixed(2)})`);
+  }
   // Garment pixels no part covers would render uncoloured
   const body = masks.find((m) => m.id === "body");
   if (base && body) {
@@ -186,6 +236,20 @@ for (const type of types) {
     if (edge < ZONE_EDGE_MIN_PX) problems.push(`centre is ${edge.toFixed(1)} px from the edge of ${target.file} (needs ${ZONE_EDGE_MIN_PX})`);
     for (const id of rule.clear)
       if (clash[id] / n > ZONE_CLASH_MAX) problems.push(`${(clash[id] / n * 100).toFixed(1)}% overlaps ${maskById[id].file}`);
+    // Keep clear of the cuff / tipping by ZONE_EDGE_MIN_PX (box-to-pixel distance)
+    for (const id of rule.away) {
+      const m = maskById[id];
+      if (!m) continue;
+      let gap = Infinity;
+      for (let k = 0; k < m.data.length; k++) {
+        if (m.data[k] <= ALPHA_ON) continue;
+        const px = k % W, py = (k / W) | 0;
+        const u = (px - cx) * cos + (py - cy) * sin, v = -(px - cx) * sin + (py - cy) * cos;
+        gap = Math.min(gap, Math.hypot(Math.max(0, Math.abs(u) - z.w / 2), Math.max(0, Math.abs(v) - z.h / 2)));
+      }
+      if (gap < ZONE_EDGE_MIN_PX) problems.push(`only ${gap.toFixed(1)} px from ${m.file} (needs ${ZONE_EDGE_MIN_PX})`);
+    }
+    if (z.scaleX !== undefined && !(z.scaleX > 0 && z.scaleX <= 1)) problems.push(`scaleX ${z.scaleX} must be in (0, 1]`);
     if (problems.length) errors.push(`zone ${z.id} (${where}): ${problems.join("; ")}`);
     else ok(`zone ${z.id.padEnd(12)} ${where}: ${(pct * 100).toFixed(1)}% on ${rule.inside}, centre ${edge === Infinity ? `>${R}` : edge.toFixed(0)} px from its edge`);
   }
@@ -195,5 +259,14 @@ for (const type of types) {
   for (const e of errors) console.log(`  ✗ ${e}`);
   console.log(errors.length ? `  FAILED (${errors.length} error${errors.length > 1 ? "s" : ""})` : "  OK");
   if (errors.length) failed = true;
+}
+for (const fam of families) {
+  console.log(`
+${fam} (family.json)`);
+  const r = await checkMannequinFamily(path.join(ROOT, fam));
+  for (const m of r.oks) console.log(`  ✓ ${m}`);
+  for (const e of r.errors) console.log(`  ✗ ${e}`);
+  console.log(r.errors.length ? "  FAILED" : "  OK");
+  if (r.errors.length) failed = true;
 }
 process.exit(failed ? 1 : 0);

@@ -10,6 +10,10 @@ showing their `photo.jpg`.** Nothing needs to change in code when you add or rep
 The garment is drawn on a soft off-white background (#f5f5f5) with a subtle ground shadow —
 no mannequin, neck, arms or body.
 
+(The polo also has a **full-mannequin** style with front / back / side views: see
+[Mannequin templates](#mannequin-templates-mannequin) at the end. The ghost templates below are
+unaffected by it.)
+
 ## Files per template
 
 All PNGs in one folder must be **exactly the same size**, **aligned pixel-for-pixel**, and
@@ -112,3 +116,75 @@ Start from a white ghost-mannequin polo (photo or 3D render) on its own layer.
    ```
    then open `/mockup-lab?debug=masks` and pick a product of that type: every part is tinted
    in its own colour and the logo zones are outlined, so misalignments are obvious.
+
+## Mannequin templates (`mannequin/`)
+
+A second, full-mannequin style for the polo family, with several views. The ghost templates
+above are unchanged and still used for "Without mannequin".
+
+```
+mannequin/
+  family.json          which folder each view / option uses, the mirrored side-right view, price hooks
+  README.txt           notes that shipped with the assets
+  polo-front/          buttons closure
+  polo-front-zip/      half-zip closure
+  polo-back/
+  polo-side/           side view, mannequin arm visible
+  polo-side-noarm/     side view, arm removed (default)
+```
+
+Every layer is an RGBA PNG of exactly `width × height` (1200 × 1600 for the polo). **The assets
+are final: never regenerate or repaint them in code.**
+
+| Layer | Meaning |
+|---|---|
+| `mannequin.png` | Neck (and arm, `polo-side`) with the shirt cut out. Drawn **first**, never recoloured; its edges and fades are baked into alpha. |
+| `base.png` | Greyscale shading (R = G = B). `S = R / shading.scale`, scale 200 = flat fabric, lower = folds, higher = highlights. Only R is read; **its alpha is ignored** (the masks define coverage). |
+| `base-pocket.png` | Same shading with the pocket in it (front views). Used instead of `base.png` when the pocket is on. |
+| `mask-body.png` | The whole shirt. The side views have a real hole at the hem slit: the background shows through. |
+| `mask-yoke / pocket / sleeve / cuff / collar / placket / buttons.png` | Parts drawn over the body. Parts never overlap each other and lie inside the body. In the zip view, `placket` is the zip tape + placket box and there are no buttons. |
+| `mask-trim-single.png`, `mask-trim-double-a.png` (outer), `mask-trim-double-b.png` (inner) | Stripes on the collar **and** both cuffs (one colour for both). They overlap collar/cuff by design and are drawn on top. |
+| `details-zipper.png` | Zip view only: the original zipper pixels, drawn last, never recoloured. |
+
+**Draw order**: background → mannequin → body, yoke, pocket, sleeve, cuff, collar, placket,
+buttons (those the options enable) → trims (single: `trim-single` in trim 1; double:
+`trim-double-a` in trim 1, then `trim-double-b` in trim 2) → logo (clipped to the body) →
+details. No ground shadow (`groundShadow: false`).
+
+**Colour per region** (c = picked colour, S = shading multiplier, `foldStrength` = 0.35):
+`lum = (r+g+b)/(3·255)`, `lift = (S−1)·255·foldStrength·(1−lum)·0.5`, `out = clamp(c·S + lift)`,
+blended by the mask's alpha.
+
+**Views** (`family.json`): `front` → `polo-front` or `polo-front-zip` by closure; `back` →
+`polo-back`; `side-left` → `polo-side-noarm` (or `polo-side` when `sideShowsArm` is true);
+`side-right` is virtual: side-left flipped horizontally at load time, zones mirrored
+(`x' = width − x`, rotation negated), logo drawn un-mirrored. Pocket and closure only show on
+the front view.
+
+### template.json (mannequin)
+
+Same base schema as the ghost templates (`version`, `width`/`height`, `pxPerCm`, `layers`,
+`regions`, `zones` as top-left `x`/`y` + `w`/`h` + `rotation`), plus:
+
+- `style: "mannequin"`, `family`, `id`, `view` (`front` / `back` / `side-left`), `closure` (front views)
+- `layers.mannequin`, `shading: { scale, foldStrength }`, `variants.pocket.base`
+- regions may have `when: { "pocket": true }` (only drawn with the pocket on)
+- `trims: { single, doubleA, doubleB }`, `details: [{ file }]`, `groundShadow`
+- zones carry `maxCm` (brochure print limit), `target` (the part it's on) and `avoid` (parts it
+  must stay off). The effective size limit is the smaller of `maxCm` and the finishing limit.
+
+`pxPerCm` (11.6) and every zone are **provisional** (size M, 40 in chest = 590 px armpit to
+armpit): confirm them in `/mockup-lab?debug=masks` before relying on printed sizes.
+
+`scripts/write-mannequin-templates.mjs` writes these files and `family.json`: edit it, not the
+JSON, then re-run it.
+
+### Checks
+
+`npm run check-template mannequin` (or `-- --all`) fails a view when: a layer's size is wrong
+or a file is missing; `base.png` isn't greyscale or its median inside the body is outside
+185–215; a part or trim mask has more than 0.5% of its pixels outside the body; two parts
+overlap (trims may overlap collar/cuff; pocket overlaps only warn); more than 6000 opaque
+mannequin pixels fall inside the body; `details-zipper.png` sits outside the zip folder; or a
+zone is less than 99% on its target part or touches an `avoid` part. It also checks
+`family.json`.

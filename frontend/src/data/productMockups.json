@@ -1,11 +1,5 @@
 {
   "_comment": "Product slug -> mockup template (public/mockups/<template>/) and default colour ids (garment list for body/sleeve/collar/placket, trim list for tips). Unset regions inherit (sleeve/collar/placket -> body, sleeve-tip -> collar-tip).",
-  "formal-shirt-grey": {
-    "template": "formal-shirt",
-    "colours": {
-      "body": "grey"
-    }
-  },
   "polo-black": {
     "template": "polo",
     "colours": {

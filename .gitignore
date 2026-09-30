@@ -21,3 +21,6 @@ Thumbs.db
 # Old single-page prototype (not part of the app)
 /index.html
 /assets/
+
+# Local scratch: mockup regression baselines, unzipped asset drops
+tmp/

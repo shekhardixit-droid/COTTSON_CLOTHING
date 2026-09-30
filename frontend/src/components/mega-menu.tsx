@@ -39,7 +39,7 @@ const MENUS: Menu[] = [
         heading: "The COTTSON Platform",
         items: [
           { title: "Design Studio", text: "Put your logo on any garment, live.", href: "/studio" },
-          { title: "Live color preview", text: "See every color on the real fabric.", href: "/products/formal-shirt-grey" },
+          { title: "Live color preview", text: "See every color on the real fabric.", href: "/products/formal-shirt-slate" },
           { title: "Bulk ordering", text: "Mix sizes and colors in one order.", href: "/#bulk" },
           { title: "Pricing", text: "10–20% off from 25 pieces.", href: "/#bulk" },
         ],

@@ -5,6 +5,7 @@ export type GarmentType =
   | "polo"
   | "tipped-polo"
   | "crew-tee"
+  | "tipped-crew-tee"
   | "formal-shirt"
   | "hoodie"
   | "zip-hoodie"
@@ -15,9 +16,9 @@ export type GarmentType =
  * Recolourable parts. `body` is painted first and may cover the whole garment; the others are
  * painted over it in template.json order and should not overlap each other.
  */
-export type RegionId = "body" | "sleeve" | "cuff" | "collar" | "collar-tip" | "sleeve-tip" | "placket" | "buttons";
+export type RegionId = "body" | "sleeve" | "cuff" | "collar" | "collar-tip" | "sleeve-tip" | "placket" | "buttons" | "neckband" | "neck-tip" | "yoke" | "pocket";
 
-export type LogoZoneId = "left-chest" | "center-chest" | "right-chest" | "left-sleeve" | "right-sleeve" | "back";
+export type LogoZoneId = "left-chest" | "center-chest" | "right-chest" | "left-sleeve-upper" | "left-sleeve" | "right-sleeve-upper" | "right-sleeve" | "back" | "back-neck" | "back-full";
 
 /** A recolourable part of the garment, cut out by its mask */
 export type TemplateRegion = {
@@ -41,6 +42,8 @@ export type LogoZone = {
   h: number;
   /** Degrees, clockwise, around the zone centre */
   rotation: number;
+  /** Optional horizontal squeeze of the logo (sleeves: 0.88, as the sleeve curves away) */
+  scaleX?: number;
 };
 
 /** public/mockups/<type>/template.json */
@@ -61,6 +64,13 @@ export type TemplateConfig = {
   };
   /** 0–1: strength of the soft-light pass that keeps folds visible on dark colours (default 0.55) */
   foldStrength?: number;
+  /**
+   * How the region masks relate. "layered" (default): body covers the whole garment and the other
+   * parts are painted over it. "partition": soft-edged masks that each own their pixels and SUM
+   * to the garment alpha; they must be added together, not stacked, or the background shows
+   * through along every boundary (see renderMockup).
+   */
+  masks?: "layered" | "partition";
   regions: TemplateRegion[];
   zones: LogoZone[];
 };
@@ -77,7 +87,11 @@ export type LogoPlacement = {
   /** 0.5–1: fraction of the zone the fitted logo fills */
   scale: number;
   finish: Finish;
+  /** Upper-sleeve zones: "along" the sleeve (the zone as defined) or "upright" (turned 90°) */
+  orientation?: LogoOrientation;
 };
+
+export type LogoOrientation = "along" | "upright";
 
 export type MockupState = {
   colours: RegionColours;

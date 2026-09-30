@@ -15,16 +15,17 @@ import {
   type PreparedTemplate,
 } from "@/lib/mockup/renderCanvas";
 import { defaultColours } from "@/lib/mockup/products";
-import { defaultScaleFor } from "@/lib/mockup/zones";
+import { DEFAULT_LOGO_SCALE, defaultScaleFor, hasOrientation } from "@/lib/mockup/zones";
 import type {
   Finish,
+  LogoOrientation,
   LogoZoneId,
   RegionColours,
   RegionId,
 } from "@/lib/mockup/types";
 import { cn } from "@/lib/utils";
 
-const TRIM_REGIONS: RegionId[] = ["collar-tip", "sleeve-tip"];
+const TRIM_REGIONS: RegionId[] = ["collar-tip", "sleeve-tip", "neck-tip"];
 
 const colourName = (hex: string) =>
   [...GARMENT_COLORS, ...TRIM_COLORS].find(
@@ -237,22 +238,23 @@ function ProductPicker({
   );
 }
 
-export function MockupLab() {
-  const [slug, setSlug] = useState("indus-01");
+export function MockupLab({ initialSlug }: { initialSlug?: string }) {
+  const [slug, setSlug] = useState(initialSlug ?? "indus-01");
   const [colours, setColours] = useState<RegionColours>({});
   const [template, setTemplate] = useState<PreparedTemplate | null>(null);
   const [logoSrc, setLogoSrc] = useState<string | null>(null);
   const [logoName, setLogoName] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const [zone, setZone] = useState<LogoZoneId>("left-chest");
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(DEFAULT_LOGO_SCALE);
+  const [orientation, setOrientation] = useState<LogoOrientation>("along");
   const [finish, setFinish] = useState<Finish>("embroidery");
   const [openPart, setOpenPart] = useState<RegionId | null>("body");
 
   const merged = { ...defaultColours(slug), ...colours };
   const logo = useMemo(
-    () => (logoSrc ? { src: logoSrc, zone, scale, finish } : null),
-    [logoSrc, zone, scale, finish],
+    () => (logoSrc ? { src: logoSrc, zone, scale, finish, orientation } : null),
+    [logoSrc, zone, scale, finish, orientation],
   );
 
   return (
@@ -365,6 +367,7 @@ export function MockupLab() {
                     const id = e.target.value as LogoZoneId;
                     setZone(id);
                     setScale(defaultScaleFor(id));
+                    setOrientation("along");
                   }}
                   className="h-10 w-full cursor-pointer appearance-none rounded-lg border bg-white pl-3 pr-9 font-medium outline-none hover:border-brand/40 focus:ring-2 focus:ring-brand/30"
                 >
@@ -376,6 +379,28 @@ export function MockupLab() {
                 </select>
                 <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               </label>
+              {hasOrientation(zone) && (
+                <div className="mt-3">
+                  <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Orientation</div>
+                  <div role="radiogroup" aria-label="Logo orientation" className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1 text-sm">
+                    {([["along", "Along sleeve"], ["upright", "Upright"]] as const).map(([value, text]) => (
+                      <button
+                        key={value}
+                        type="button"
+                        role="radio"
+                        aria-checked={orientation === value}
+                        onClick={() => setOrientation(value)}
+                        className={cn(
+                          "rounded-md py-1.5 font-medium",
+                          orientation === value ? "bg-white text-brand shadow-sm" : "text-muted-foreground hover:text-foreground",
+                        )}
+                      >
+                        {text}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <label className="block p-4">

@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { ImagePlus, Minus, Move, Palette, Plus, X, ZoomIn, ZoomOut } from "lucide-react";
+import { ImagePlus, Minus, Move, Palette, Plus, Shirt, X, ZoomIn, ZoomOut } from "lucide-react";
 import { type Product, colorById, formatPrice, variantUrl } from "@/lib/catalog";
 import { useCart } from "@/lib/cart-store";
 import { cn } from "@/lib/utils";
@@ -196,7 +196,7 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
         {/* Left: photo with the wave-sweep color swap, zoomed in on the logo once there is one.
             Sticky so it stays on screen while the (usually longer) options column scrolls. */}
         <div className="relative lg:sticky lg:top-32 lg:self-start">
-          <div className="relative grid aspect-square w-full place-items-center justify-items-start overflow-hidden rounded-2xl bg-white">
+          <div className="relative grid aspect-[682/1024] w-full max-w-[540px] place-items-center justify-items-start overflow-hidden rounded-2xl bg-white">
               <GarmentPhoto ref={frameRef} product={product} colorId={colorId} focus={focus}>
                 {logo && logoArt && (
                   <LogoLayer
@@ -253,12 +253,20 @@ export function EssentialPoloDetail({ product, initialColor }: { product: Produc
         <div>
           <div className="flex items-start justify-between gap-4">
             <h1 className="text-3xl font-bold text-brand">{product.title}</h1>
+            <div className="flex shrink-0 items-center gap-2">
             <Link
               href={`/studio?product=${product.slug}&color=${colorId}`}
+              className="flex shrink-0 items-center gap-1.5 rounded-lg bg-brand px-3 py-2 text-xs font-semibold text-white hover:bg-brand/90"
+            >
+              <Shirt className="size-3.5" /> Customize
+            </Link>
+            <Link
+              href={`/mockup-lab?product=${product.slug}`}
               className="flex shrink-0 items-center gap-1.5 rounded-lg border border-brand px-3 py-2 text-xs font-semibold text-brand hover:bg-muted"
             >
               <Palette className="size-3.5" /> Design Studio
             </Link>
+            </div>
           </div>
           <p className="mt-2 text-sm text-muted-foreground">{product.description}</p>
 

@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { loadImage, loadTemplate, renderMockup, type PreparedTemplate } from "@/lib/mockup/renderCanvas";
 import { defaultColours, templateTypeFor } from "@/lib/mockup/products";
-import { logoSizeCm, zoneById } from "@/lib/mockup/zones";
+import { logoSizeCm, placedZone } from "@/lib/mockup/zones";
 import { renderEmbroidery } from "@/lib/embroidery";
 import type { LogoPlacement, RegionColours } from "@/lib/mockup/types";
 
@@ -113,7 +113,7 @@ export function MockupPreview({ productSlug, colours, logo, fallbackSrc, alt, cl
   const rawSrc = logo?.src ?? null;
   const stitchKey = (() => {
     if (!rawSrc || logo?.finish !== "embroidery" || !template) return null;
-    const zone = zoneById(template.config, logo.zone);
+    const zone = placedZone(template.config, logo.zone, logo.orientation);
     if (!zone) return null;
     // Real width at this zone/scale, assuming a square-ish logo; rounded so the slider doesn't re-stitch every step
     const cm = Math.max(2, Math.round(logoSizeCm(template.config, zone, 1, 1, logo.scale).w));

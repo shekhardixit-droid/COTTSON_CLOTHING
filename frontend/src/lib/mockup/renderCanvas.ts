@@ -16,7 +16,7 @@
 // Speed: each part is tinted into its own bbox-sized canvas and cached by colour, so a
 // colour change re-tints one part and re-composites.
 import type { LogoPlacement, MockupState, RegionColours, RegionId, TemplateConfig, TemplateRegion } from "./types";
-import { fitLogo, zoneById } from "./zones";
+import { fitLogo, placedZone } from "./zones";
 
 export const BACKGROUND = "#f5f5f5";
 const DEFAULT_FOLD_STRENGTH = 0.55;
@@ -218,7 +218,7 @@ function drawGroundShadow(ctx: CanvasRenderingContext2D, t: PreparedTemplate) {
 
 /** The logo with fabric folds multiplied in and its own alpha restored */
 function shadeLogo(t: PreparedTemplate, logo: HTMLImageElement, placement: LogoPlacement) {
-  const zone = zoneById(t.config, placement.zone);
+  const zone = placedZone(t.config, placement.zone, placement.orientation);
   if (!zone) return null;
   const lw = logo.naturalWidth || logo.width || 1;
   const lh = logo.naturalHeight || logo.height || 1;
@@ -241,17 +241,6 @@ function shadeLogo(t: PreparedTemplate, logo: HTMLImageElement, placement: LogoP
   return { canvas: c, fit, rotation: zone.rotation };
 }
 
-/** Silhouette of a canvas in one flat colour (for the embroidery outline) */
-function silhouette(src: HTMLCanvasElement, colour: string) {
-  const c = canvas(src.width, src.height);
-  const ctx = c.getContext("2d")!;
-  ctx.drawImage(src, 0, 0);
-  ctx.globalCompositeOperation = "source-in";
-  ctx.fillStyle = colour;
-  ctx.fillRect(0, 0, c.width, c.height);
-  return c;
-}
-
 function drawLogo(ctx: CanvasRenderingContext2D, t: PreparedTemplate, logo: HTMLImageElement, placement: LogoPlacement) {
   const shaded = shadeLogo(t, logo, placement);
   if (!shaded) return;
@@ -260,9 +249,7 @@ function drawLogo(ctx: CanvasRenderingContext2D, t: PreparedTemplate, logo: HTML
   ctx.translate(fit.cx, fit.cy);
   ctx.rotate((rotation * Math.PI) / 180);
   if (placement.finish === "embroidery") {
-    const edge = silhouette(art, "rgba(0,0,0,0.45)");
-    for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1], [-0.7, -0.7], [0.7, -0.7], [-0.7, 0.7], [0.7, 0.7]])
-      ctx.drawImage(edge, fit.x + dx, fit.y + dy, fit.w, fit.h);
+    // Thread stands slightly off the fabric: a soft contact shadow only (no outline around the logo)
     ctx.shadowColor = "rgba(0,0,0,0.35)";
     ctx.shadowBlur = 1.5;
     ctx.shadowOffsetX = 0.6;
@@ -340,6 +327,14 @@ function drawMaskDebug(ctx: CanvasRenderingContext2D, t: PreparedTemplate) {
   }
 }
 
+// Reused offscreen canvas for partition templates (one per template, template size)
+const garmentCanvases = new WeakMap<PreparedTemplate, HTMLCanvasElement>();
+function garmentCanvas(t: PreparedTemplate) {
+  let c = garmentCanvases.get(t);
+  if (!c) garmentCanvases.set(t, (c = canvas(t.config.width, t.config.height)));
+  return c;
+}
+
 export type RenderOptions = { debugMasks?: boolean; background?: string | null };
 
 /**
@@ -368,7 +363,20 @@ export function renderMockup(
     drawGroundShadow(ctx, t);
   }
   const colours = resolveColours(t, state.colours);
-  for (const r of t.regions) ctx.drawImage(tintRegion(t, r, colours[r.id]), r.box.x, r.box.y);
+  if (t.config.masks === "partition") {
+    // Partition masks meet with soft edges whose alphas sum to 1 (e.g. 0.5 + 0.5). Stacking them
+    // source-over leaves 0.5 + 0.5·0.5 = 0.75 there, so the background shows through as a light
+    // line along every seam. Adding them ("lighter" on premultiplied colour) restores full alpha
+    // and the right colour; the finished garment then goes over the background in one piece.
+    const g = garmentCanvas(t);
+    const gx = g.getContext("2d")!;
+    gx.globalCompositeOperation = "source-over";
+    gx.clearRect(0, 0, W, H);
+    gx.globalCompositeOperation = "lighter";
+    for (const r of t.regions) gx.drawImage(tintRegion(t, r, colours[r.id]), r.box.x, r.box.y);
+    gx.globalCompositeOperation = "source-over";
+    ctx.drawImage(g, 0, 0);
+  } else for (const r of t.regions) ctx.drawImage(tintRegion(t, r, colours[r.id]), r.box.x, r.box.y);
   if (t.details) ctx.drawImage(t.details, 0, 0, W, H);
   if (state.logo && logoImg) drawLogo(ctx, t, logoImg, state.logo);
   if (opts.debugMasks) drawMaskDebug(ctx, t);

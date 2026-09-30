@@ -1,35 +1,6 @@
 {
   "products": [
     {
-      "slug": "formal-shirt-grey",
-      "title": "Classic Formal Shirt",
-      "category": "Shirts",
-      "description": "Crisp cotton oxford with a cutaway collar, chest pocket and embroidered COTTSON mark. Made for the office and customizable for your team.",
-      "price": 1499,
-      "currency": "INR",
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL",
-        "XXL"
-      ],
-      "originalColor": "grey",
-      "colors": [
-        "grey",
-        "white",
-        "navy",
-        "black",
-        "maroon"
-      ],
-      "minBulk": 25,
-      "fit": {
-        "chest": 0.429,
-        "top": 0.278,
-        "cx": 0.5
-      }
-    },
-    {
       "slug": "polo-black",
       "title": "Essential Polo",
       "category": "Polos",
