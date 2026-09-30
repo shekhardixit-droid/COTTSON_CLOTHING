@@ -19,7 +19,7 @@
     }
   },
   "tipped-polo-charcoal": {
-    "template": "tipped-polo",
+    "template": "polo",
     "colours": {
       "body": "grey",
       "collar-tip": "white",
@@ -63,7 +63,7 @@
     }
   },
   "tipped-polo-skyblue": {
-    "template": "tipped-polo",
+    "template": "polo",
     "colours": {
       "body": "sky",
       "collar-tip": "white",
@@ -95,7 +95,7 @@
     }
   },
   "drive": {
-    "template": "tipped-polo",
+    "template": "polo",
     "colours": {
       "body": "black",
       "collar-tip": "white",
@@ -121,7 +121,7 @@
     }
   },
   "indus-01": {
-    "template": "tipped-polo",
+    "template": "polo",
     "colours": {
       "body": "black",
       "collar-tip": "red",
@@ -129,7 +129,7 @@
     }
   },
   "indus-04": {
-    "template": "tipped-polo",
+    "template": "polo",
     "colours": {
       "body": "yellow",
       "collar-tip": "green",
@@ -143,7 +143,7 @@
     }
   },
   "essential-polo": {
-    "template": "tipped-polo",
+    "template": "polo",
     "colours": {
       "body": "black",
       "collar-tip": "green",

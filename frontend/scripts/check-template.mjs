@@ -161,6 +161,9 @@ for (const type of types) {
   for (let i = 0; i < parts.length; i++)
     for (let j = i + 1; j < parts.length; j++) {
       const a = parts[i], b = parts[j];
+      // Tipping (…-tip) is drawn over the part listed before it (e.g. collar tipping over the
+      // collar), so it may overlap it — unless this is a partition template, which adds masks
+      if (config.masks !== "partition" && b.id.endsWith("-tip")) continue;
       let both = 0;
       for (let k = 0; k < a.data.length; k++) if (a.data[k] > ALPHA_ON && b.data[k] > ALPHA_ON) both++;
       if (both / Math.min(a.count, b.count) > OVERLAP_TOLERANCE)

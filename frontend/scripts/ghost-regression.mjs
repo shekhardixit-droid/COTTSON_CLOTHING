@@ -91,7 +91,8 @@ await send("Emulation.setDeviceMetricsOverride", { width: 1600, height: 1100, de
 
 let failed = 0;
 for (const [slug, body] of CASES) {
-  await send("Page.navigate", { url: `${URL_BASE}/mockup-lab?product=${slug}` });
+  // style=ghost: the lab defaults to the mannequin style for polos since Phase C1
+  await send("Page.navigate", { url: `${URL_BASE}/mockup-lab?product=${slug}&style=ghost` });
   await waitFor(`!!document.querySelector('canvas[role=img]') && document.readyState === 'complete'`);
   await sleep(1200);
   if (body) {

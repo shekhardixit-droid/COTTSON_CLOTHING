@@ -55,11 +55,22 @@ const base = (id, view, extra) => ({
   width: 1200,
   height: 1600,
   groundShadow: false,
+  // Grow part masks 1 px inside the body at load time: removes a 1 px rim of body colour around
+  // contrast-coloured parts (the body mask is slightly larger than the parts). Assets unchanged.
+  dilateParts: true,
   pxPerCm: PX_PER_CM,
   pxPerCmNote: PX_PER_CM_NOTE,
   layers: { base: "base.png", mannequin: "mannequin.png" },
   // Shading: base.png R channel / scale = multiplier S (200 = flat fabric)
-  shading: { scale: 200, foldStrength: 0.35 },
+  // Contrast shading (gainBase/gainDark) + seeded fabric grain; see core shadeColourContrast.
+  // Grain above ~0.045 + 0.03 reads as digital noise.
+  shading: {
+    scale: 200,
+    foldStrength: 0.55,
+    gainBase: 1.2,
+    gainDark: 1.4,
+    grain: { amp: 0.018, ampDark: 0.014, sigma: 0.5, seed: 1337 },
+  },
   trims: TRIMS,
   details: [],
   ...extra,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Search, Upload, X } from "lucide-react";
 import {
   PRODUCTS,
@@ -10,11 +10,16 @@ import {
   type Color,
 } from "@/lib/catalog";
 import { MockupPreview } from "@/components/mockup-preview";
+import { MannequinPreview } from "@/components/mannequin-preview";
+import { MannequinControls, MannequinLogoPanel, StyleToggle, viewLabel } from "@/components/mannequin-customiser";
+import { uiStateToParams } from "@/lib/mockup/mannequinUrl";
+import { viewForPlacement, type MannequinUiState, type PlacementId, type SectionKey } from "@/lib/mockup/mannequinState";
+import type { MannequinZone } from "@/lib/mockup/mannequin";
 import {
   resolveColours,
   type PreparedTemplate,
 } from "@/lib/mockup/renderCanvas";
-import { defaultColours } from "@/lib/mockup/products";
+import { defaultColours, hasMannequin, mannequinDefaultsFor } from "@/lib/mockup/products";
 import { DEFAULT_LOGO_SCALE, defaultScaleFor, hasOrientation } from "@/lib/mockup/zones";
 import type {
   Finish,
@@ -238,8 +243,30 @@ function ProductPicker({
   );
 }
 
-export function MockupLab({ initialSlug }: { initialSlug?: string }) {
+export function MockupLab({
+  initialSlug,
+  initialUi,
+  debugMasks = false,
+  perf = false,
+}: {
+  initialSlug?: string;
+  /** Mannequin customiser state restored from the URL (style "ghost" shows the ghost template as before) */
+  initialUi: MannequinUiState;
+  /** ?debug=masks (the ghost preview reads it itself) */
+  debugMasks?: boolean;
+  /** ?perf=1: show the last composite + paint time */
+  perf?: boolean;
+}) {
   const [slug, setSlug] = useState(initialSlug ?? "indus-01");
+  // Mannequin customiser (polo family); the ghost state below is untouched by it
+  const [ui, setUi] = useState<MannequinUiState>(initialUi);
+  const mannequinOn = hasMannequin(slug) && ui.style === "mannequin";
+  const [notice, setNotice] = useState(false);
+  const [openSection, setOpenSection] = useState<SectionKey | null>("body");
+  const [logoDims, setLogoDims] = useState<{ src: string; w: number; h: number } | null>(null);
+  const [zonesSeen, setZonesSeen] = useState<Partial<Record<PlacementId, MannequinZone>>>({});
+  const [pxPerCm, setPxPerCm] = useState(11.6);
+  const [timing, setTiming] = useState<{ ms: number; totalMs: number } | null>(null);
   const [colours, setColours] = useState<RegionColours>({});
   const [template, setTemplate] = useState<PreparedTemplate | null>(null);
   const [logoSrc, setLogoSrc] = useState<string | null>(null);
@@ -257,10 +284,53 @@ export function MockupLab({ initialSlug }: { initialSlug?: string }) {
     [logoSrc, zone, scale, finish, orientation],
   );
 
+  // Mannequin state → URL (debounced replaceState), so a reload restores all but the logo image
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      const url = new URL(window.location.href);
+      const keep = ["debug", "perf"].flatMap((k) => (url.searchParams.has(k) ? [[k, url.searchParams.get(k)!] as const] : []));
+      const next = new URLSearchParams({ product: slug, ...uiStateToParams(ui) });
+      for (const [k, v] of keep) next.set(k, v);
+      window.history.replaceState(window.history.state, "", `${url.pathname}?${next}`);
+    }, 250);
+    return () => window.clearTimeout(t);
+  }, [ui, slug]);
+
+  // The logo's pixel size (for the cm readout); measured whenever the logo changes
+  useEffect(() => {
+    if (!logoSrc) return;
+    let cancelled = false;
+    const img = new Image();
+    img.onload = () => !cancelled && setLogoDims({ src: logoSrc, w: img.naturalWidth || 1, h: img.naturalHeight || 1 });
+    img.src = logoSrc;
+    return () => {
+      cancelled = true;
+    };
+  }, [logoSrc]);
+  const mannequinLogo = logoSrc && logoDims?.src === logoSrc ? { src: logoSrc, name: logoName, w: logoDims.w, h: logoDims.h } : null;
+
+  const design = useMemo(
+    () => ({
+      options: { view: ui.view, closure: ui.closure, pocket: ui.pocket, trimStyle: ui.trimStyle },
+      colours: ui.colours,
+      trim1: ui.trim1,
+      trim2: ui.trim2,
+      logo: logoSrc ? { src: logoSrc, zoneId: ui.zone, scale: ui.scale } : null,
+    }),
+    [ui, logoSrc],
+  );
+  // Remember every zone a loaded view has shown (the logo panel's cm readout needs its box)
+  const onMannequinTemplate = useCallback(({ config, zones }: { config: { pxPerCm: number }; zones: MannequinZone[] }) => {
+    setPxPerCm(config.pxPerCm);
+    setZonesSeen((seen) => ({ ...seen, ...Object.fromEntries(zones.map((z) => [z.id, z])) }));
+  }, []);
+  const onRendered = useCallback((r: { ms: number; totalMs: number }) => perf && setTiming({ ms: r.ms, totalMs: r.totalMs }), [perf]);
+  const logoElsewhere = !!logoSrc && viewForPlacement(ui.zone) !== ui.view;
+
   return (
     <div className="grid w-full gap-8 px-4 py-8 md:grid-cols-[340px_minmax(0,1fr)_340px] md:px-[4vw]">
       {/* Right column: product picker + logo (equal width to the left column, so the garment is page-centred) */}
-      <div className="flex flex-col items-end gap-5 md:order-3 md:sticky md:top-32 md:self-start">
+      <div className={cn("flex flex-col items-end gap-5 md:order-3 md:sticky md:top-32 md:self-start", mannequinOn && "order-2")}>
         <div className="w-full max-w-sm">
           <div className="mb-1.5 text-sm font-semibold text-brand">Product</div>
           <ProductPicker
@@ -268,10 +338,30 @@ export function MockupLab({ initialSlug }: { initialSlug?: string }) {
             onChange={(s) => {
               setSlug(s);
               setColours({});
+              // New product: its own defaults, keeping the chosen style where the product has it
+              setUi({ ...mannequinDefaultsFor(s), style: hasMannequin(s) ? ui.style : "ghost" });
+              setNotice(false);
             }}
           />
         </div>
-        {template && (
+        {mannequinOn && (
+          <div className="w-full max-w-sm">
+            <MannequinLogoPanel
+              state={ui}
+              onChange={setUi}
+              logo={mannequinLogo}
+              onLogo={(l) => {
+                setLogoSrc(l?.src ?? null);
+                setLogoName(l?.name ?? "");
+              }}
+              notice={notice}
+              onNotice={setNotice}
+              zones={zonesSeen}
+              pxPerCm={pxPerCm}
+            />
+          </div>
+        )}
+        {!mannequinOn && template && (
           <section className="w-full max-w-sm space-y-5 rounded-xl border bg-white p-4 text-sm shadow-sm [&>*]:p-0">
             {/* Title and the logo file share one section */}
             <div className="space-y-3 p-4">
@@ -429,7 +519,30 @@ export function MockupLab({ initialSlug }: { initialSlug?: string }) {
         )}
       </div>
 
-      <div className="flex justify-center md:order-2 md:sticky md:top-32 md:self-start">
+      <div className={cn("flex justify-center md:order-2 md:sticky md:top-32 md:self-start", mannequinOn && "order-1 flex-col items-center gap-2")}>
+        {mannequinOn ? (
+          <>
+            <MannequinPreview
+              design={design}
+              debug={debugMasks}
+              perf={perf}
+              onTemplate={onMannequinTemplate}
+              onRendered={onRendered}
+              alt={`Polo on a mannequin, ${viewLabel(ui.view)} view`}
+              className="w-full max-w-[560px] md:h-[calc(100vh-12rem)] md:w-auto md:max-w-full"
+            />
+            {logoElsewhere && (
+              <p role="status" className="text-sm text-muted-foreground">
+                Logo is on the {viewLabel(viewForPlacement(ui.zone))} view
+              </p>
+            )}
+            {perf && timing && (
+              <p className="rounded bg-black/80 px-2 py-1 font-mono text-xs text-white" data-perf>
+                composite {timing.ms.toFixed(1)} ms · composite + paint {timing.totalMs.toFixed(1)} ms
+              </p>
+            )}
+          </>
+        ) : (
         <MockupPreview
           key={slug}
           productSlug={slug}
@@ -440,17 +553,38 @@ export function MockupLab({ initialSlug }: { initialSlug?: string }) {
           // Whole garment fits the screen height (below the pinned header), centred in its column
           className="w-full max-w-[560px] md:h-[calc(100vh-10rem)] md:w-auto md:max-w-full"
         />
+        )}
       </div>
 
-      <div className="space-y-5 text-sm md:order-1">
+      <div className={cn("space-y-5 text-sm md:order-1", mannequinOn && "order-3")}>
         <h1 className="text-xl font-bold text-brand">Mockup</h1>
-        {!template && (
+        {hasMannequin(slug) && (
+          <StyleToggle
+            value={ui.style}
+            onChange={(style) => {
+              setUi({ ...ui, style });
+              setNotice(false);
+            }}
+          />
+        )}
+        {mannequinOn && (
+          <MannequinControls
+            state={ui}
+            onChange={setUi}
+            bodyDefault={defaultColours(slug).body ?? "#f5f5f2"}
+            openSection={openSection}
+            onOpenSection={setOpenSection}
+            onNotice={() => setNotice(true)}
+            logoPresent={!!logoSrc}
+          />
+        )}
+        {!mannequinOn && !template && (
           <p className="text-muted-foreground">
             No template for this garment type yet — showing photo.jpg.
           </p>
         )}
 
-        {template && (
+        {!mannequinOn && template && (
           <div>
             <div className="mb-1.5 text-sm font-semibold text-brand">
               Colours

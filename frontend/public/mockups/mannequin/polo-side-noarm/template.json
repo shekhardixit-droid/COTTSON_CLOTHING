@@ -7,6 +7,7 @@
   "width": 1200,
   "height": 1600,
   "groundShadow": false,
+  "dilateParts": true,
   "pxPerCm": 11.6,
   "pxPerCmNote": "PROVISIONAL assumption: size M, 40 in chest = 50.8 cm flat = 590 px armpit to armpit on the front view",
   "layers": {
@@ -15,7 +16,15 @@
   },
   "shading": {
     "scale": 200,
-    "foldStrength": 0.35
+    "foldStrength": 0.55,
+    "gainBase": 1.2,
+    "gainDark": 1.4,
+    "grain": {
+      "amp": 0.018,
+      "ampDark": 0.014,
+      "sigma": 0.5,
+      "seed": 1337
+    }
   },
   "trims": {
     "single": "mask-trim-single.png",

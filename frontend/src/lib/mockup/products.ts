@@ -1,6 +1,7 @@
 import mockups from "@/data/productMockups.json";
 import { COLORS } from "@/lib/catalog";
 import type { GarmentType, ProductMockup, RegionColours, RegionId } from "./types";
+import { defaultUiState, type MannequinUiState } from "./mannequinState";
 
 const table = mockups as unknown as Record<string, ProductMockup | string>;
 
@@ -24,3 +25,15 @@ export function coloursToHex(colours: Partial<Record<RegionId, string>>): Region
 
 /** Default region colours (hex) for a product */
 export const defaultColours = (slug: string): RegionColours => coloursToHex(productMockup(slug)?.colours ?? {});
+
+/** Products whose ghost template belongs to the polo family also have the full-mannequin style */
+export const hasMannequin = (slug: string) => {
+  const t = templateTypeFor(slug);
+  return t === "polo" || t === "tipped-polo";
+};
+
+/** A new mannequin session for a product: its body colour, and its collar tipping as the stripe */
+export function mannequinDefaultsFor(slug: string): MannequinUiState {
+  const c = defaultColours(slug);
+  return defaultUiState({ bodyHex: c.body, tippingHex: c["collar-tip"], tipped: templateTypeFor(slug) === "tipped-polo" });
+}

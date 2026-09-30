@@ -9,6 +9,8 @@
 //   details        RGBA drawn last, never recoloured (zipper)
 
 import type { LogoZone } from "./types";
+import { flipHorizontal } from "./core/composite.ts";
+import { decodePng } from "./pngDecode.ts";
 
 export type MannequinRegionId = "body" | "yoke" | "pocket" | "sleeve" | "cuff" | "collar" | "placket" | "buttons";
 /** Draw order of the regions (only those a template has and the options enable) */
@@ -48,10 +50,19 @@ export type MannequinTemplateConfig = {
   width: number;
   height: number;
   groundShadow: boolean;
+  /** Grow part masks (not trims) 1 px where the body alpha > 0.3, at load time (see core dilateWithinBody) */
+  dilateParts: boolean;
   pxPerCm: number;
   pxPerCmNote?: string;
   layers: { base: string; mannequin: string };
-  shading: { scale: number; foldStrength: number };
+  /** gainBase/gainDark/grain present: contrast shading + fabric grain (core shadeColourContrast) */
+  shading: {
+    scale: number;
+    foldStrength: number;
+    gainBase?: number;
+    gainDark?: number;
+    grain?: { amp: number; ampDark: number; sigma: number; seed: number };
+  };
   variants?: { pocket?: { base: string } };
   regions: MannequinRegion[];
   trims: { single: string; doubleA: string; doubleB: string };
@@ -161,10 +172,27 @@ export function parseMannequinTemplate(raw: unknown, where = "template.json"): M
     width: num(raw, "width", where),
     height: num(raw, "height", where),
     groundShadow: raw.groundShadow === true,
+    dilateParts: raw.dilateParts === true,
     pxPerCm: num(raw, "pxPerCm", where),
     pxPerCmNote: typeof raw.pxPerCmNote === "string" ? raw.pxPerCmNote : undefined,
     layers: { base: str(layers, "base", `${where} layers`), mannequin: str(layers, "mannequin", `${where} layers`) },
-    shading: { scale: num(shading, "scale", `${where} shading`), foldStrength: num(shading, "foldStrength", `${where} shading`) },
+    shading: {
+      scale: num(shading, "scale", `${where} shading`),
+      foldStrength: num(shading, "foldStrength", `${where} shading`),
+      ...(shading.gainBase === undefined
+        ? {}
+        : { gainBase: num(shading, "gainBase", `${where} shading`), gainDark: num(shading, "gainDark", `${where} shading`) }),
+      ...(isObj(shading.grain)
+        ? {
+            grain: {
+              amp: num(shading.grain, "amp", `${where} shading.grain`),
+              ampDark: num(shading.grain, "ampDark", `${where} shading.grain`),
+              sigma: num(shading.grain, "sigma", `${where} shading.grain`),
+              seed: num(shading.grain, "seed", `${where} shading.grain`),
+            },
+          }
+        : {}),
+    },
     variants: pocketVariant ? { pocket: pocketVariant } : undefined,
     regions,
     trims: { single: str(trims, "single", `${where} trims`), doubleA: str(trims, "doubleA", `${where} trims`), doubleB: str(trims, "doubleB", `${where} trims`) },
@@ -270,21 +298,16 @@ export type MannequinLayers = {
 
 const MANNEQUIN_ROOT = "/mockups/mannequin";
 
+/**
+ * A layer's exact pixels (decoded without a canvas: see pngDecode.ts), mirrored if asked.
+ * Identical to what sharp reads in Node, so browser and Node renders match byte for byte.
+ */
 async function pixels(url: string, w: number, h: number, mirrored: boolean): Promise<Uint8ClampedArray> {
-  const img = new Image();
-  img.src = url;
-  await img.decode();
-  if (img.naturalWidth !== w || img.naturalHeight !== h) throw new Error(`${url} is ${img.naturalWidth}×${img.naturalHeight}, expected ${w}×${h}`);
-  const c = document.createElement("canvas");
-  c.width = w;
-  c.height = h;
-  const ctx = c.getContext("2d", { willReadFrequently: true })!;
-  if (mirrored) {
-    ctx.translate(w, 0);
-    ctx.scale(-1, 1);
-  }
-  ctx.drawImage(img, 0, 0);
-  return ctx.getImageData(0, 0, w, h).data;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`${url}: ${res.status}`);
+  const png = await decodePng(await res.arrayBuffer());
+  if (png.width !== w || png.height !== h) throw new Error(`${url} is ${png.width}×${png.height}, expected ${w}×${h}`);
+  return mirrored ? flipHorizontal(png.rgba, w, h, 4) : png.rgba;
 }
 const channel = (rgba: Uint8ClampedArray, c: number) => {
   const out = new Uint8Array(rgba.length / 4);
@@ -302,28 +325,101 @@ export function loadMannequinFamily(root = MANNEQUIN_ROOT) {
   return p;
 }
 
-const layerCache = new Map<string, Promise<MannequinLayers>>();
-/** Every layer of one view folder (all variants), optionally mirrored; cached per folder + mirror */
+// Decoded layers, LRU by bytes: masks and shading are single-channel Uint8Array, only
+// mannequin.png and details stay RGBA. One folder is ~23–37 MB decoded; the total is capped.
+export const LAYER_CACHE_MAX_BYTES = 150 * 1024 * 1024;
+type CacheEntry = { promise: Promise<MannequinLayers>; bytes: number };
+const layerCache = new Map<string, CacheEntry>();
+
+/** Decoded size of one folder's layers, in bytes */
+export function layerBytes(l: MannequinLayers) {
+  let n = l.mannequin.byteLength;
+  for (const d of l.details) n += d.byteLength;
+  for (const a of Object.values(l.shading)) n += a.byteLength;
+  for (const a of Object.values(l.masks)) n += a.byteLength;
+  return n;
+}
+export const layerCacheBytes = () => [...layerCache.values()].reduce((n, e) => n + e.bytes, 0);
+export const layerCacheKeys = () => [...layerCache.keys()];
+
+function evict(keep: string) {
+  let total = layerCacheBytes();
+  for (const [key, e] of layerCache) {
+    if (total <= LAYER_CACHE_MAX_BYTES) break;
+    if (key === keep || !e.bytes) continue; // never the one in use, nor one still loading
+    layerCache.delete(key);
+    total -= e.bytes;
+  }
+}
+
+/**
+ * The layers of one view folder, optionally mirrored. Loads mannequin, masks, details and the
+ * default shading (base.png); the pocket shading is added on demand by ensureShading.
+ */
 export function loadMannequinLayers(folder: string, mirrored: boolean, root = MANNEQUIN_ROOT): Promise<MannequinLayers> {
   const key = `${root}/${folder}:${mirrored}`;
-  let p = layerCache.get(key);
-  if (!p) {
-    p = (async () => {
-      const dir = `${root}/${folder}`;
-      const config = parseMannequinTemplate(await (await fetch(`${dir}/template.json`)).json(), `${dir}/template.json`);
-      const { width: W, height: H } = config;
-      const load = (f: string) => pixels(`${dir}/${f}`, W, H, mirrored);
-      const shadingFiles = [config.layers.base, ...(config.variants?.pocket ? [config.variants.pocket.base] : [])];
-      const maskFiles = [...config.regions.map((r) => r.mask), config.trims.single, config.trims.doubleA, config.trims.doubleB];
-      const [mannequin, details, shading, masks] = await Promise.all([
-        load(config.layers.mannequin),
-        Promise.all(config.details.map((d) => load(d.file))),
-        Promise.all(shadingFiles.map(async (f) => [f, channel(await load(f), 0)] as const)),
-        Promise.all(maskFiles.map(async (f) => [f, channel(await load(f), 3)] as const)),
-      ]);
-      return { config, mannequin, details, shading: Object.fromEntries(shading), masks: Object.fromEntries(masks) };
-    })();
-    layerCache.set(key, p);
+  const hit = layerCache.get(key);
+  if (hit) {
+    // Most recently used goes last
+    layerCache.delete(key);
+    layerCache.set(key, hit);
+    return hit.promise;
   }
-  return p;
+  const entry: CacheEntry = { bytes: 0, promise: Promise.resolve(null as unknown as MannequinLayers) };
+  entry.promise = (async () => {
+    const dir = `${root}/${folder}`;
+    const config = parseMannequinTemplate(await (await fetch(`${dir}/template.json`)).json(), `${dir}/template.json`);
+    const { width: W, height: H } = config;
+    const load = (f: string) => pixels(`${dir}/${f}`, W, H, mirrored);
+    const maskFiles = [...config.regions.map((r) => r.mask), config.trims.single, config.trims.doubleA, config.trims.doubleB];
+    const [mannequin, details, base, masks] = await Promise.all([
+      load(config.layers.mannequin),
+      Promise.all(config.details.map((d) => load(d.file))),
+      load(config.layers.base).then((px) => channel(px, 0)),
+      Promise.all(maskFiles.map(async (f) => [f, channel(await load(f), 3)] as const)),
+    ]);
+    const layers: MannequinLayers = { config, mannequin, details, shading: { [config.layers.base]: base }, masks: Object.fromEntries(masks) };
+    // Count the grown part masks the rim fix derives from these layers too (freed with them)
+    const grownParts = config.dilateParts ? config.regions.filter((r) => r.id !== "body").length * W * H : 0;
+    entry.bytes = layerBytes(layers) + grownParts;
+    evict(key);
+    return layers;
+  })();
+  entry.promise.catch(() => layerCache.delete(key));
+  layerCache.set(key, entry);
+  return entry.promise;
+}
+
+/** Make sure a shading variant (e.g. base-pocket.png) is decoded into these layers */
+export async function ensureShading(layers: MannequinLayers, folder: string, mirrored: boolean, file: string, root = MANNEQUIN_ROOT) {
+  if (layers.shading[file]) return;
+  const { width: W, height: H } = layers.config;
+  layers.shading[file] = channel(await pixels(`${root}/${folder}/${file}`, W, H, mirrored), 0);
+  const e = layerCache.get(`${root}/${folder}:${mirrored}`);
+  if (e) e.bytes += W * H;
+}
+
+/**
+ * Warm the cache for the other views while the browser is idle, unless the visitor asked to save
+ * data. Loads one folder at a time and stops before the cache nears its cap.
+ */
+export function prefetchMannequinViews(family: MannequinFamily, closure: Closure, root = MANNEQUIN_ROOT) {
+  const nav = typeof navigator === "undefined" ? undefined : (navigator as Navigator & { connection?: { saveData?: boolean } });
+  if (!nav || nav.connection?.saveData) return () => {};
+  const side = family.sideShowsArm ? family.views["side-left"].arm : family.views["side-left"].noArm;
+  const queue: [string, boolean][] = [[family.views.front[closure], false], [family.views.back, false], [side, false], [side, true]];
+  let cancelled = false;
+  const idle = (cb: () => void) => ("requestIdleCallback" in window ? window.requestIdleCallback(cb, { timeout: 4000 }) : globalThis.setTimeout(cb, 1200));
+  const next = () => {
+    if (cancelled) return;
+    const item = queue.shift();
+    if (!item || layerCacheBytes() > LAYER_CACHE_MAX_BYTES * 0.8) return;
+    loadMannequinLayers(item[0], item[1], root)
+      .catch(() => {})
+      .then(() => idle(next));
+  };
+  idle(next);
+  return () => {
+    cancelled = true;
+  };
 }
