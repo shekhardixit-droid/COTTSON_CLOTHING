@@ -125,7 +125,7 @@ export function AboutReels() {
       <div className="mx-auto mb-12 max-w-[1380px] px-5 sm:px-6 lg:px-8">
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>
-            <EyebrowPill text="Behind the scenes" />
+           
             <h2
               className="
                 text-[34px] font-semibold leading-[1.08]

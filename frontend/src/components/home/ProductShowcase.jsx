@@ -4,38 +4,38 @@ const products = [
   {
     id: 1,
     name: "Polo T-Shirts",
-    number: "01",
-    image: "/images/showcase/polo.jpg",
+   
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/02_1.jpg",
   },
   {
     id: 2,
     name: "Corporate Shirts",
-    number: "02",
-    image: "/images/showcase/shirt.jpg",
+    
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/07_1.jpg",
   },
   {
     id: 3,
     name: "Round Neck T-Shirts",
-    number: "03",
-    image: "/images/showcase/tshirt.jpg",
+   
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/05_1.jpg",
   },
   {
     id: 4,
     name: "Jackets",
-    number: "04",
-    image: "/images/showcase/jacket.jpg",
+    
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/13_1.jpg",
   },
   {
     id: 5,
     name: "Hoodies",
-    number: "05",
-    image: "/images/showcase/hoodie.jpg",
+    
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/12_1.jpg",
   },
   {
     id: 6,
     name: "Sweatshirts",
-    number: "06",
-    image: "/images/showcase/sweatshirt.jpg",
+   
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/14_1.jpg",
   },
 ];
 
@@ -84,25 +84,7 @@ function ProductCard({ product }) {
         "
       />
 
-      {/* NUMBER */}
-      <div
-        className="
-          absolute left-5 top-5
-          flex h-[32px] min-w-[32px]
-          shrink-0
-          items-center justify-center
-          rounded-full
-          border border-white/30
-          bg-white/10
-          px-2
-          text-[9px] font-semibold
-          text-white
-          backdrop-blur-md
-        "
-      >
-        {product.number}
-      </div>
-
+      
       {/* BOTTOM CONTENT */}
       <div
         className="
@@ -298,40 +280,7 @@ function ProductShowcase() {
           md:mt-16
         "
       >
-        {/* LEFT FADE */}
-        <div
-          className="
-            pointer-events-none
-            absolute left-0 top-0
-            z-20 h-full
-            w-[40px]
-
-            bg-gradient-to-r
-            from-[#113858]
-            to-transparent
-
-            sm:w-[90px]
-            lg:w-[130px]
-          "
-        />
-
-        {/* RIGHT FADE */}
-        <div
-          className="
-            pointer-events-none
-            absolute right-0 top-0
-            z-20 h-full
-            w-[40px]
-
-            bg-gradient-to-l
-            from-[#113858]
-            to-transparent
-
-            sm:w-[90px]
-            lg:w-[130px]
-          "
-        />
-
+        
         {/* MOVING TRACK */}
         <div
           className="

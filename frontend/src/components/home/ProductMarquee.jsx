@@ -8,42 +8,42 @@ const products = [
     id: 1,
     name: "Corporate Polos",
     category: "Custom Apparel",
-    image: "/images/marquee/polo.png",
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/02_1.jpg",
     slug: "corporate-polos",
   },
   {
     id: 2,
     name: "Premium T-Shirts",
     category: "Team Essentials",
-    image: "/images/marquee/tshirt.png",
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/09_1.jpg",
     slug: "premium-tshirts",
   },
   {
     id: 3,
     name: "Corporate Shirts",
     category: "Workwear",
-    image: "/images/marquee/shirt.png",
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/06_1.jpg",
     slug: "corporate-shirts",
   },
   {
     id: 4,
     name: "Custom Jackets",
     category: "Outerwear",
-    image: "/images/marquee/jacket.png",
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/13_1.jpg",
     slug: "custom-jackets",
   },
   {
     id: 5,
     name: "Team Hoodies",
     category: "Casual Workwear",
-    image: "/images/marquee/hoodie.png",
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/12_1.jpg",
     slug: "team-hoodies",
   },
   {
     id: 6,
     name: "Sweatshirts",
     category: "Premium Essentials",
-    image: "/images/marquee/sweatshirt.png",
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/14_1.jpg",
     slug: "sweatshirts",
   },
 ];
@@ -301,46 +301,6 @@ function ProductMarquee() {
       ====================================== */}
 
       <div className="relative w-full overflow-hidden">
-
-        {/* LEFT FADE */}
-        <div
-          className="
-            pointer-events-none
-            absolute
-            left-0
-            top-0
-            z-20
-            h-full
-            w-[50px]
-
-            bg-gradient-to-r
-            from-white
-            to-transparent
-
-            sm:w-[100px]
-            lg:w-[140px]
-          "
-        />
-
-        {/* RIGHT FADE */}
-        <div
-          className="
-            pointer-events-none
-            absolute
-            right-0
-            top-0
-            z-20
-            h-full
-            w-[50px]
-
-            bg-gradient-to-l
-            from-white
-            to-transparent
-
-            sm:w-[100px]
-            lg:w-[140px]
-          "
-        />
 
         {/* MOVING TRACK */}
         <div
