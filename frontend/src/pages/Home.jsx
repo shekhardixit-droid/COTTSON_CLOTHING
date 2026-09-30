@@ -6,6 +6,7 @@ import AboutReels from "../components/about/AboutReels";
 import TeamMarquee from "../components/home/TeamMarquee";
 import TrustedBy from "../components/home/TrustedBy";
 import BusinessTrust from "../components/home/Businesstrust";
+import CorporateNeeds from "../components/home/CorporateNeeds";
 import WhatsAppCTA from "../components/about/WhatsAppCTA";
 import Footer from "../components/home/Footer";
 
@@ -20,6 +21,7 @@ function Home() {
       <TeamMarquee />
       <TrustedBy />
       <BusinessTrust />
+      <CorporateNeeds />
       <WhatsAppCTA />
       <Footer />
     </>

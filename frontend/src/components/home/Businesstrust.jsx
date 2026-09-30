@@ -64,56 +64,19 @@ function BusinessTrust() {
             md:mb-14
           "
         >
-          <div
-            className="
-              mb-4
-              inline-flex
-              items-center
-              gap-2
-
-              whitespace-nowrap
-              rounded-full
-              border
-              border-[#113858]/10
-
-              bg-[#F5F8FA]
-
-              px-3.5
-              py-[7px]
-            "
-          >
-            <span
-              className="
-                h-[6px]
-                w-[6px]
-                shrink-0
-                rounded-full
-                bg-[#113858]
-              "
-            />
-
-            <span
-              className="
-                text-[9px]
-                font-semibold
-                uppercase
-                tracking-[0.2em]
-                text-[#113858]/60
-              "
-            >
-              Built for business
-            </span>
-          </div>
+          {/* Eyebrow — Clean flat text, no pill */}
+          <p className="mb-3 text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.22em] text-[#607487]">
+            Built for business
+          </p>
 
           <h2
             className="
               break-words
               text-[34px]
-              font-semibold
-              leading-[1.08]
-              tracking-[-0.045em]
+              font-bold
+              leading-[1.12]
+              tracking-[-0.025em]
               text-[#113858]
-
               sm:text-[42px]
               lg:text-[48px]
             "
@@ -127,14 +90,12 @@ function BusinessTrust() {
           <p
             className="
               mx-auto
-              mt-5
+              mt-4
               max-w-[570px]
-
-              text-[13px]
-              leading-[1.75]
+              text-[14px]
+              leading-relaxed
               text-[#607487]
-
-              sm:text-[14px]
+              sm:text-[15px]
             "
           >
             From growing teams to large corporate requirements,
@@ -242,7 +203,7 @@ function BusinessTrust() {
                         text-[30px]
                         font-semibold
                         leading-none
-                        tracking-[-0.055em]
+                        tracking-[-0.02em]
                         text-[#113858]
 
                         sm:text-[36px]

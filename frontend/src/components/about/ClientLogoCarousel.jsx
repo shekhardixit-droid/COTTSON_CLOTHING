@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
-  CLIENTS_JSON_URL,
   initialTopClients,
   initialBottomClients,
 } from "../../data/cottsonClients";
 import { useInView } from "../../hooks/useInView";
 
-function optimizeCloudinaryUrl(url, width = 240) {
+function optimizeCloudinaryUrl(url, width = 220) {
   if (!url || typeof url !== "string") return url;
-  if (url.includes("/image/upload/") && !url.includes("/f_auto")) {
+  if (url.includes("/image/upload/")) {
     return url.replace(
-      "/image/upload/",
-      `/image/upload/f_auto,q_auto,w_${width},c_limit/`
+      /\/image\/upload\/([^/]*\/)?/,
+      `/image/upload/e_trim,f_auto,q_auto:eco,w_${width},c_limit/`
     );
   }
   return url;
@@ -19,59 +18,51 @@ function optimizeCloudinaryUrl(url, width = 240) {
 
 function EyebrowPill({ text }) {
   return (
-    <div
-      className="
-        mb-5
-        inline-flex
-        items-center
-        gap-2
-        rounded-full
-        border
-        border-[#113858]/10
-        bg-[#F5F8FA]
-        px-3.5
-        py-[7px]
-      "
-    >
-      <span className="h-[6px] w-[6px] rounded-full bg-[#113858]" />
-      <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#113858]/60">
-        {text}
-      </span>
-    </div>
+    <p className="mb-3 text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.22em] text-[#607487]">
+      {text}
+    </p>
   );
 }
 
-function ClientLogoCard({ client }) {
+// Clean borderless client logo item with uniform optical sizing directly on the page
+function ClientLogoItem({ client }) {
   return (
     <div
       className="
         flex
-        h-[110px]
-        w-[210px]
+        h-[60px]
+        w-[160px]
         shrink-0
         items-center
         justify-center
-        overflow-hidden
-        rounded-[20px]
-        border
-        border-[#113858]/10
-        bg-white
-        p-2.5
-        sm:h-[120px]
-        sm:w-[230px]
-        sm:p-3.5
+        px-3
+        select-none
+        [transform:translateZ(0)]
+        sm:h-[70px]
+        sm:w-[190px]
+        sm:px-4
+        lg:h-[78px]
+        lg:w-[210px]
       "
     >
       <img
-        src={optimizeCloudinaryUrl(client.url, 240)}
+        src={optimizeCloudinaryUrl(client.url, 220)}
         alt={client.name || "Client Logo"}
         loading="lazy"
         decoding="async"
         draggable="false"
         className="
-          h-full
-          w-full
+          h-[34px]
+          w-auto
+          max-w-[140px]
           object-contain
+          sm:h-[40px]
+          sm:max-w-[165px]
+          lg:h-[44px]
+          lg:max-w-[185px]
+          transition-transform
+          duration-300
+          hover:scale-105
         "
       />
     </div>
@@ -79,39 +70,6 @@ function ClientLogoCard({ client }) {
 }
 
 export function ClientMarqueeRows({ isInView = true }) {
-  const [topClients, setTopClients] = useState(initialTopClients);
-  const [bottomClients, setBottomClients] = useState(initialBottomClients);
-
-  useEffect(() => {
-    fetch(CLIENTS_JSON_URL)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && Array.isArray(data.resources) && data.resources.length >= 50) {
-          const safeExts = ["jpg", "jpeg", "png", "webp", "svg"];
-          const formatItem = (item) => {
-            const ext = safeExts.includes(item.format ? item.format.toLowerCase() : "")
-              ? item.format
-              : "png";
-            return {
-              id: item.public_id,
-              name: item.public_id.replace(/[_-]/g, " ").trim(),
-              url: `https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_240,c_limit/v${item.version}/${item.public_id}.${ext}`,
-            };
-          };
-
-          setTopClients(data.resources.slice(0, 25).map(formatItem));
-          setBottomClients(data.resources.slice(25, 50).map(formatItem));
-        }
-      })
-      .catch((err) => {
-        console.error("Failed to fetch cottson_clients.json:", err);
-      });
-  }, []);
-
-  // Seamless buffer: 50 items per track (~12,300px wide), ensuring the marquee is truly infinite and never ends on any screen size or zoom
-  const bufferedTop = [...topClients, ...topClients];
-  const bufferedBottom = [...bottomClients, ...bottomClients];
-
   return (
     <div className="relative">
       {/* LEFT FADE */}
@@ -150,46 +108,50 @@ export function ClientMarqueeRows({ isInView = true }) {
         "
       />
 
-      <div className="flex flex-col gap-3 sm:gap-4">
-        {/* ROW 1 — LEFT (50 BUFFERED CLIENT LOGOS PER TRACK) */}
+      <div className="flex flex-col gap-6 sm:gap-8 lg:gap-10">
+        {/* ROW 1 — LEFT */}
         <div className="overflow-hidden">
           <div
-            className="flex w-max gap-3 will-change-transform sm:gap-4"
+            className="client-marquee-track flex w-max will-change-transform group-hover:[animation-play-state:paused] hover:[animation-play-state:paused]"
             style={{
-              animation: "aboutMarqueeLeft 140s linear infinite",
+              animation: "clientMarqueeLeft 65s linear infinite",
               animationPlayState: isInView ? "running" : "paused",
             }}
           >
-            <div className="flex shrink-0 gap-3 sm:gap-4">
-              {bufferedTop.map((client, index) => (
-                <ClientLogoCard key={`top-1-${client.id}-${index}`} client={client} />
+            {/* Chunk 1 */}
+            <div className="flex shrink-0 items-center gap-8 sm:gap-12 md:gap-14 lg:gap-16 pr-8 sm:pr-12 md:pr-14 lg:pr-16">
+              {initialTopClients.map((client, index) => (
+                <ClientLogoItem key={`top-1-${client.id}-${index}`} client={client} />
               ))}
             </div>
-            <div className="flex shrink-0 gap-3 sm:gap-4" aria-hidden="true">
-              {bufferedTop.map((client, index) => (
-                <ClientLogoCard key={`top-2-${client.id}-${index}`} client={client} />
+            {/* Chunk 2 (duplicate for seamless infinite loop) */}
+            <div className="flex shrink-0 items-center gap-8 sm:gap-12 md:gap-14 lg:gap-16 pr-8 sm:pr-12 md:pr-14 lg:pr-16" aria-hidden="true">
+              {initialTopClients.map((client, index) => (
+                <ClientLogoItem key={`top-2-${client.id}-${index}`} client={client} />
               ))}
             </div>
           </div>
         </div>
 
-        {/* ROW 2 — RIGHT (50 BUFFERED CLIENT LOGOS PER TRACK) */}
+        {/* ROW 2 — RIGHT */}
         <div className="overflow-hidden">
           <div
-            className="flex w-max gap-3 will-change-transform sm:gap-4"
+            className="client-marquee-track flex w-max will-change-transform group-hover:[animation-play-state:paused] hover:[animation-play-state:paused]"
             style={{
-              animation: "aboutMarqueeRight 145s linear infinite",
+              animation: "clientMarqueeRight 70s linear infinite",
               animationPlayState: isInView ? "running" : "paused",
             }}
           >
-            <div className="flex shrink-0 gap-3 sm:gap-4">
-              {bufferedBottom.map((client, index) => (
-                <ClientLogoCard key={`bottom-1-${client.id}-${index}`} client={client} />
+            {/* Chunk 1 */}
+            <div className="flex shrink-0 items-center gap-8 sm:gap-12 md:gap-14 lg:gap-16 pr-8 sm:pr-12 md:pr-14 lg:pr-16">
+              {initialBottomClients.map((client, index) => (
+                <ClientLogoItem key={`bottom-1-${client.id}-${index}`} client={client} />
               ))}
             </div>
-            <div className="flex shrink-0 gap-3 sm:gap-4" aria-hidden="true">
-              {bufferedBottom.map((client, index) => (
-                <ClientLogoCard key={`bottom-2-${client.id}-${index}`} client={client} />
+            {/* Chunk 2 (duplicate for seamless infinite loop) */}
+            <div className="flex shrink-0 items-center gap-8 sm:gap-12 md:gap-14 lg:gap-16 pr-8 sm:pr-12 md:pr-14 lg:pr-16" aria-hidden="true">
+              {initialBottomClients.map((client, index) => (
+                <ClientLogoItem key={`bottom-2-${client.id}-${index}`} client={client} />
               ))}
             </div>
           </div>
@@ -198,21 +160,27 @@ export function ClientMarqueeRows({ isInView = true }) {
 
       <style>
         {`
-          @keyframes aboutMarqueeLeft {
+          @keyframes clientMarqueeLeft {
             from {
-              transform: translateX(0);
+              transform: translate3d(0, 0, 0);
             }
             to {
-              transform: translateX(calc(-50% - 8px));
+              transform: translate3d(-50%, 0, 0);
             }
           }
 
-          @keyframes aboutMarqueeRight {
+          @keyframes clientMarqueeRight {
             from {
-              transform: translateX(calc(-50% - 8px));
+              transform: translate3d(-50%, 0, 0);
             }
             to {
-              transform: translateX(0);
+              transform: translate3d(0, 0, 0);
+            }
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            .client-marquee-track {
+              animation: none !important;
             }
           }
         `}
@@ -237,9 +205,9 @@ export function ClientLogoCarousel({ id = "clients" }) {
         <h2
           className="
             text-[28px]
-            font-semibold
-            leading-[1.08]
-            tracking-[-0.045em]
+            font-bold
+            leading-[1.12]
+            tracking-[-0.025em]
             text-[#113858]
             sm:text-[34px]
           "

@@ -1,7 +1,6 @@
 import {
   ArrowRight,
   Check,
-  MessageCircle,
 } from "lucide-react";
 
 const benefits = [
@@ -72,6 +71,7 @@ function Hero() {
                 <img
                   src="/client-doms.png"
                   alt="Custom DOMS corporate shirt"
+                  loading="lazy"
                   decoding="async"
                   className="
                     relative
@@ -112,6 +112,7 @@ function Hero() {
                 <img
                   src="/client-icici.png"
                   alt="Custom ICICI Bank polo"
+                  loading="lazy"
                   decoding="async"
                   className="
                     relative
@@ -152,6 +153,7 @@ function Hero() {
                 <img
                   src="/client-tvs.png"
                   alt="Custom TVS company shirt"
+                  loading="lazy"
                   decoding="async"
                   className="
                     relative
@@ -168,24 +170,6 @@ function Hero() {
               </div>
             </a>
 
-            {/* Label */}
-            <div
-              className="
-                absolute bottom-[5px] left-[15px]
-                z-40 rounded-full
-                border border-[#113858]/10
-                bg-white
-                px-4 py-2
-                text-[10px]
-                font-semibold
-                uppercase
-                tracking-[0.12em]
-                text-[#113858]
-                shadow-[0_10px_30px_rgba(17,56,88,0.08)]
-              "
-            >
-              Enterprise Clients (DOMS · ICICI · TVS)
-            </div>
           </div>
 
 
@@ -206,31 +190,22 @@ function Hero() {
               2xl:max-w-[620px]
             "
           >
-            {/* Eyebrow */}
-            <p
-              className="
-                mb-3
-                text-[10px] sm:text-[11px]
-                font-bold
-                uppercase
-                tracking-[0.24em]
-                text-[#113858]/55
-              "
-            >
+            {/* Eyebrow — Clean flat text, no pill */}
+            <p className="mb-3 text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.22em] text-[#607487]">
               Custom Apparel for Teams
             </p>
 
             {/* Main Heading */}
             <h1
               className="
-                text-[32px] sm:text-[42px]
-                md:text-[48px]
-                lg:text-[38px]
-                xl:text-[48px]
-                2xl:text-[56px]
-                font-semibold
-                leading-[0.98]
-                tracking-[-0.05em]
+                text-[34px] sm:text-[44px]
+                md:text-[50px]
+                lg:text-[42px]
+                xl:text-[50px]
+                2xl:text-[58px]
+                font-bold
+                leading-[1.10]
+                tracking-[-0.025em]
                 text-[#113858]
               "
             >
@@ -245,8 +220,8 @@ function Hero() {
             <p
               className="
                 mx-auto mt-4 sm:mt-5
-                max-w-[480px]
-                text-[13px] sm:text-[14.5px]
+                max-w-[500px]
+                text-[14px] sm:text-[15.5px]
                 leading-relaxed
                 text-[#607487]
               "
@@ -255,88 +230,54 @@ function Hero() {
               from branded T-shirts to shirts, polos and jackets.
             </p>
 
-            {/* Buttons */}
+            {/* Button */}
             <div
               className="
-                mt-6 sm:mt-7
-                flex w-full
-                flex-row
-                items-center
-                justify-center
-                gap-2.5 sm:gap-3.5
-                max-w-[340px] sm:max-w-none
+                mt-7 sm:mt-9
+                flex items-center justify-center
               "
             >
-              {/* View Products */}
+              {/* Shop Now */}
               <a
-                href="#products"
+                href="/products"
                 className="
-                  group flex h-[44px] sm:h-[46px]
-                  flex-1 sm:flex-initial
-                  min-w-[135px] sm:min-w-[160px]
+                  group flex h-[48px] sm:h-[50px]
                   items-center justify-center
-                  gap-2
+                  gap-2.5
                   rounded-full
                   bg-[#113858]
-                  px-5 sm:px-6
-                  text-[12px]
+                  px-8 sm:px-10
+                  text-[14px] sm:text-[15px]
                   font-semibold
-                  text-white
-                  shadow-[0_4px_16px_rgba(17,56,88,0.18)]
+                  !text-white text-white
+                  shadow-[0_6px_22px_rgba(17,56,88,0.28)]
                   transition-all
                   duration-300
                   hover:-translate-y-[2px]
-                  hover:shadow-[0_8px_22px_rgba(17,56,88,0.22)]
+                  hover:bg-[#0b243a]
+                  hover:!text-white hover:text-white
+                  hover:shadow-[0_10px_28px_rgba(17,56,88,0.35)]
                   active:scale-[0.98]
                 "
+                style={{ color: "#ffffff" }}
               >
-                <span>View Products</span>
+                <span className="!text-white text-white" style={{ color: "#ffffff" }}>
+                  Shop Now
+                </span>
                 <ArrowRight
-                  size={14}
-                  strokeWidth={2}
-                  className="transition-transform duration-300 group-hover:translate-x-[4px]"
+                  size={16}
+                  strokeWidth={2.4}
+                  className="!text-white text-white transition-transform duration-300 group-hover:translate-x-[4px]"
+                  style={{ color: "#ffffff" }}
                 />
-              </a>
-
-              {/* WhatsApp */}
-              <a
-                href="#contact"
-                className="
-                  group flex h-[44px] sm:h-[46px]
-                  flex-1 sm:flex-initial
-                  min-w-[135px] sm:min-w-[160px]
-                  items-center justify-center
-                  gap-2
-                  rounded-full
-                  border border-[#113858]
-                  bg-white
-                  px-5 sm:px-6
-                  text-[12px]
-                  font-semibold
-                  text-[#113858]
-                  transition-all
-                  duration-300
-                  hover:-translate-y-[2px]
-                  hover:bg-[#113858]
-                  hover:text-white
-                  hover:shadow-[0_8px_22px_rgba(17,56,88,0.14)]
-                  active:scale-[0.98]
-                "
-              >
-                <MessageCircle
-                  size={15}
-                  strokeWidth={2}
-                  className="transition-transform duration-300 group-hover:scale-110"
-                />
-                <span>WhatsApp Us</span>
               </a>
             </div>
           </div>
 
 
           {/* =====================================================
-              DESKTOP RIGHT — COTTSON ORIGINALS
-              Overlapping 3D cluster (Jacket, Shirt, Polo)
+              DESKTOP RIGHT — ENTERPRISE CLIENTS (JSW · HONDA · DERMA CO)
+              Overlapping 3D cluster (JSW Shirt, Honda Polo, Derma Co Tee)
           ===================================================== */}
           <div
             className="
@@ -349,7 +290,7 @@ function Hero() {
               2xl:scale-[0.95] 2xl:right-[-15px]
             "
           >
-            {/* MAIN JACKET */}
+            {/* TOP SHIRT — JSW */}
             <a
               href="#products"
               className="
@@ -357,7 +298,7 @@ function Hero() {
                 right-[70px] top-[5px]
                 z-20
               "
-              title="Cottson Corporate Bomber Jacket"
+              title="JSW Corporate Formal Shirt"
             >
               <div className="relative">
                 <div
@@ -371,8 +312,9 @@ function Hero() {
                   "
                 />
                 <img
-                  src="jacket.png"
-                  alt="Cottson corporate jacket"
+                  src="/client-jsw.png"
+                  alt="Custom JSW corporate formal shirt"
+                  loading="lazy"
                   decoding="async"
                   className="
                     relative
@@ -389,7 +331,7 @@ function Hero() {
               </div>
             </a>
 
-            {/* BOTTOM SHIRT */}
+            {/* BOTTOM LEFT — HONDA POLO */}
             <a
               href="#products"
               className="
@@ -397,7 +339,7 @@ function Hero() {
                 bottom-[25px] left-[30px]
                 z-30
               "
-              title="Cottson Tailored Oxford Shirt"
+              title="Honda Motors Official Polo"
             >
               <div className="relative">
                 <div
@@ -411,8 +353,9 @@ function Hero() {
                   "
                 />
                 <img
-                  src="shirt.png"
-                  alt="Cottson corporate shirt"
+                  src="/client-honda.png"
+                  alt="Custom Honda corporate polo"
+                  loading="lazy"
                   decoding="async"
                   className="
                     relative
@@ -429,7 +372,7 @@ function Hero() {
               </div>
             </a>
 
-            {/* BOTTOM POLO */}
+            {/* BOTTOM RIGHT — DERMA CO TEE */}
             <a
               href="#products"
               className="
@@ -437,7 +380,7 @@ function Hero() {
                 bottom-[25px] -right-[60px]
                 z-30
               "
-              title="Cottson Signature Tipped Polo"
+              title="The Derma Co Branded Crewneck T-Shirt"
             >
               <div className="relative">
                 <div
@@ -451,8 +394,9 @@ function Hero() {
                   "
                 />
                 <img
-                  src="polo.png"
-                  alt="Cottson custom polo"
+                  src="/client-dermaco.png"
+                  alt="Custom The Derma Co team t-shirt"
+                  loading="lazy"
                   decoding="async"
                   className="
                     relative
@@ -469,24 +413,6 @@ function Hero() {
               </div>
             </a>
 
-            {/* Label */}
-            <div
-              className="
-                absolute bottom-[5px] right-[15px]
-                z-40 rounded-full
-                border border-[#113858]/10
-                bg-white
-                px-4 py-2
-                text-[10px]
-                font-semibold
-                uppercase
-                tracking-[0.12em]
-                text-[#113858]
-                shadow-[0_10px_30px_rgba(17,56,88,0.08)]
-              "
-            >
-              Cottson Originals (Polo · Shirt · Jacket)
-            </div>
           </div>
 
 
@@ -536,58 +462,46 @@ function Hero() {
                     />
                   </div>
                 </div>
-
-                {/* Pill Badge */}
-                <div className="mt-2 z-30 whitespace-nowrap rounded-full border border-[#113858]/10 bg-white px-2 sm:px-3 py-0.5 sm:py-1 text-[7px] sm:text-[9.5px] font-bold uppercase tracking-wider text-[#113858] shadow-sm">
-                  <span className="sm:hidden">Clients (DOMS · ICICI · TVS)</span>
-                  <span className="hidden sm:inline">Enterprise Clients (DOMS · ICICI · TVS)</span>
-                </div>
               </a>
 
 
-              {/* RIGHT CLUSTER: COTTSON ORIGINALS (JACKET, SHIRT, POLO) */}
+              {/* RIGHT CLUSTER: ENTERPRISE CLIENTS (JSW, HONDA, DERMA CO) */}
               <a
                 href="#products"
                 className="group relative flex flex-col items-center justify-end rounded-2xl bg-gradient-to-b from-slate-50/70 to-white/95 border border-slate-200/80 p-1.5 sm:p-3 pb-2.5 sm:pb-3 shadow-[0_6px_18px_rgba(17,56,88,0.06)] overflow-visible transition-transform duration-300 hover:-translate-y-1"
-                title="Cottson Originals (Polo · Shirt · Jacket)"
+                title="Enterprise Clients (JSW · Honda · Derma Co)"
               >
                 {/* 3 Overlapping Garments Container */}
                 <div className="relative h-[150px] sm:h-[190px] w-full flex items-end justify-center">
-                  {/* TOP: JACKET */}
+                  {/* TOP: JSW */}
                   <div className="absolute top-[2px] left-1/2 -translate-x-1/2 z-10 w-[95px] sm:w-[130px]">
                     <div className="absolute bottom-[8px] left-1/2 h-[12px] w-[75px] -translate-x-1/2 rounded-full bg-[#113858]/10 blur-md" />
                     <img
-                      src="jacket.png"
-                      alt="Cottson corporate jacket"
+                      src="/client-jsw.png"
+                      alt="Custom JSW corporate formal shirt"
                       className="h-[100px] sm:h-[135px] w-full object-contain drop-shadow-[0_10px_14px_rgba(17,56,88,0.10)]"
                     />
                   </div>
 
-                  {/* BOTTOM LEFT: SHIRT */}
+                  {/* BOTTOM LEFT: HONDA */}
                   <div className="absolute bottom-[2px] -left-[10px] sm:left-[-4px] z-20 w-[90px] sm:w-[125px]">
                     <div className="absolute bottom-[6px] left-1/2 h-[10px] w-[70px] -translate-x-1/2 rounded-full bg-[#113858]/10 blur-md" />
                     <img
-                      src="shirt.png"
-                      alt="Cottson corporate shirt"
+                      src="/client-honda.png"
+                      alt="Custom Honda corporate polo"
                       className="h-[92px] sm:h-[125px] w-full object-contain drop-shadow-[0_10px_14px_rgba(17,56,88,0.12)]"
                     />
                   </div>
 
-                  {/* BOTTOM RIGHT: POLO */}
+                  {/* BOTTOM RIGHT: DERMA CO */}
                   <div className="absolute bottom-[2px] -right-[10px] sm:right-[-4px] z-20 w-[90px] sm:w-[125px]">
                     <div className="absolute bottom-[6px] left-1/2 h-[10px] w-[70px] -translate-x-1/2 rounded-full bg-[#113858]/10 blur-md" />
                     <img
-                      src="polo.png"
-                      alt="Cottson custom polo"
+                      src="/client-dermaco.png"
+                      alt="Custom The Derma Co team t-shirt"
                       className="h-[92px] sm:h-[125px] w-full object-contain drop-shadow-[0_10px_14px_rgba(17,56,88,0.12)]"
                     />
                   </div>
-                </div>
-
-                {/* Pill Badge */}
-                <div className="mt-2 z-30 whitespace-nowrap rounded-full border border-[#113858]/10 bg-white px-2 sm:px-3 py-0.5 sm:py-1 text-[7px] sm:text-[9.5px] font-bold uppercase tracking-wider text-[#113858] shadow-sm">
-                  <span className="sm:hidden">Cottson (Polo · Shirt · Jacket)</span>
-                  <span className="hidden sm:inline">Cottson Originals (Polo · Shirt · Jacket)</span>
                 </div>
               </a>
 
@@ -599,50 +513,72 @@ function Hero() {
 
 
       {/* =====================================================
-          BENEFITS / TRUST STRIP
+          BENEFITS / TRUST STRIP — INFINITE SMOOTH MARQUEE (RIGHT TO LEFT)
+          Pause on hover with enlarged font and clean checkmarks
       ===================================================== */}
-      <div className="mx-auto max-w-[1120px] px-4 sm:px-6 pb-8">
-        <div
-          className="
-            flex flex-wrap
-            items-center justify-center
-            gap-x-5 gap-y-2.5
-            border-y border-[#113858]/10
-            py-3.5 sm:py-4
-            sm:gap-x-10
-          "
-        >
-          {benefits.map((benefit) => (
-            <div
-              key={benefit}
-              className="
-                flex items-center gap-1.5 sm:gap-2
-                whitespace-nowrap
-                text-[10px] sm:text-[11.5px]
-                font-medium
-                text-[#113858]/75
-              "
-            >
-              <span
-                className="
-                  flex h-[16px] w-[16px] sm:h-[18px] sm:w-[18px]
-                  shrink-0 items-center
-                  justify-center
-                  rounded-full
-                  bg-[#113858]
-                  text-white
-                "
-              >
-                <Check
-                  size={10}
-                  strokeWidth={2.5}
-                />
-              </span>
+      <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 pb-8 sm:pb-12">
+        <div className="group relative overflow-hidden border-y border-[#113858]/10 py-4 sm:py-5 select-none">
+          {/* Subtle edge fades */}
+          <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-12 sm:w-24 bg-gradient-to-r from-white to-transparent" />
+          <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-12 sm:w-24 bg-gradient-to-l from-white to-transparent" />
 
-              {benefit}
+          {/* Marquee Track */}
+          <div
+            className="hero-marquee-track flex w-max will-change-transform [transform:translateZ(0)] group-hover:[animation-play-state:paused]"
+            style={{
+              animation: "heroMarqueeLeft 28s linear infinite",
+            }}
+          >
+            {/* Track 1 */}
+            <div className="flex shrink-0 items-center gap-8 sm:gap-14 md:gap-16 pr-8 sm:pr-14 md:pr-16">
+              {[...benefits, ...benefits, ...benefits].map((benefit, idx) => (
+                <div
+                  key={`b1-${idx}`}
+                  className="flex items-center gap-2.5 sm:gap-3 whitespace-nowrap text-[13.5px] sm:text-[15.5px] md:text-[16px] font-semibold text-[#113858] transition-colors duration-200"
+                >
+                  <span className="flex h-[20px] w-[20px] sm:h-[23px] sm:w-[23px] shrink-0 items-center justify-center rounded-full bg-[#113858] text-white shadow-sm">
+                    <Check size={12} strokeWidth={2.8} />
+                  </span>
+                  <span>{benefit}</span>
+                </div>
+              ))}
             </div>
-          ))}
+
+            {/* Track 2 (Duplicate for seamless loop) */}
+            <div
+              className="flex shrink-0 items-center gap-8 sm:gap-14 md:gap-16 pr-8 sm:pr-14 md:pr-16"
+              aria-hidden="true"
+            >
+              {[...benefits, ...benefits, ...benefits].map((benefit, idx) => (
+                <div
+                  key={`b2-${idx}`}
+                  className="flex items-center gap-2.5 sm:gap-3 whitespace-nowrap text-[13.5px] sm:text-[15.5px] md:text-[16px] font-semibold text-[#113858] transition-colors duration-200"
+                >
+                  <span className="flex h-[20px] w-[20px] sm:h-[23px] sm:w-[23px] shrink-0 items-center justify-center rounded-full bg-[#113858] text-white shadow-sm">
+                    <Check size={12} strokeWidth={2.8} />
+                  </span>
+                  <span>{benefit}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
+
+        <style>
+          {`
+            @keyframes heroMarqueeLeft {
+              from {
+                transform: translate3d(0, 0, 0);
+              }
+              to {
+                transform: translate3d(-50%, 0, 0);
+              }
+            }
+            .hero-marquee-track:hover {
+              animation-play-state: paused !important;
+            }
+          `}
+        </style>
       </div>
     </main>
   );

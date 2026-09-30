@@ -67,6 +67,15 @@ const products = [
   },
 ];
 
+function getOptimizedProductImage(url, width = 500) {
+  if (!url || typeof url !== "string") return url;
+  if (url.includes("ik.imagekit.io") && !url.includes("tr=")) {
+    const sep = url.includes("?") ? "&" : "?";
+    return `${url}${sep}tr=w-${width},q-80,f-auto`;
+  }
+  return url;
+}
+
 function ProductCard({ product }) {
   return (
     <a
@@ -84,7 +93,7 @@ function ProductCard({ product }) {
       {/* IMAGE CONTAINER */}
       <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#F0F4F7]">
         <img
-          src={product.image}
+          src={getOptimizedProductImage(product.image, 500)}
           alt={product.name}
           loading="lazy"
           decoding="async"
@@ -95,23 +104,6 @@ function ProductCard({ product }) {
             group-hover:scale-105
           "
         />
-
-        {/* POPULAR PRODUCT BADGE (ONLY SHOWN FOR ONE PRODUCT PER CATEGORY) */}
-        {product.badge && (
-          <div className="absolute left-2 top-2 sm:left-2.5 sm:top-2.5">
-            <span
-              className="
-                inline-flex items-center rounded-full
-                bg-white/95 px-2.5 py-1
-                text-[8.5px] sm:text-[10px] font-semibold
-                tracking-wider uppercase text-[#113858]
-                shadow-xs backdrop-blur-xs
-              "
-            >
-              {product.badge}
-            </span>
-          </div>
-        )}
       </div>
 
       {/* PRODUCT DETAILS */}
@@ -194,7 +186,7 @@ function ProductShowcase() {
             SECTION HEADER
         ====================================== */}
         <div className="mx-auto max-w-[760px] text-center">
-          <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#607487]">
+          <p className="text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.22em] text-[#607487]">
             OUR COLLECTION
           </p>
 
@@ -202,8 +194,8 @@ function ProductShowcase() {
             className="
               mt-3
               text-[30px] sm:text-[38px] md:text-[44px]
-              font-bold leading-[1.15]
-              tracking-[-0.035em] text-[#113858]
+              font-bold leading-[1.12]
+              tracking-[-0.025em] text-[#113858]
             "
           >
             Explore Our Collection
@@ -249,10 +241,11 @@ function ProductShowcase() {
                     transition-all duration-200 cursor-pointer
                     ${
                       isActive
-                        ? "bg-[#113858] text-white shadow-sm shadow-[#113858]/20"
+                        ? "bg-[#113858] !text-white text-white shadow-sm shadow-[#113858]/20"
                         : "bg-white text-[#607487] hover:text-[#113858] hover:bg-slate-100 border border-slate-200/90"
                     }
                   `}
+                  style={isActive ? { color: "#ffffff" } : {}}
                 >
                   {cat}
                 </button>
@@ -287,28 +280,32 @@ function ProductShowcase() {
               className="
                 inline-flex h-[46px] items-center justify-center gap-2
                 rounded-full border border-slate-300 bg-white px-6
-                text-[12px] sm:text-[13px] font-semibold text-[#113858]
+                text-[12px] sm:text-[13px] font-semibold !text-[#113858] text-[#113858]
                 transition-all duration-200 hover:bg-slate-50 hover:border-[#113858]/30
                 cursor-pointer
               "
+              style={{ color: "#113858" }}
             >
               View All Categories
             </button>
           )}
 
           <a
-            href="#"
+            href="#customise"
             className="
-              inline-flex h-[46px] items-center justify-center gap-2
+              inline-flex h-[48px] items-center justify-center gap-2
               rounded-full bg-[#113858] px-7
-              text-[12px] sm:text-[13px] font-semibold text-white
+              text-[13px] sm:text-[14px] font-semibold !text-white text-white
               shadow-sm shadow-[#113858]/20
               transition-all duration-300
-              hover:-translate-y-0.5 hover:bg-[#0b243a] hover:shadow-md
+              hover:-translate-y-0.5 hover:bg-[#0b243a] hover:!text-white hover:text-white hover:shadow-md
             "
+            style={{ color: "#ffffff" }}
           >
-            <span>Customize the Clothes</span>
-            <ArrowRight size={15} strokeWidth={2} />
+            <span className="!text-white text-white" style={{ color: "#ffffff" }}>
+              Customize the Clothes
+            </span>
+            <ArrowRight size={15} strokeWidth={2} className="!text-white text-white" style={{ color: "#ffffff" }} />
           </a>
         </div>
       </div>

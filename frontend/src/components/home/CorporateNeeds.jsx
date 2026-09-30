@@ -1,12 +1,13 @@
 import { ArrowUpRight } from "lucide-react";
 
+// Image section const kept blank as requested — user will add images afterwards
 const needs = [
   {
     id: 1,
     title: "Events & Exhibitions",
     description:
       "Custom tees and polos for conferences, exhibitions, product launches and corporate events.",
-    image: "/images/corporate-needs/events.jpg",
+    image: "",
     button: "Order for Your Event",
     href: "#contact",
   },
@@ -15,7 +16,7 @@ const needs = [
     title: "Everyday Office Wear",
     description:
       "Keep your team looking sharp every day with customised shirts, polos and professional workwear.",
-    image: "/images/corporate-needs/office.jpg",
+    image: "",
     button: "Get a Quote for Your Team",
     href: "#contact",
   },
@@ -24,7 +25,7 @@ const needs = [
     title: "Team Outings & Offsites",
     description:
       "Matching custom apparel designed for team outings, company offsites and memorable experiences.",
-    image: "/images/corporate-needs/offsite.jpg",
+    image: "",
     button: "Outfit Your Next Offsite",
     href: "#contact",
   },
@@ -33,7 +34,7 @@ const needs = [
 function CorporateNeedCard({ item }) {
   return (
     <article className="group min-w-0">
-      {/* IMAGE */}
+      {/* IMAGE CONTAINER */}
       <div
         className="
           relative
@@ -41,25 +42,28 @@ function CorporateNeedCard({ item }) {
           overflow-hidden
           rounded-[24px]
           bg-[#F3F6F8]
-
           sm:rounded-[28px]
         "
       >
-        <img
-          src={item.image}
-          alt={item.title}
-          className="
-            h-full
-            w-full
-            object-cover
-
-            transition-transform
-            duration-700
-            ease-out
-
-            group-hover:scale-[1.035]
-          "
-        />
+        {item.image ? (
+          <img
+            src={item.image}
+            alt={item.title}
+            loading="lazy"
+            decoding="async"
+            className="
+              h-full
+              w-full
+              object-cover
+              transition-transform
+              duration-700
+              ease-out
+              group-hover:scale-[1.035]
+            "
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200/60" />
+        )}
 
         {/* subtle hover overlay */}
         <div
@@ -67,12 +71,9 @@ function CorporateNeedCard({ item }) {
             pointer-events-none
             absolute
             inset-0
-
             bg-[#113858]/0
-
             transition-colors
             duration-500
-
             group-hover:bg-[#113858]/10
           "
         />
@@ -83,26 +84,22 @@ function CorporateNeedCard({ item }) {
             absolute
             right-5
             top-5
-
             flex
             h-[42px]
             w-[42px]
             shrink-0
             items-center
             justify-center
-
             rounded-full
             bg-white
             text-[#113858]
-
             opacity-0
             translate-y-2
-
             transition-all
             duration-300
-
             group-hover:translate-y-0
             group-hover:opacity-100
+            shadow-md
           "
         >
           <ArrowUpRight
@@ -118,11 +115,10 @@ function CorporateNeedCard({ item }) {
           className="
             break-words
             text-[21px]
-            font-semibold
+            font-bold
             leading-[1.2]
-            tracking-[-0.035em]
+            tracking-[-0.02em]
             text-[#113858]
-
             lg:text-[23px]
           "
         >
@@ -135,12 +131,10 @@ function CorporateNeedCard({ item }) {
             mt-3
             max-w-[390px]
             break-words
-
             text-[13px]
-            leading-[1.7]
+            leading-relaxed
             text-[#607487]
-
-            lg:text-[13.5px]
+            sm:text-[14px]
           "
         >
           {item.description}
@@ -150,54 +144,50 @@ function CorporateNeedCard({ item }) {
           href={item.href}
           className="
             group/button
-
             mx-auto
             mt-5
-
             inline-flex
             h-[44px]
             max-w-full
             items-center
             justify-center
             gap-2
-
             whitespace-nowrap
             rounded-full
-
             border
             border-[#113858]
-
             bg-[#113858]
-            px-5
-
-            text-[11.5px]
+            px-6
+            text-[12.5px]
             font-semibold
+            !text-white
             text-white
-
             transition-all
             duration-300
             ease-out
-
             hover:-translate-y-[2px]
-            hover:bg-white
-            hover:text-[#113858]
-
-            hover:shadow-[0_8px_22px_rgba(17,56,88,0.10)]
+            hover:bg-[#0b243a]
+            hover:!text-white
+            hover:text-white
+            hover:shadow-[0_8px_22px_rgba(17,56,88,0.18)]
           "
+          style={{ color: "#ffffff" }}
         >
-          {item.button}
+          <span className="!text-white text-white">{item.button}</span>
 
           <ArrowUpRight
-            size={13}
-            strokeWidth={2}
+            size={14}
+            strokeWidth={2.2}
             className="
               shrink-0
+              !text-white
+              text-white
               transition-transform
               duration-300
-
               group-hover/button:translate-x-[2px]
               group-hover/button:-translate-y-[2px]
             "
+            style={{ color: "#ffffff" }}
           />
         </a>
       </div>
@@ -208,15 +198,13 @@ function CorporateNeedCard({ item }) {
 function CorporateNeeds() {
   return (
     <section
+      id="occasions"
       className="
         bg-white
         px-5
         py-20
-
         sm:px-6
-
         md:py-24
-
         lg:px-8
         lg:py-28
       "
@@ -228,65 +216,24 @@ function CorporateNeeds() {
           mb-12
           max-w-[900px]
           text-center
-
           md:mb-14
         "
       >
-        {/* EYEBROW */}
-        <div
-          className="
-            mb-4
-            inline-flex
-            items-center
-            gap-2
-
-            whitespace-nowrap
-            rounded-full
-
-            border
-            border-[#113858]/10
-
-            bg-[#F5F8FA]
-
-            px-3.5
-            py-[7px]
-          "
-        >
-          <span
-            className="
-              h-[6px]
-              w-[6px]
-              shrink-0
-              rounded-full
-              bg-[#113858]
-            "
-          />
-
-          <span
-            className="
-              text-[9px]
-              font-semibold
-              uppercase
-              tracking-[0.2em]
-              text-[#113858]/60
-            "
-          >
-            Made for every occasion
-          </span>
-        </div>
+        {/* EYEBROW — Clean flat text, no pill */}
+        <p className="mb-3 text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.22em] text-[#607487]">
+          Made for every occasion
+        </p>
 
         {/* HEADING */}
         <h2
           className="
             break-words
             text-[34px]
-            font-semibold
-            leading-[1.08]
-            tracking-[-0.045em]
+            font-bold
+            leading-[1.12]
+            tracking-[-0.025em]
             text-[#113858]
-
             sm:text-[42px]
-
             lg:text-[48px]
           "
         >
@@ -300,15 +247,13 @@ function CorporateNeeds() {
         <p
           className="
             mx-auto
-            mt-5
-            max-w-[650px]
+            mt-4
+            max-w-[620px]
             break-words
-
-            text-[13px]
-            leading-[1.75]
+            text-[14px]
+            leading-relaxed
             text-[#607487]
-
-            sm:text-[14px]
+            sm:text-[15px]
           "
         >
           From everyday office wear to important events and team
@@ -324,12 +269,10 @@ function CorporateNeeds() {
           grid
           max-w-[1380px]
           grid-cols-1
-          gap-x-5
+          gap-x-6
           gap-y-12
-
           md:grid-cols-3
-
-          lg:gap-x-6
+          lg:gap-x-8
         "
       >
         {needs.map((item) => (

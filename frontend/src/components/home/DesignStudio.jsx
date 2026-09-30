@@ -84,70 +84,29 @@ function DesignStudio() {
             xl:px-16
           "
         >
-          {/* LABEL */}
-          <div
-            className="
-              mb-6
-              inline-flex
-              max-w-full
-              items-center
-              gap-2
-
-              whitespace-nowrap
-              rounded-full
-              border
-              border-[#113858]/10
-
-              bg-white/70
-
-              px-3.5
-              py-[7px]
-            "
-          >
-            <Sparkles
-              size={12}
-              strokeWidth={2}
-              className="shrink-0 text-[#113858]"
-            />
-
-            <span
-              className="
-                truncate
-                text-[9px]
-                font-semibold
-                uppercase
-                tracking-[0.2em]
-                text-[#113858]/65
-              "
-            >
-              Design before production
-            </span>
-          </div>
+          {/* LABEL — Clean flat text, no pill */}
+          <p className="mb-3 text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.22em] text-[#607487]">
+            Design before production
+          </p>
 
           {/* HEADING */}
           <h2
             className="
-              max-w-[610px]
+              max-w-[620px]
               break-words
-
-              text-[32px]
-              font-semibold
-              leading-[1.04]
-              tracking-[-0.05em]
+              text-[34px]
+              font-bold
+              leading-[1.12]
+              tracking-[-0.025em]
               text-[#113858]
-
               min-[380px]:text-[38px]
-
-              sm:text-[48px]
-
-              lg:text-[54px]
-
-              xl:text-[60px]
+              sm:text-[46px]
+              lg:text-[52px]
+              xl:text-[58px]
             "
           >
             See your idea
             <br />
-
             <span className="text-[#113858]/45">
               before we make it.
             </span>
@@ -156,15 +115,13 @@ function DesignStudio() {
           {/* DESCRIPTION */}
           <p
             className="
-              mt-6
+              mt-5
               max-w-[530px]
               break-words
-
-              text-[13.5px]
-              leading-[1.8]
+              text-[14px]
+              leading-relaxed
               text-[#607487]
-
-              sm:text-[14px]
+              sm:text-[15px]
             "
           >
             Visualise your corporate apparel before production.
@@ -200,52 +157,46 @@ function DesignStudio() {
             href="#contact"
             className="
               group
-
               mt-9
-
               inline-flex
               h-[48px]
               max-w-full
               items-center
               justify-center
               gap-2
-
               whitespace-nowrap
               rounded-full
-
               border
               border-[#113858]
-
               bg-[#113858]
-
               px-7
-
-              text-[12.5px]
+              text-[13px]
               font-semibold
-              text-white
-
+              !text-white text-white
               transition-all
               duration-300
-
               hover:-translate-y-[2px]
-              hover:bg-white
-              hover:text-[#113858]
-
-              hover:shadow-[0_10px_30px_rgba(17,56,88,0.12)]
+              hover:bg-[#0b243a]
+              hover:!text-white hover:text-white
+              hover:shadow-[0_10px_30px_rgba(17,56,88,0.25)]
             "
+            style={{ color: "#ffffff" }}
           >
-            Start Your Custom Order
+            <span className="!text-white text-white" style={{ color: "#ffffff" }}>
+              Start Your Custom Order
+            </span>
 
             <ArrowRight
-              size={14}
-              strokeWidth={2}
+              size={15}
+              strokeWidth={2.2}
               className="
                 shrink-0
+                !text-white text-white
                 transition-transform
                 duration-300
-
                 group-hover:translate-x-1
               "
+              style={{ color: "#ffffff" }}
             />
           </a>
         </div>
@@ -353,8 +304,10 @@ function DesignStudio() {
           =========================================== */}
 
           <img
-            src="/images/design-studio/main-product.png"
+            src="/polo.png"
             alt="Custom Cottson apparel preview"
+            loading="lazy"
+            decoding="async"
             className="
               absolute
               bottom-[15px]

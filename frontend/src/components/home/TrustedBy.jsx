@@ -30,54 +30,20 @@ function TrustedBy() {
           md:mb-14
         "
       >
-        <div
-          className="
-            mb-4
-            inline-flex
-            max-w-full
-            items-center
-            gap-2
-            whitespace-nowrap
-            rounded-full
-            border
-            border-[#113858]/10
-            bg-[#F5F8FA]
-            px-3.5
-            py-[7px]
-          "
-        >
-          <span
-            className="
-              h-[6px]
-              w-[6px]
-              shrink-0
-              rounded-full
-              bg-[#113858]
-            "
-          />
-
-          <span
-            className="
-              text-[9px]
-              font-semibold
-              uppercase
-              tracking-[0.2em]
-              text-[#113858]/60
-            "
-          >
-            Trusted By
-          </span>
-        </div>
+        {/* Eyebrow — Clean flat text, no pill */}
+        <p className="mb-3 text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.22em] text-[#607487]">
+          Trusted By
+        </p>
 
         <h2
           className="
             mx-auto
-            max-w-[700px]
+            max-w-[720px]
             break-words
             text-[34px]
-            font-semibold
-            leading-[1.08]
-            tracking-[-0.045em]
+            font-bold
+            leading-[1.12]
+            tracking-[-0.025em]
             text-[#113858]
             sm:text-[42px]
             lg:text-[48px]
@@ -92,13 +58,13 @@ function TrustedBy() {
         <p
           className="
             mx-auto
-            mt-5
+            mt-4
             max-w-[520px]
             break-words
-            text-[13px]
-            leading-[1.75]
+            text-[14px]
+            leading-relaxed
             text-[#607487]
-            sm:text-[14px]
+            sm:text-[15px]
           "
         >
           Helping companies and teams bring their brand to life

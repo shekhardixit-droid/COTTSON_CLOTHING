@@ -24,11 +24,9 @@ function Footer() {
         px-3
         pb-3
         pt-3
-
         sm:px-5
         sm:pb-5
         sm:pt-5
-
         lg:px-10
         lg:pb-10
         lg:pt-10
@@ -41,7 +39,6 @@ function Footer() {
           overflow-hidden
           rounded-[28px]
           bg-white
-
           sm:rounded-[32px]
           lg:rounded-[40px]
         "
@@ -50,55 +47,51 @@ function Footer() {
         <div
           className="
             grid
-            gap-12
+            gap-10
             px-6
             pb-12
             pt-12
-
             sm:px-9
             sm:py-14
-
             md:grid-cols-2
-
-            lg:grid-cols-[0.7fr_1.15fr_0.75fr_1fr]
-            lg:gap-14
+            lg:grid-cols-[0.8fr_1.2fr_0.8fr_1.1fr]
+            lg:gap-12
             lg:px-12
             lg:py-16
-
             xl:px-16
           "
         >
           {/* PAGES */}
           <div className="min-w-0">
-            <p
+            <h3
               className="
-                mb-6
-                text-[10px]
-                font-semibold
+                mb-5
+                text-[13px]
+                font-bold
                 uppercase
-                tracking-[0.18em]
-                text-[#113858]/45
+                tracking-[0.14em]
+                text-[#113858]
+                sm:text-[14px]
               "
             >
               Pages
-            </p>
+            </h3>
 
-            <nav className="flex flex-col items-start gap-[11px]">
+            <nav className="flex flex-col items-start gap-3 sm:gap-3.5">
               {pageLinks.map((link) => (
                 <a
                   key={link.label}
                   href={link.href}
                   className="
                     break-words
-                    text-[12.5px]
-                    font-medium
-                    text-[#113858]/70
-
+                    text-[14px]
+                    font-semibold
+                    text-[#113858]/75
                     transition-all
                     duration-200
-
-                    hover:translate-x-[3px]
+                    hover:translate-x-1
                     hover:text-[#113858]
+                    sm:text-[14.5px]
                   "
                 >
                   {link.label}
@@ -109,29 +102,30 @@ function Footer() {
 
           {/* CONTACT */}
           <div className="min-w-0">
-            <p
+            <h3
               className="
-                mb-6
-                text-[10px]
-                font-semibold
+                mb-5
+                text-[13px]
+                font-bold
                 uppercase
-                tracking-[0.18em]
-                text-[#113858]/45
+                tracking-[0.14em]
+                text-[#113858]
+                sm:text-[14px]
               "
             >
               Contact
-            </p>
+            </h3>
 
             <div className="flex flex-col gap-6">
               {/* EMAIL */}
               <div className="min-w-0">
                 <p
                   className="
-                    text-[9px]
-                    font-semibold
+                    text-[11px]
+                    font-bold
                     uppercase
-                    tracking-[0.14em]
-                    text-[#607487]
+                    tracking-[0.12em]
+                    text-[#113858]/60
                   "
                 >
                   Email
@@ -143,14 +137,13 @@ function Footer() {
                     mt-1.5
                     inline-block
                     break-words
-                    text-[12.5px]
-                    font-medium
+                    text-[14px]
+                    font-semibold
                     text-[#113858]
-
-                    transition-opacity
+                    transition-colors
                     duration-200
-
-                    hover:opacity-60
+                    hover:text-[#1d5b8c]
+                    sm:text-[15px]
                   "
                 >
                   contact@cottson.com
@@ -161,36 +154,28 @@ function Footer() {
               <div className="min-w-0">
                 <p
                   className="
-                    text-[9px]
-                    font-semibold
+                    text-[11px]
+                    font-bold
                     uppercase
-                    tracking-[0.14em]
-                    text-[#607487]
+                    tracking-[0.12em]
+                    text-[#113858]/60
                   "
                 >
                   Call
                 </p>
 
-                <div
-                  className="
-                    mt-1.5
-                    flex
-                    flex-col
-                    gap-1
-                  "
-                >
+                <div className="mt-1.5 flex flex-col gap-1.5">
                   <a
                     href="tel:+919892297764"
                     className="
                       break-words
-                      text-[12.5px]
-                      font-medium
+                      text-[14px]
+                      font-semibold
                       text-[#113858]
-
-                      transition-opacity
+                      transition-colors
                       duration-200
-
-                      hover:opacity-60
+                      hover:text-[#1d5b8c]
+                      sm:text-[15px]
                     "
                   >
                     +91 9892297764
@@ -200,14 +185,13 @@ function Footer() {
                     href="tel:02226627501"
                     className="
                       break-words
-                      text-[12.5px]
-                      font-medium
+                      text-[14px]
+                      font-semibold
                       text-[#113858]
-
-                      transition-opacity
+                      transition-colors
                       duration-200
-
-                      hover:opacity-60
+                      hover:text-[#1d5b8c]
+                      sm:text-[15px]
                     "
                   >
                     022 26627501
@@ -219,11 +203,11 @@ function Footer() {
               <div className="min-w-0">
                 <p
                   className="
-                    text-[9px]
-                    font-semibold
+                    text-[11px]
+                    font-bold
                     uppercase
-                    tracking-[0.14em]
-                    text-[#607487]
+                    tracking-[0.12em]
+                    text-[#113858]/60
                   "
                 >
                   Registered Office
@@ -232,12 +216,13 @@ function Footer() {
                 <p
                   className="
                     mt-1.5
-                    max-w-[300px]
+                    max-w-[320px]
                     break-words
-
-                    text-[11.5px]
-                    leading-[1.75]
-                    text-[#113858]/65
+                    text-[13px]
+                    font-medium
+                    leading-[1.7]
+                    text-[#607487]
+                    sm:text-[13.5px]
                   "
                 >
                   No. 721, Centura Square IT Park,
@@ -251,27 +236,21 @@ function Footer() {
 
           {/* SOCIAL */}
           <div className="min-w-0">
-            <p
+            <h3
               className="
-                mb-6
-                text-[10px]
-                font-semibold
+                mb-5
+                text-[13px]
+                font-bold
                 uppercase
-                tracking-[0.18em]
-                text-[#113858]/45
+                tracking-[0.14em]
+                text-[#113858]
+                sm:text-[14px]
               "
             >
               Social
-            </p>
+            </h3>
 
-            <div
-              className="
-                flex
-                flex-col
-                items-start
-                gap-[11px]
-              "
-            >
+            <div className="flex flex-col items-start gap-3 sm:gap-3.5">
               {socialLinks.map((social) => (
                 <a
                   key={social.label}
@@ -280,15 +259,14 @@ function Footer() {
                   rel="noreferrer"
                   className="
                     break-words
-                    text-[12.5px]
-                    font-medium
-                    text-[#113858]/70
-
+                    text-[14px]
+                    font-semibold
+                    text-[#113858]/75
                     transition-all
                     duration-200
-
-                    hover:translate-x-[3px]
+                    hover:translate-x-1
                     hover:text-[#113858]
+                    sm:text-[14.5px]
                   "
                 >
                   {social.label}
@@ -307,10 +285,10 @@ function Footer() {
                 decoding="async"
                 className="
                   h-auto
-                  w-[180px]
+                  w-[190px]
                   max-w-full
                   object-contain
-                  sm:w-[200px]
+                  sm:w-[210px]
                 "
               />
             </div>
@@ -318,11 +296,13 @@ function Footer() {
             <p
               className="
                 mt-5
-                max-w-[300px]
+                max-w-[320px]
                 break-words
-                text-[12px]
-                leading-[1.8]
+                text-[13px]
+                font-medium
+                leading-[1.75]
                 text-[#607487]
+                sm:text-[13.5px]
               "
             >
               Premium corporate clothing & custom workwear manufactured for teams of every size across India.
@@ -334,7 +314,6 @@ function Footer() {
         <div
           className="
             px-6
-
             sm:px-9
             lg:px-12
             xl:px-16
@@ -349,7 +328,6 @@ function Footer() {
               flex-col
               gap-4
               py-6
-
               sm:flex-row
               sm:items-center
               sm:justify-between
@@ -358,9 +336,10 @@ function Footer() {
             <p
               className="
                 break-words
-                text-[10.5px]
-                font-medium
+                text-[12px]
+                font-semibold
                 text-[#607487]
+                sm:text-[12.5px]
               "
             >
               © {new Date().getFullYear()} Cottson Clothing.
@@ -372,7 +351,7 @@ function Footer() {
                 flex
                 flex-wrap
                 items-center
-                gap-x-5
+                gap-x-6
                 gap-y-2
               "
             >
@@ -380,14 +359,13 @@ function Footer() {
                 href="#"
                 className="
                   whitespace-nowrap
-                  text-[10.5px]
-                  font-medium
+                  text-[12px]
+                  font-semibold
                   text-[#607487]
-
                   transition-colors
                   duration-200
-
                   hover:text-[#113858]
+                  sm:text-[12.5px]
                 "
               >
                 Privacy Policy
@@ -397,14 +375,13 @@ function Footer() {
                 href="#"
                 className="
                   whitespace-nowrap
-                  text-[10.5px]
-                  font-medium
+                  text-[12px]
+                  font-semibold
                   text-[#607487]
-
                   transition-colors
                   duration-200
-
                   hover:text-[#113858]
+                  sm:text-[12.5px]
                 "
               >
                 Terms & Conditions
@@ -429,11 +406,11 @@ function Footer() {
           className="
             break-words
             text-center
-            text-[9px]
-            font-medium
+            text-[11px]
+            font-semibold
             uppercase
-            tracking-[0.16em]
-            text-white/40
+            tracking-[0.18em]
+            text-white/60
           "
         >
           Custom corporate clothing for modern teams

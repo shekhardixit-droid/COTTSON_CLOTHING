@@ -1,19 +1,92 @@
 
-@import url("https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap");
+@import url("https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700,800,900&display=swap");
 @import "tailwindcss";
 
 :root {
-  --primary: #113858;
-  --primary-hover: #0d2e49;
-  --primary-soft: #e9f0f5;
+  /* =========================================================
+     COTTSON COLOR SYSTEM
+     Base Identity: Deep Cottson Navy (#113858) & Pure White (#FFFFFF)
+     Luxury Accent: Warm Champagne Gold (#C59D5F)
+     Digital Accent: Sapphire Azure (#1D5B8C)
+     Neutrals: Refined Executive Slate & Pearl Mist
+  ========================================================== */
 
+  /* Primary Brand Navy (Core Logo Base) */
+  --primary: #113858;
+  --primary-hover: #0b2545;
+  --primary-dark: #07192b;
+  --primary-light: #1b4f7a;
+  --primary-soft: #eaf1f7;
+  --primary-surface: #f4f8fb;
+
+  /* Luxury Accent: Champagne Gold (Bespoke Apparel & Heritage Accent) */
+  --accent-gold: #c59d5f;
+  --accent-gold-hover: #b0894b;
+  --accent-gold-soft: #fcf7ee;
+  --accent-gold-border: rgba(197, 157, 95, 0.28);
+
+  /* Modern Accent: Sapphire Blue (Interactive & High-Visibility Highlights) */
+  --accent-sapphire: #1d5b8c;
+  --accent-sapphire-hover: #15456b;
+  --accent-sapphire-soft: #ebf3f9;
+
+  /* Base & Surfaces */
   --white: #ffffff;
   --background: #ffffff;
+  --surface: #f8fafc;
+  --surface-alt: #f1f5f9;
+  --surface-card: #f5f8fa;
 
+  /* Typography */
   --text-primary: #113858;
-  --text-secondary: #607487;
-  --border: rgba(17, 56, 88, 0.12);
+  --text-secondary: #485b6e;
+  --text-muted: #728799;
+  --text-subtle: #98aab8;
+
+  /* UI Borders & Focus */
+  --border: rgba(17, 56, 88, 0.08);
+  --border-medium: rgba(17, 56, 88, 0.14);
+  --border-strong: rgba(17, 56, 88, 0.22);
+  --border-gold: rgba(197, 157, 95, 0.25);
+  --border-focus: rgba(29, 91, 140, 0.35);
+
+  /* Font */
+  --font-satoshi: "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
 }
+
+@theme {
+  /* Tailwind CSS v4 Theme Token Bindings */
+  --color-primary: #113858;
+  --color-primary-hover: #0b2545;
+  --color-primary-dark: #07192b;
+  --color-primary-light: #1b4f7a;
+  --color-primary-soft: #eaf1f7;
+  --color-primary-surface: #f4f8fb;
+
+  --color-gold: #c59d5f;
+  --color-gold-hover: #b0894b;
+  --color-gold-soft: #fcf7ee;
+
+  --color-sapphire: #1d5b8c;
+  --color-sapphire-hover: #15456b;
+  --color-sapphire-soft: #ebf3f9;
+
+  --color-surface: #f8fafc;
+  --color-surface-alt: #f1f5f9;
+  --color-surface-card: #f5f8fa;
+
+  --color-text-primary: #113858;
+  --color-text-secondary: #485b6e;
+  --color-text-muted: #728799;
+
+  --font-satoshi: "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+/* ---------------------------------------
+   Global Reset
+--------------------------------------- */
 
 * {
   box-sizing: border-box;
@@ -26,30 +99,125 @@ html {
 body {
   margin: 0;
   min-width: 320px;
+
   background: var(--background);
   color: var(--text-primary);
 
-  font-family:
-    "Urbanist",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+  font-family: var(--font-satoshi);
 
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
   text-rendering: optimizeLegibility;
 }
 
+/* ---------------------------------------
+   Typography
+--------------------------------------- */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+a,
 button,
-a {
+input,
+textarea,
+select {
   font-family: inherit;
 }
 
-button {
-  cursor: pointer;
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  p {
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button {
+    cursor: pointer;
+    font-family: inherit;
+    border: 0;
+  }
 }
 
+/* ---------------------------------------
+   Selection
+--------------------------------------- */
+
 ::selection {
-  background: #113858;
-  color: #ffffff;
+  background: var(--primary);
+  color: var(--white);
+}
+
+/* ---------------------------------------
+   Images
+--------------------------------------- */
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ---------------------------------------
+   Form Elements
+--------------------------------------- */
+
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+/* ---------------------------------------
+   Smooth UI
+--------------------------------------- */
+
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------------------------------------
+   Scrollbar
+--------------------------------------- */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-card);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(17, 56, 88, 0.22);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(17, 56, 88, 0.42);
 }

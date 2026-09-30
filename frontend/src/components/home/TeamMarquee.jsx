@@ -4,12 +4,23 @@ import { useInView } from "../../hooks/useInView";
 const TEAM_IMAGES_JSON_URL =
   "https://res.cloudinary.com/tpxo8m6a/image/list/team_images.json";
 
+function optimizeTeamUrl(url, width = 450) {
+  if (!url || typeof url !== "string") return url;
+  if (url.includes("/image/upload/")) {
+    return url.replace(
+      /\/image\/upload\/([^/]*\/)?/,
+      `/image/upload/f_auto,q_auto:eco,w_${width},c_limit/`
+    );
+  }
+  return url;
+}
+
 function formatTeamItem(item) {
   const ext = item.format || "jpg";
   return {
     id: item.public_id,
     name: item.public_id.replace(/[_-]/g, " ").trim(),
-    url: `https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto,w_800/v${item.version}/${item.public_id}.${ext}`,
+    url: `https://res.cloudinary.com/tpxo8m6a/image/upload/f_auto,q_auto:eco,w_450,c_limit/v${item.version}/${item.public_id}.${ext}`,
   };
 }
 
@@ -110,7 +121,8 @@ const initialRowTwo = [
 ];
 
 function TeamImage({ item, index, onEnter, onLeave }) {
-  const src = typeof item === "string" ? item : item.url;
+  const rawSrc = typeof item === "string" ? item : item.url;
+  const src = optimizeTeamUrl(rawSrc, 450);
   const name =
     typeof item === "object" && item.name
       ? item.name
@@ -131,6 +143,7 @@ function TeamImage({ item, index, onEnter, onLeave }) {
         rounded-[22px]
         border border-[#113858]/[0.08]
         bg-[#F3F6F8]
+        [transform:translateZ(0)]
 
         sm:h-[240px]
         sm:w-[350px]
@@ -182,6 +195,7 @@ function MarqueeRow({
           w-max
           gap-3
           will-change-transform
+          [transform:translateZ(0)]
 
           sm:gap-4
         "
@@ -272,11 +286,12 @@ function TeamMarquee() {
         <p
           className="
             mb-3
-            text-[10px]
-            font-semibold
+            text-[11px]
+            sm:text-[12px]
+            font-bold
             uppercase
-            tracking-[0.2em]
-            text-[#113858]/55
+            tracking-[0.22em]
+            text-[#607487]
           "
         >
           Made for teams
@@ -287,13 +302,11 @@ function TeamMarquee() {
             mx-auto
             max-w-[720px]
             break-words
-
             text-[34px]
-            font-semibold
-            leading-[1.08]
-            tracking-[-0.045em]
+            font-bold
+            leading-[1.12]
+            tracking-[-0.025em]
             text-[#113858]
-
             sm:text-[42px]
             lg:text-[48px]
           "
@@ -305,15 +318,13 @@ function TeamMarquee() {
         <p
           className="
             mx-auto
-            mt-5
-            max-w-[520px]
+            mt-4
+            max-w-[540px]
             break-words
-
-            text-[13px]
-            leading-[1.75]
+            text-[14px]
+            leading-relaxed
             text-[#607487]
-
-            sm:text-[14px]
+            sm:text-[15px]
           "
         >
           Custom apparel that brings people together and puts your brand
@@ -345,21 +356,21 @@ function TeamMarquee() {
         {`
           @keyframes cottsonTeamLeft {
             from {
-              transform: translateX(0);
+              transform: translate3d(0, 0, 0);
             }
 
             to {
-              transform: translateX(calc(-50% - 8px));
+              transform: translate3d(calc(-50% - 8px), 0, 0);
             }
           }
 
           @keyframes cottsonTeamRight {
             from {
-              transform: translateX(calc(-50% - 8px));
+              transform: translate3d(calc(-50% - 8px), 0, 0);
             }
 
             to {
-              transform: translateX(0);
+              transform: translate3d(0, 0, 0);
             }
           }
 

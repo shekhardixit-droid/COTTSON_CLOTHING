@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useInView } from "../../hooks/useInView";
 
 const reelVideos = [
@@ -13,8 +13,11 @@ const reelVideos = [
 
 function getOptimizedVideoUrl(url) {
   if (!url || typeof url !== "string") return url;
-  if (url.includes("/video/upload/") && !url.includes("/q_auto")) {
-    return url.replace("/video/upload/", "/video/upload/q_auto,w_400,vc_auto/");
+  if (url.includes("/video/upload/")) {
+    return url.replace(
+      /\/video\/upload\/([^/]*\/)?/,
+      "/video/upload/q_auto:eco,w_360,br_700k,vc_auto/"
+    );
   }
   return url;
 }
@@ -23,56 +26,68 @@ function getPosterUrl(url) {
   if (!url || typeof url !== "string") return undefined;
   if (url.includes("/video/upload/")) {
     return url
-      .replace("/video/upload/", "/video/upload/so_0,q_auto,f_auto,w_400/")
+      .replace(
+        /\/video\/upload\/([^/]*\/)?/,
+        "/video/upload/so_0,q_auto:eco,f_auto,w_360/"
+      )
       .replace(/\.mp4$/i, ".jpg");
   }
   return undefined;
 }
 
-function EyebrowPill({ text }) {
-  return (
-    <div
-      className="
-        mb-5
-        inline-flex
-        items-center
-        gap-2
-        rounded-full
-        border
-        border-[#113858]/10
-        bg-[#F5F8FA]
-        px-3.5
-        py-[7px]
-      "
-    >
-      <span className="h-[6px] w-[6px] rounded-full bg-[#113858]" />
-      <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#113858]/60">
-        {text}
-      </span>
-    </div>
-  );
-}
-
-function ReelCard({ video, isInView, hasEntered }) {
+function ReelCard({ video, sectionInView }) {
+  const containerRef = useRef(null);
   const videoRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
   const optimizedVideo = getOptimizedVideoUrl(video);
   const poster = getPosterUrl(video);
 
+  // Monitor visibility of THIS specific card in viewport
   useEffect(() => {
-    const el = videoRef.current;
-    if (!el) return;
-    if (isInView && hasEntered) {
-      const playPromise = el.play();
+    const el = containerRef.current;
+    if (!el || !sectionInView) {
+      setIsVisible(false);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      {
+        rootMargin: "80px 20px",
+        threshold: 0.05,
+      }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [sectionInView]);
+
+  const shouldPlay = sectionInView && (isVisible || isHovered);
+
+  // Control video playback without blocking main thread
+  useEffect(() => {
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
+
+    if (shouldPlay) {
+      const playPromise = videoEl.play();
       if (playPromise !== undefined) {
         playPromise.catch(() => {});
       }
     } else {
-      el.pause();
+      videoEl.pause();
     }
-  }, [isInView, hasEntered]);
+  }, [shouldPlay]);
 
   return (
     <div
+      ref={containerRef}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       className="
         group relative
         aspect-[9/16] w-[260px] shrink-0
@@ -80,22 +95,40 @@ function ReelCard({ video, isInView, hasEntered }) {
         border border-[#113858]/[0.08]
         bg-[#E9F0F5]
         sm:w-[280px] sm:rounded-[28px]
+        [transform:translateZ(0)]
       "
     >
-      <video
-        ref={videoRef}
-        src={hasEntered ? optimizedVideo : undefined}
-        poster={poster}
-        muted
-        loop
-        playsInline
-        preload={hasEntered ? "metadata" : "none"}
-        className="
-          h-full w-full object-cover
-          transition-transform duration-700 ease-out
-          group-hover:scale-[1.04]
-        "
+      {/* Lightweight poster image loads instantly with near-zero memory */}
+      <img
+        src={poster}
+        alt="Cottson behind the scenes"
+        loading="lazy"
+        decoding="async"
+        className={`
+          absolute inset-0 h-full w-full object-cover
+          transition-opacity duration-300
+          ${shouldPlay ? "opacity-0 pointer-events-none" : "opacity-100"}
+        `}
       />
+
+      {/* Video is ONLY mounted when card is in the visible viewport or hovered */}
+      {shouldPlay && (
+        <video
+          ref={videoRef}
+          src={optimizedVideo}
+          poster={poster}
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          className="
+            relative h-full w-full object-cover
+            transition-transform duration-700 ease-out
+            group-hover:scale-[1.04]
+          "
+        />
+      )}
+
       <div
         className="
           pointer-events-none absolute inset-x-0 bottom-0
@@ -109,12 +142,10 @@ function ReelCard({ video, isInView, hasEntered }) {
 }
 
 export function AboutReels() {
-  const { ref: sectionRef, isInView, hasEntered } = useInView({ rootMargin: "300px" });
+  const { ref: sectionRef, isInView } = useInView({ rootMargin: "150px" });
 
-  // 28 items per track = 8,288px wide per track, perfectly seamless infinite buffer for any screen size or zoom
+  // 14 items per track = 4,144px per track — fully seamless loop on any screen including 4K
   const reelItems = [
-    ...reelVideos,
-    ...reelVideos,
     ...reelVideos,
     ...reelVideos,
   ];
@@ -125,11 +156,13 @@ export function AboutReels() {
       <div className="mx-auto mb-12 max-w-[1380px] px-5 sm:px-6 lg:px-8">
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>
-           
+            <p className="mb-3 text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.22em] text-[#607487]">
+              Behind The Scenes
+            </p>
             <h2
               className="
-                text-[34px] font-semibold leading-[1.08]
-                tracking-[-0.045em] text-[#113858]
+                text-[34px] font-bold leading-[1.12]
+                tracking-[-0.025em] text-[#113858]
                 sm:text-[42px] lg:text-[48px]
               "
             >
@@ -141,8 +174,8 @@ export function AboutReels() {
 
           <p
             className="
-              max-w-sm text-[13px] leading-[1.75] text-[#607487]
-              sm:text-right sm:text-[14px]
+              max-w-sm text-[13px] leading-relaxed text-[#607487]
+              sm:text-[14px]
             "
           >
             A closer look at the people, process, craftsmanship, and world
@@ -154,9 +187,9 @@ export function AboutReels() {
       {/* MARQUEE — TRULY INFINITE DUAL-TRACK BUFFER */}
       <div className="relative overflow-hidden">
         <div
-          className="flex w-max gap-4 will-change-transform hover:[animation-play-state:paused]"
+          className="flex w-max gap-4 will-change-transform [transform:translateZ(0)] hover:[animation-play-state:paused]"
           style={{
-            animation: "reelMarquee 130s linear infinite",
+            animation: "reelMarquee 90s linear infinite",
             animationPlayState: isInView ? "running" : "paused",
           }}
         >
@@ -166,8 +199,7 @@ export function AboutReels() {
               <ReelCard
                 key={`reel-track1-${index}`}
                 video={video}
-                isInView={isInView}
-                hasEntered={hasEntered}
+                sectionInView={isInView}
               />
             ))}
           </div>
@@ -178,8 +210,7 @@ export function AboutReels() {
               <ReelCard
                 key={`reel-track2-${index}`}
                 video={video}
-                isInView={isInView}
-                hasEntered={hasEntered}
+                sectionInView={isInView}
               />
             ))}
           </div>
@@ -190,10 +221,15 @@ export function AboutReels() {
         {`
           @keyframes reelMarquee {
             from {
-              transform: translateX(0);
+              transform: translate3d(0, 0, 0);
             }
             to {
-              transform: translateX(calc(-50% - 8px));
+              transform: translate3d(calc(-50% - 8px), 0, 0);
+            }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .will-change-transform {
+              animation: none !important;
             }
           }
         `}
