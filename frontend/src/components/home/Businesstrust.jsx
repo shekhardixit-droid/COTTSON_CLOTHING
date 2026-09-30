@@ -322,7 +322,7 @@ function BusinessTrust() {
             "
           >
             <img
-              src="/images/business-trust/clothing-rack.jpg"
+              src="https://ik.imagekit.io/qiap0iq38/cottson/Frame%202147227994%20(1).png?updatedAt=1787219176241"
               alt="Cottson corporate clothing collection"
               className="
                 absolute
@@ -350,44 +350,7 @@ function BusinessTrust() {
                 to-[#113858]/20
               "
             />
-
-            {/* IMAGE LABEL */}
-            <div
-              className="
-                absolute
-                bottom-5
-                left-5
-                right-5
-
-                w-fit
-                max-w-[calc(100%-2.5rem)]
-                rounded-full
-
-                border
-                border-white/25
-
-                bg-white/90
-
-                px-4
-                py-2
-
-                backdrop-blur-md
-              "
-            >
-              <p
-                className="
-                  truncate
-                  text-[9px]
-                  font-semibold
-                  uppercase
-                  tracking-[0.16em]
-                  text-[#113858]
-                "
-              >
-                Custom corporate apparel
-              </p>
-            </div>
-          </div>
+</div>
 
           {/* =========================================
               CTA CONTENT
