@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 
 const benefits = [
-  "Low MOQ",
+  "Low MOQ: 25 Pcs",
   "Custom Branding",
   "Bulk Orders",
   "Pan-India Delivery",
@@ -13,14 +13,16 @@ const benefits = [
 
 function Hero() {
   return (
-    <main id="home" className="bg-white">
+    <main id="home" className="relative bg-white overflow-hidden">
       <section
         className="
           relative mx-auto w-full max-w-[1600px]
-          overflow-hidden px-5 pb-10
-          pt-[112px] sm:px-6 sm:pt-[120px]
-          md:px-8 md:pt-[130px]
-          lg:px-10 lg:pt-[140px]
+          px-4 pb-6 pt-[84px]
+          sm:px-6 sm:pb-8 sm:pt-[96px]
+          md:px-8 md:pt-[106px]
+          lg:min-h-[640px] lg:px-8 lg:pt-[125px] lg:pb-12
+          xl:min-h-[680px] xl:px-10 xl:pt-[135px]
+          2xl:min-h-[720px] 2xl:pt-[140px]
         "
       >
         <div
@@ -32,27 +34,29 @@ function Hero() {
         >
 
           {/* =====================================================
-              LEFT — CUSTOM CLIENT SHOWCASE
-              MATCHING COMPOSITION OF RIGHT SIDE
+              DESKTOP LEFT — CUSTOM CLIENT SHOWCASE
+              Overlapping 3D cluster (DOMS, ICICI, TVS)
           ===================================================== */}
           <div
             className="
-              absolute left-[-7%] top-1/2
+              pointer-events-none absolute left-[-6%] top-1/2
               hidden h-[620px] w-[560px]
-              -translate-y-1/2
+              -translate-y-1/2 origin-left
               lg:block
-              xl:left-[-4%]
-              2xl:left-[-2%]
+              lg:scale-[0.60] lg:left-[-70px]
+              xl:scale-[0.78] xl:left-[-35px]
+              2xl:scale-[0.95] 2xl:left-[-15px]
             "
           >
             {/* TOP SHIRT — DOMS */}
             <a
               href="#products"
               className="
-                group absolute
+                pointer-events-auto group absolute
                 left-[70px] top-[5px]
                 z-20
               "
+              title="DOMS Corporate Formal Shirt"
             >
               <div className="relative">
                 <div
@@ -88,10 +92,11 @@ function Hero() {
             <a
               href="#products"
               className="
-                group absolute
+                pointer-events-auto group absolute
                 bottom-[25px] -left-[40px]
                 z-30
               "
+              title="ICICI Bank Custom Pique Polo"
             >
               <div className="relative">
                 <div
@@ -127,10 +132,11 @@ function Hero() {
             <a
               href="#products"
               className="
-                group absolute
+                pointer-events-auto group absolute
                 bottom-[25px] right-[40px]
                 z-30
               "
+              title="TVS Motors Executive Formal Shirt"
             >
               <div className="relative">
                 <div
@@ -178,7 +184,7 @@ function Hero() {
                 shadow-[0_10px_30px_rgba(17,56,88,0.08)]
               "
             >
-              Custom Apparel
+              Enterprise Clients (DOMS · ICICI · TVS)
             </div>
           </div>
 
@@ -189,26 +195,26 @@ function Hero() {
           <div
             className="
               relative z-50
-              flex w-full max-w-[620px]
+              flex w-full
               flex-col items-center
-              px-8 text-center
-              lg:absolute
-              lg:left-1/2
-              lg:top-1/2
-              lg:-translate-x-1/2
-              lg:-translate-y-1/2
+              px-2 text-center
+              sm:px-4
+              lg:absolute lg:left-1/2 lg:top-1/2
+              lg:-translate-x-1/2 lg:-translate-y-1/2
+              lg:max-w-[420px]
+              xl:max-w-[530px]
+              2xl:max-w-[620px]
             "
           >
             {/* Eyebrow */}
             <p
               className="
-                mb-4
-                text-[10px]
-                font-semibold
+                mb-3
+                text-[10px] sm:text-[11px]
+                font-bold
                 uppercase
-                tracking-[0.28em]
-                text-[#113858]/50
-                sm:text-xs
+                tracking-[0.24em]
+                text-[#113858]/55
               "
             >
               Custom Apparel for Teams
@@ -217,10 +223,14 @@ function Hero() {
             {/* Main Heading */}
             <h1
               className="
-                text-[clamp(2.5rem,5vw,4.7rem)]
+                text-[32px] sm:text-[42px]
+                md:text-[48px]
+                lg:text-[38px]
+                xl:text-[48px]
+                2xl:text-[56px]
                 font-semibold
-                leading-[0.94]
-                tracking-[-0.06em]
+                leading-[0.98]
+                tracking-[-0.05em]
                 text-[#113858]
               "
             >
@@ -234,13 +244,11 @@ function Hero() {
             {/* Description */}
             <p
               className="
-                mx-auto mt-6
-                max-w-[500px]
-                text-[13px]
-                leading-6
+                mx-auto mt-4 sm:mt-5
+                max-w-[480px]
+                text-[13px] sm:text-[14.5px]
+                leading-relaxed
                 text-[#607487]
-                sm:text-[15px]
-                sm:leading-7
               "
             >
               Custom clothing for companies, teams and events —
@@ -250,48 +258,43 @@ function Hero() {
             {/* Buttons */}
             <div
               className="
-                mt-7
+                mt-6 sm:mt-7
                 flex w-full
-                flex-col
+                flex-row
                 items-center
                 justify-center
-                gap-3
-                sm:w-auto
-                sm:flex-row
+                gap-2.5 sm:gap-3.5
+                max-w-[340px] sm:max-w-none
               "
             >
               {/* View Products */}
               <a
                 href="#products"
                 className="
-                  group flex h-[46px]
-                  w-full min-w-[160px]
+                  group flex h-[44px] sm:h-[46px]
+                  flex-1 sm:flex-initial
+                  min-w-[135px] sm:min-w-[160px]
                   items-center justify-center
                   gap-2
                   rounded-full
                   bg-[#113858]
-                  px-6
+                  px-5 sm:px-6
                   text-[12px]
                   font-semibold
                   text-white
+                  shadow-[0_4px_16px_rgba(17,56,88,0.18)]
                   transition-all
                   duration-300
                   hover:-translate-y-[2px]
-                  hover:shadow-[0_8px_22px_rgba(17,56,88,0.18)]
+                  hover:shadow-[0_8px_22px_rgba(17,56,88,0.22)]
                   active:scale-[0.98]
-                  sm:w-auto
                 "
               >
-                View Products
-
+                <span>View Products</span>
                 <ArrowRight
                   size={14}
                   strokeWidth={2}
-                  className="
-                    transition-transform
-                    duration-300
-                    group-hover:translate-x-[4px]
-                  "
+                  className="transition-transform duration-300 group-hover:translate-x-[4px]"
                 />
               </a>
 
@@ -299,14 +302,15 @@ function Hero() {
               <a
                 href="#contact"
                 className="
-                  group flex h-[46px]
-                  w-full min-w-[160px]
+                  group flex h-[44px] sm:h-[46px]
+                  flex-1 sm:flex-initial
+                  min-w-[135px] sm:min-w-[160px]
                   items-center justify-center
                   gap-2
                   rounded-full
                   border border-[#113858]
                   bg-white
-                  px-6
+                  px-5 sm:px-6
                   text-[12px]
                   font-semibold
                   text-[#113858]
@@ -317,51 +321,45 @@ function Hero() {
                   hover:text-white
                   hover:shadow-[0_8px_22px_rgba(17,56,88,0.14)]
                   active:scale-[0.98]
-                  sm:w-auto
                 "
               >
                 <MessageCircle
                   size={15}
                   strokeWidth={2}
-                  className="
-                    transition-transform
-                    duration-300
-                    group-hover:scale-110
-                  "
+                  className="transition-transform duration-300 group-hover:scale-110"
                 />
-
-                WhatsApp Us
+                <span>WhatsApp Us</span>
               </a>
             </div>
           </div>
 
 
           {/* =====================================================
-              RIGHT — CORPORATE CLOTHING
-              INTERNAL POSITIONS KEPT EXACTLY THE SAME
+              DESKTOP RIGHT — COTTSON ORIGINALS
+              Overlapping 3D cluster (Jacket, Shirt, Polo)
           ===================================================== */}
           <div
             className="
-              absolute right-[-7%] top-1/2
+              pointer-events-none absolute right-[-6%] top-1/2
               hidden h-[620px] w-[560px]
-              -translate-y-1/2
+              -translate-y-1/2 origin-right
               lg:block
-              xl:right-[-4%]
-              2xl:right-[-2%]
+              lg:scale-[0.60] lg:right-[-70px]
+              xl:scale-[0.78] xl:right-[-35px]
+              2xl:scale-[0.95] 2xl:right-[-15px]
             "
           >
-
             {/* MAIN JACKET */}
             <a
               href="#products"
               className="
-                group absolute
+                pointer-events-auto group absolute
                 right-[70px] top-[5px]
                 z-20
               "
+              title="Cottson Corporate Bomber Jacket"
             >
               <div className="relative">
-
                 <div
                   className="
                     absolute bottom-[35px] left-1/2
@@ -372,7 +370,6 @@ function Hero() {
                     blur-xl
                   "
                 />
-
                 <img
                   src="jacket.png"
                   alt="Cottson corporate jacket"
@@ -389,22 +386,20 @@ function Hero() {
                     group-hover:scale-[1.02]
                   "
                 />
-
               </div>
             </a>
-
 
             {/* BOTTOM SHIRT */}
             <a
               href="#products"
               className="
-                group absolute
+                pointer-events-auto group absolute
                 bottom-[25px] left-[30px]
                 z-30
               "
+              title="Cottson Tailored Oxford Shirt"
             >
               <div className="relative">
-
                 <div
                   className="
                     absolute bottom-[25px] left-1/2
@@ -415,7 +410,6 @@ function Hero() {
                     blur-xl
                   "
                 />
-
                 <img
                   src="shirt.png"
                   alt="Cottson corporate shirt"
@@ -432,22 +426,20 @@ function Hero() {
                     group-hover:-rotate-1
                   "
                 />
-
               </div>
             </a>
-
 
             {/* BOTTOM POLO */}
             <a
               href="#products"
               className="
-                group absolute
+                pointer-events-auto group absolute
                 bottom-[25px] -right-[60px]
                 z-30
               "
+              title="Cottson Signature Tipped Polo"
             >
               <div className="relative">
-
                 <div
                   className="
                     absolute bottom-[25px] left-1/2
@@ -458,7 +450,6 @@ function Hero() {
                     blur-xl
                   "
                 />
-
                 <img
                   src="polo.png"
                   alt="Cottson custom polo"
@@ -475,108 +466,132 @@ function Hero() {
                     group-hover:rotate-1
                   "
                 />
-
               </div>
             </a>
 
+            {/* Label */}
+            <div
+              className="
+                absolute bottom-[5px] right-[15px]
+                z-40 rounded-full
+                border border-[#113858]/10
+                bg-white
+                px-4 py-2
+                text-[10px]
+                font-semibold
+                uppercase
+                tracking-[0.12em]
+                text-[#113858]
+                shadow-[0_10px_30px_rgba(17,56,88,0.08)]
+              "
+            >
+              Cottson Originals (Polo · Shirt · Jacket)
+            </div>
           </div>
 
 
           {/* =====================================================
-              TABLET
+              PHONE & TABLET (< 1024px) — DUAL OVERLAPPING CLUSTERS
+              Both Enterprise Clients & Cottson Originals clusters
+              presented side-by-side with 3D overlapping depth!
           ===================================================== */}
-          <div
-            className="
-              relative z-10 mx-auto
-              hidden w-full max-w-[620px]
-              md:grid md:grid-cols-3
-              md:items-end md:gap-2
-              lg:hidden
-            "
-          >
-            <img
-              src="/client-icici.png"
-              alt="Custom Corporate Apparel"
-              decoding="async"
-              className="
-                h-auto max-h-[210px]
-                w-full object-contain
-              "
-            />
+          <div className="relative z-20 mt-6 sm:mt-8 w-full max-w-[560px] mx-auto lg:hidden">
+            <div className="grid grid-cols-2 gap-2 sm:gap-4 items-end">
+              
+              {/* LEFT CLUSTER: ENTERPRISE CLIENTS (DOMS, ICICI, TVS) */}
+              <a
+                href="#products"
+                className="group relative flex flex-col items-center justify-end rounded-2xl bg-gradient-to-b from-slate-50/70 to-white/95 border border-slate-200/80 p-1.5 sm:p-3 pb-2.5 sm:pb-3 shadow-[0_6px_18px_rgba(17,56,88,0.06)] overflow-visible transition-transform duration-300 hover:-translate-y-1"
+                title="Enterprise Clients (DOMS · ICICI · TVS)"
+              >
+                {/* 3 Overlapping Garments Container */}
+                <div className="relative h-[150px] sm:h-[190px] w-full flex items-end justify-center">
+                  {/* TOP: DOMS */}
+                  <div className="absolute top-[2px] left-1/2 -translate-x-1/2 z-10 w-[95px] sm:w-[130px]">
+                    <div className="absolute bottom-[8px] left-1/2 h-[12px] w-[75px] -translate-x-1/2 rounded-full bg-[#113858]/10 blur-md" />
+                    <img
+                      src="/client-doms.png"
+                      alt="Custom DOMS corporate shirt"
+                      className="h-[100px] sm:h-[135px] w-full object-contain drop-shadow-[0_10px_14px_rgba(17,56,88,0.10)]"
+                    />
+                  </div>
 
-            <img
-              src="jacket.png"
-              alt="Corporate jacket"
-              decoding="async"
-              className="
-                h-auto max-h-[240px]
-                w-full object-contain
-              "
-            />
+                  {/* BOTTOM LEFT: ICICI */}
+                  <div className="absolute bottom-[2px] -left-[10px] sm:left-[-4px] z-20 w-[90px] sm:w-[125px]">
+                    <div className="absolute bottom-[6px] left-1/2 h-[10px] w-[70px] -translate-x-1/2 rounded-full bg-[#113858]/10 blur-md" />
+                    <img
+                      src="/client-icici.png"
+                      alt="Custom ICICI Bank polo"
+                      className="h-[92px] sm:h-[125px] w-full object-contain drop-shadow-[0_10px_14px_rgba(17,56,88,0.12)]"
+                    />
+                  </div>
 
-            <img
-              src="polo.png"
-              alt="Corporate polo"
-              decoding="async"
-              className="
-                h-auto max-h-[220px]
-                w-full object-contain
-              "
-            />
-          </div>
+                  {/* BOTTOM RIGHT: TVS */}
+                  <div className="absolute bottom-[2px] -right-[10px] sm:right-[-4px] z-20 w-[90px] sm:w-[125px]">
+                    <div className="absolute bottom-[6px] left-1/2 h-[10px] w-[70px] -translate-x-1/2 rounded-full bg-[#113858]/10 blur-md" />
+                    <img
+                      src="/client-tvs.png"
+                      alt="Custom TVS company shirt"
+                      className="h-[92px] sm:h-[125px] w-full object-contain drop-shadow-[0_10px_14px_rgba(17,56,88,0.12)]"
+                    />
+                  </div>
+                </div>
+
+                {/* Pill Badge */}
+                <div className="mt-2 z-30 whitespace-nowrap rounded-full border border-[#113858]/10 bg-white px-2 sm:px-3 py-0.5 sm:py-1 text-[7px] sm:text-[9.5px] font-bold uppercase tracking-wider text-[#113858] shadow-sm">
+                  <span className="sm:hidden">Clients (DOMS · ICICI · TVS)</span>
+                  <span className="hidden sm:inline">Enterprise Clients (DOMS · ICICI · TVS)</span>
+                </div>
+              </a>
 
 
-          {/* =====================================================
-              MOBILE
-          ===================================================== */}
-          <div
-            className="
-              relative z-10 mx-auto
-              grid w-full max-w-[520px]
-              grid-cols-4
-              items-end gap-1
-              md:hidden
-            "
-          >
-            <img
-              src="/client-icici.png"
-              alt="Custom Corporate Apparel"
-              decoding="async"
-              className="
-                h-auto max-h-[125px]
-                w-full object-contain
-              "
-            />
+              {/* RIGHT CLUSTER: COTTSON ORIGINALS (JACKET, SHIRT, POLO) */}
+              <a
+                href="#products"
+                className="group relative flex flex-col items-center justify-end rounded-2xl bg-gradient-to-b from-slate-50/70 to-white/95 border border-slate-200/80 p-1.5 sm:p-3 pb-2.5 sm:pb-3 shadow-[0_6px_18px_rgba(17,56,88,0.06)] overflow-visible transition-transform duration-300 hover:-translate-y-1"
+                title="Cottson Originals (Polo · Shirt · Jacket)"
+              >
+                {/* 3 Overlapping Garments Container */}
+                <div className="relative h-[150px] sm:h-[190px] w-full flex items-end justify-center">
+                  {/* TOP: JACKET */}
+                  <div className="absolute top-[2px] left-1/2 -translate-x-1/2 z-10 w-[95px] sm:w-[130px]">
+                    <div className="absolute bottom-[8px] left-1/2 h-[12px] w-[75px] -translate-x-1/2 rounded-full bg-[#113858]/10 blur-md" />
+                    <img
+                      src="jacket.png"
+                      alt="Cottson corporate jacket"
+                      className="h-[100px] sm:h-[135px] w-full object-contain drop-shadow-[0_10px_14px_rgba(17,56,88,0.10)]"
+                    />
+                  </div>
 
-            <img
-              src="shirt.png"
-              alt="Corporate shirt"
-              decoding="async"
-              className="
-                h-auto max-h-[145px]
-                w-full object-contain
-              "
-            />
+                  {/* BOTTOM LEFT: SHIRT */}
+                  <div className="absolute bottom-[2px] -left-[10px] sm:left-[-4px] z-20 w-[90px] sm:w-[125px]">
+                    <div className="absolute bottom-[6px] left-1/2 h-[10px] w-[70px] -translate-x-1/2 rounded-full bg-[#113858]/10 blur-md" />
+                    <img
+                      src="shirt.png"
+                      alt="Cottson corporate shirt"
+                      className="h-[92px] sm:h-[125px] w-full object-contain drop-shadow-[0_10px_14px_rgba(17,56,88,0.12)]"
+                    />
+                  </div>
 
-            <img
-              src="jacket.png"
-              alt="Corporate jacket"
-              decoding="async"
-              className="
-                h-auto max-h-[160px]
-                w-full object-contain
-              "
-            />
+                  {/* BOTTOM RIGHT: POLO */}
+                  <div className="absolute bottom-[2px] -right-[10px] sm:right-[-4px] z-20 w-[90px] sm:w-[125px]">
+                    <div className="absolute bottom-[6px] left-1/2 h-[10px] w-[70px] -translate-x-1/2 rounded-full bg-[#113858]/10 blur-md" />
+                    <img
+                      src="polo.png"
+                      alt="Cottson custom polo"
+                      className="h-[92px] sm:h-[125px] w-full object-contain drop-shadow-[0_10px_14px_rgba(17,56,88,0.12)]"
+                    />
+                  </div>
+                </div>
 
-            <img
-              src="polo.png"
-              alt="Corporate polo"
-              decoding="async"
-              className="
-                h-auto max-h-[145px]
-                w-full object-contain
-              "
-            />
+                {/* Pill Badge */}
+                <div className="mt-2 z-30 whitespace-nowrap rounded-full border border-[#113858]/10 bg-white px-2 sm:px-3 py-0.5 sm:py-1 text-[7px] sm:text-[9.5px] font-bold uppercase tracking-wider text-[#113858] shadow-sm">
+                  <span className="sm:hidden">Cottson (Polo · Shirt · Jacket)</span>
+                  <span className="hidden sm:inline">Cottson Originals (Polo · Shirt · Jacket)</span>
+                </div>
+              </a>
+
+            </div>
           </div>
 
         </div>
@@ -586,14 +601,14 @@ function Hero() {
       {/* =====================================================
           BENEFITS / TRUST STRIP
       ===================================================== */}
-      <div className="mx-auto max-w-[1120px] px-5 pb-8">
+      <div className="mx-auto max-w-[1120px] px-4 sm:px-6 pb-8">
         <div
           className="
             flex flex-wrap
             items-center justify-center
-            gap-x-6 gap-y-3
+            gap-x-5 gap-y-2.5
             border-y border-[#113858]/10
-            py-4
+            py-3.5 sm:py-4
             sm:gap-x-10
           "
         >
@@ -601,16 +616,16 @@ function Hero() {
             <div
               key={benefit}
               className="
-                flex items-center gap-2
+                flex items-center gap-1.5 sm:gap-2
                 whitespace-nowrap
-                text-[10.5px]
+                text-[10px] sm:text-[11.5px]
                 font-medium
-                text-[#113858]/65
+                text-[#113858]/75
               "
             >
               <span
                 className="
-                  flex h-[17px] w-[17px]
+                  flex h-[16px] w-[16px] sm:h-[18px] sm:w-[18px]
                   shrink-0 items-center
                   justify-center
                   rounded-full
@@ -619,7 +634,7 @@ function Hero() {
                 "
               >
                 <Check
-                  size={9}
+                  size={10}
                   strokeWidth={2.5}
                 />
               </span>
