@@ -204,14 +204,15 @@ export function SiteFooter() {
         <p className="break-words text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">
           Custom corporate clothing for modern teams
         </p>
-        <p className="text-center text-[12px] lg:absolute lg:right-6 lg:text-right">
+        <p className="text-center text-[13px] text-white lg:absolute lg:right-6 lg:text-right">
+          Proudly designed by{" "}
           <a
             href="https://datacircles.in"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-bold italic text-white underline-offset-2 hover:underline"
+            className="font-bold italic underline underline-offset-2 hover:opacity-80"
           >
-            Proudly designed by DataCircles Technology
+            DataCircles Technology
           </a>
         </p>
       </div>
