@@ -200,9 +200,19 @@ export function SiteFooter() {
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-[1450px] justify-center px-4 py-5">
+      <div className="mx-auto flex max-w-[1450px] flex-col items-center gap-2 px-4 py-5 lg:relative lg:flex-row lg:justify-center">
         <p className="break-words text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">
           Custom corporate clothing for modern teams
+        </p>
+        <p className="text-center text-[12px] lg:absolute lg:right-6 lg:text-right">
+          <a
+            href="https://datacircles.in"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold italic text-white underline-offset-2 hover:underline"
+          >
+            Proudly designed by DataCircles Technology
+          </a>
         </p>
       </div>
     </footer>
