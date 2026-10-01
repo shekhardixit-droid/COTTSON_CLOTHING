@@ -6,12 +6,6 @@
       "body": "black"
     }
   },
-  "classic-white-tee": {
-    "template": "crew-tee",
-    "colours": {
-      "body": "white"
-    }
-  },
   "classic-polo-black": {
     "template": "polo",
     "colours": {
