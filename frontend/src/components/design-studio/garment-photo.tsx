@@ -142,35 +142,83 @@ export function useFabricColor(src: string, fx: number, fy: number) {
   return color;
 }
 
-/** Macro shot of the logo on the fabric: the garment's own color with a pique-knit texture,
- * drawn sharp at any size (magnifying the product photo instead only shows blurry pixels). */
+export type Weave = "pique" | "poplin" | "jersey";
+/** The knit / weave to draw for a product in the close-up */
+export const weaveFor = (category: string): Weave =>
+  /shirt/i.test(category) && !/t-?shirt|sweat/i.test(category) ? "poplin" : /polo/i.test(category) ? "pique" : "jersey";
+
+// Surface texture per weave, lit from the top-left, as CSS backgrounds (sharp at any size)
+const WEAVES: Record<Weave, { image: string; size: string; position: string }> = {
+  // Pique knit: two offset grids of tiny raised cells
+  pique: {
+    image:
+      "radial-gradient(ellipse 45% 40% at 40% 38%, rgba(255,255,255,0.09), transparent 70%), radial-gradient(ellipse 45% 40% at 40% 38%, rgba(255,255,255,0.07), transparent 70%), linear-gradient(90deg, rgba(0,0,0,0.12) 1px, transparent 1px)",
+    size: "6px 5px, 6px 5px, 3px 100%",
+    position: "0 0, 3px 2.5px, 0 0",
+  },
+  // Poplin: a fine, tight plain weave — faint crossing threads
+  poplin: {
+    image:
+      "linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(0deg, rgba(0,0,0,0.07) 1px, transparent 1px)",
+    size: "3px 3px, 3px 3px",
+    position: "0 0, 1px 1px",
+  },
+  // Jersey: columns of small V-shaped loops
+  jersey: {
+    image:
+      "linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px, transparent 3px, rgba(255,255,255,0.06) 3px, transparent 4px), linear-gradient(0deg, rgba(0,0,0,0.05) 1px, transparent 1px)",
+    size: "5px 100%, 100% 4px",
+    position: "0 0, 0 0",
+  },
+};
+
+export type Stripes = { vertical: boolean; periodCm: number; light: boolean; duty: number };
+
+/** Macro shot of the logo on the fabric: the garment's own color with its weave (and stripes,
+ * if it has them), drawn sharp at any size — magnifying the product photo instead only shows
+ * blurry pixels. */
 export function FabricCloseup({
   fabric,
   logo,
   aspect,
   rotation,
   embroidered,
+  weave = "pique",
+  stripes,
+  logoWidthCm,
 }: {
   fabric: string;
   logo: string;
   aspect: number;
   rotation: number;
   embroidered: boolean;
+  weave?: Weave;
+  /** Stripes measured on the photo; drawn to scale against the logo (needs logoWidthCm) */
+  stripes?: Stripes | null;
+  logoWidthCm?: number;
 }) {
   // Fill most of the frame, like a macro photo of the stitching
   const w = aspect >= 1 ? 88 : 80 * aspect;
+  const t = WEAVES[weave];
+  // Stripe spacing as a share of the view: the logo is w% of the view and logoWidthCm wide
+  const stripePct = stripes && logoWidthCm ? (stripes.periodCm / (logoWidthCm / (w / 100))) * 100 : null;
+  // The photo's average color mixes ground and stripes; lines are pushed toward white / black
+  const line = stripes?.light ? "rgba(255,255,255,0.62)" : "rgba(0,0,0,0.35)";
   return (
     <div className="relative size-full overflow-hidden" style={{ background: fabric }}>
-      {/* Pique knit: two offset grids of tiny raised cells, lit from the top-left */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage:
-            "radial-gradient(ellipse 45% 40% at 40% 38%, rgba(255,255,255,0.09), transparent 70%), radial-gradient(ellipse 45% 40% at 40% 38%, rgba(255,255,255,0.07), transparent 70%), linear-gradient(90deg, rgba(0,0,0,0.12) 1px, transparent 1px)",
-          backgroundSize: "6px 5px, 6px 5px, 3px 100%",
-          backgroundPosition: "0 0, 3px 2.5px, 0 0",
-        }}
-      />
+      {stripes && stripePct && (
+        <div
+          className="absolute inset-0"
+          style={{
+            // Ground slightly darker (light lines) or lighter (dark lines) than the average color
+            backgroundColor: stripes.light ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.1)",
+            backgroundImage: `linear-gradient(${stripes.vertical ? "90deg" : "0deg"}, ${line} 0 ${stripes.duty * 100}%, transparent ${stripes.duty * 100}% 100%)`,
+            // (the close-up box is square, so one percentage works for either direction)
+            backgroundSize: stripes.vertical ? `${stripePct}% 100%` : `100% ${stripePct}%`,
+          }}
+        />
+      )}
+      <div className="absolute inset-0" style={{ backgroundImage: t.image, backgroundSize: t.size, backgroundPosition: t.position }} />
       {/* Soft falloff like a real close-up photo */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.35))]" />
       <div className="absolute inset-0 grid place-items-center">
@@ -183,8 +231,9 @@ export function FabricCloseup({
           style={{
             width: `${w}%`,
             transform: `rotate(${rotation}deg)`,
-            // Printed ink lets a little of the knit show through; thread covers it completely
-            filter: embroidered ? undefined : "contrast(0.96) saturate(0.95)",
+            // Printed ink lets a little of the knit show through; thread covers it completely and
+            // stands on the fabric, so it casts a small shadow at macro scale
+            filter: embroidered ? "drop-shadow(1px 2px 2px rgba(0,0,0,0.45))" : "contrast(0.96) saturate(0.95)",
             opacity: embroidered ? 1 : 0.9,
           }}
         />

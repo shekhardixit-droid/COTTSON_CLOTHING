@@ -23,7 +23,8 @@ import { rgbToLab, labToRgb, hexToLab } from './lab-color.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const catalog = JSON.parse(await fs.readFile(path.join(root, 'src/data/products.json'), 'utf8'));
-const colorHex = Object.fromEntries(catalog.colors.map((c) => [c.id, c.hex]));
+const colorList = JSON.parse(await fs.readFile(path.join(root, 'src/data/colors.json'), 'utf8'));
+const colorHex = Object.fromEntries([...colorList.garment, ...colorList.trim].map((c) => [c.id, c.hex]));
 
 for (const product of catalog.products) {
   const dir = path.join(root, 'public/products', product.slug);

@@ -1,101 +1,5 @@
 {
-  "colors": [
-    {
-      "id": "white",
-      "name": "White",
-      "hex": "#f5f5f2"
-    },
-    {
-      "id": "black",
-      "name": "Black",
-      "hex": "#1c1c1c"
-    },
-    {
-      "id": "grey",
-      "name": "Heather Grey",
-      "hex": "#9ea3a8"
-    },
-    {
-      "id": "navy",
-      "name": "Navy",
-      "hex": "#1f2a44"
-    },
-    {
-      "id": "royal",
-      "name": "Royal Blue",
-      "hex": "#1d3fd6"
-    },
-    {
-      "id": "sky",
-      "name": "Sky Blue",
-      "hex": "#8fc7ec"
-    },
-    {
-      "id": "red",
-      "name": "Red",
-      "hex": "#c8102e"
-    },
-    {
-      "id": "maroon",
-      "name": "Maroon",
-      "hex": "#6d1a2c"
-    },
-    {
-      "id": "pink",
-      "name": "Pink",
-      "hex": "#ef6b9a"
-    },
-    {
-      "id": "olive",
-      "name": "Olive",
-      "hex": "#5b6632"
-    },
-    {
-      "id": "forest",
-      "name": "Forest Green",
-      "hex": "#1f5a33"
-    },
-    {
-      "id": "beige",
-      "name": "Beige",
-      "hex": "#d8c8a8"
-    },
-    {
-      "id": "yellow",
-      "name": "Butter Yellow",
-      "hex": "#f2e08a"
-    },
-    {
-      "id": "green",
-      "name": "Green Trim",
-      "hex": "#7ac142"
-    }
-  ],
   "products": [
-    {
-      "slug": "formal-shirt-grey",
-      "title": "Classic Formal Shirt",
-      "category": "Shirts",
-      "description": "Crisp cotton oxford with a cutaway collar, chest pocket and embroidered COTTSON mark. Made for the office and customizable for your team.",
-      "price": 1499,
-      "currency": "INR",
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL",
-        "XXL"
-      ],
-      "originalColor": "grey",
-      "colors": [
-        "grey",
-        "white",
-        "navy",
-        "black",
-        "maroon"
-      ],
-      "minBulk": 25
-    },
     {
       "slug": "polo-black",
       "title": "Essential Polo",
@@ -118,7 +22,12 @@
         "red",
         "forest"
       ],
-      "minBulk": 25
+      "minBulk": 25,
+      "fit": {
+        "chest": 0.412,
+        "top": 0.253,
+        "cx": 0.504
+      }
     },
     {
       "slug": "classic-white-tee",
@@ -142,7 +51,12 @@
         "red",
         "grey"
       ],
-      "minBulk": 25
+      "minBulk": 25,
+      "fit": {
+        "chest": 0.646,
+        "top": 0.386,
+        "cx": 0.5
+      }
     },
     {
       "slug": "classic-polo-black",
@@ -167,7 +81,12 @@
         "grey"
       ],
       "minBulk": 25,
-      "poses": 6
+      "poses": 6,
+      "fit": {
+        "chest": 0.431,
+        "top": 0.253,
+        "cx": 0.484
+      }
     },
     {
       "slug": "tipped-polo-charcoal",
@@ -192,7 +111,12 @@
         "sky"
       ],
       "minBulk": 25,
-      "poses": 6
+      "poses": 6,
+      "fit": {
+        "chest": 0.446,
+        "top": 0.244,
+        "cx": 0.468
+      }
     },
     {
       "slug": "classic-polo-navy",
@@ -217,7 +141,12 @@
         "red"
       ],
       "minBulk": 25,
-      "poses": 6
+      "poses": 6,
+      "fit": {
+        "chest": 0.412,
+        "top": 0.24,
+        "cx": 0.523
+      }
     },
     {
       "slug": "relaxed-polo-black",
@@ -242,7 +171,12 @@
         "beige"
       ],
       "minBulk": 25,
-      "poses": 6
+      "poses": 6,
+      "fit": {
+        "chest": 0.416,
+        "top": 0.253,
+        "cx": 0.509
+      }
     },
     {
       "slug": "crew-tee-black",
@@ -267,7 +201,12 @@
         "grey"
       ],
       "minBulk": 25,
-      "poses": 6
+      "poses": 6,
+      "fit": {
+        "chest": 0.413,
+        "top": 0.256,
+        "cx": 0.571
+      }
     },
     {
       "slug": "pinstripe-shirt-blue",
@@ -291,7 +230,12 @@
         "navy"
       ],
       "minBulk": 25,
-      "poses": 6
+      "poses": 6,
+      "fit": {
+        "chest": 0.38,
+        "top": 0.244,
+        "cx": 0.513
+      }
     },
     {
       "slug": "formal-shirt-slate",
@@ -316,7 +260,12 @@
         "maroon"
       ],
       "minBulk": 25,
-      "poses": 6
+      "poses": 6,
+      "fit": {
+        "chest": 0.429,
+        "top": 0.253,
+        "cx": 0.5
+      }
     },
     {
       "slug": "formal-shirt-skyblue",
@@ -341,7 +290,12 @@
         "maroon"
       ],
       "minBulk": 25,
-      "poses": 6
+      "poses": 6,
+      "fit": {
+        "chest": 0.429,
+        "top": 0.209,
+        "cx": 0.622
+      }
     },
     {
       "slug": "tipped-polo-skyblue",
@@ -366,7 +320,12 @@
         "navy"
       ],
       "minBulk": 25,
-      "poses": 6
+      "poses": 6,
+      "fit": {
+        "chest": 0.435,
+        "top": 0.249,
+        "cx": 0.53
+      }
     },
     {
       "slug": "pullover-hoodie-white",
@@ -390,7 +349,12 @@
         "navy"
       ],
       "minBulk": 25,
-      "poses": 6
+      "poses": 6,
+      "fit": {
+        "chest": 0.429,
+        "top": 0.234,
+        "cx": 0.5
+      }
     },
     {
       "slug": "zip-hoodie-black",
@@ -414,7 +378,12 @@
         "white"
       ],
       "minBulk": 25,
-      "poses": 6
+      "poses": 6,
+      "fit": {
+        "chest": 0.429,
+        "top": 0.255,
+        "cx": 0.5
+      }
     },
     {
       "slug": "hoodie-vest-black",
@@ -430,7 +399,6 @@
         "XL",
         "XXL"
       ],
-
       "originalColor": "black",
       "colors": [
         "black",
@@ -439,7 +407,12 @@
         "olive"
       ],
       "minBulk": 25,
-      "poses": 6
+      "poses": 6,
+      "fit": {
+        "chest": 0.429,
+        "top": 0.233,
+        "cx": 0.5
+      }
     },
     {
       "slug": "track-jacket-black",
@@ -463,7 +436,12 @@
         "white"
       ],
       "minBulk": 25,
-      "poses": 6
+      "poses": 6,
+      "fit": {
+        "chest": 0.429,
+        "top": 0.236,
+        "cx": 0.5
+      }
     },
     {
       "slug": "drive",
@@ -488,7 +466,12 @@
         "grey"
       ],
       "minBulk": 25,
-      "poses": 6
+      "poses": 6,
+      "fit": {
+        "chest": 0.394,
+        "top": 0.231,
+        "cx": 0.471
+      }
     },
     {
       "slug": "ease",
@@ -513,7 +496,12 @@
         "grey"
       ],
       "minBulk": 25,
-      "poses": 6
+      "poses": 6,
+      "fit": {
+        "chest": 0.429,
+        "top": 0.258,
+        "cx": 0.5
+      }
     },
     {
       "slug": "grey-shirt",
@@ -538,7 +526,12 @@
         "maroon"
       ],
       "minBulk": 25,
-      "poses": 6
+      "poses": 6,
+      "fit": {
+        "chest": 0.429,
+        "top": 0.249,
+        "cx": 0.5
+      }
     },
     {
       "slug": "yellow-shirt",
@@ -562,7 +555,12 @@
         "grey"
       ],
       "minBulk": 25,
-      "poses": 6
+      "poses": 6,
+      "fit": {
+        "chest": 0.429,
+        "top": 0.246,
+        "cx": 0.5
+      }
     },
     {
       "slug": "indus-01",
@@ -586,7 +584,12 @@
         "red"
       ],
       "minBulk": 25,
-      "poses": 10
+      "poses": 10,
+      "fit": {
+        "chest": 0.471,
+        "top": 0.237,
+        "cx": 0.449
+      }
     },
     {
       "slug": "indus-04",
@@ -610,7 +613,12 @@
         "black"
       ],
       "minBulk": 25,
-      "poses": 6
+      "poses": 6,
+      "fit": {
+        "chest": 0.451,
+        "top": 0.231,
+        "cx": 0.521
+      }
     },
     {
       "slug": "formal-shirt-ice-blue",
@@ -633,13 +641,17 @@
         "grey",
         "navy"
       ],
-
-      "minBulk": 25
+      "minBulk": 25,
+      "fit": {
+        "chest": 0.429,
+        "top": 0.255,
+        "cx": 0.5
+      }
     },
     {
       "slug": "essential-polo",
       "title": "Essential Polo",
-      "category": "T-Shirts",
+      "category": "Polos",
       "description": "A classic pique polo with a tipped collar and sleeve trim, available in your choice of trim color. Made to order for corporate events, office staff and team outings.",
       "price": 499,
       "currency": "INR",

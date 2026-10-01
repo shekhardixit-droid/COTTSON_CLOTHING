@@ -38,7 +38,7 @@ export function ProductConfigurator({ product, initialColor }: { product: Produc
 
   return (
     <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 lg:grid-cols-[1.1fr_1fr]">
-      <div className="lg:sticky lg:top-28 lg:self-start">
+      <div className="lg:sticky lg:top-32 lg:self-start">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
           {product.poses && product.poses > 1 && (
             <div className="order-2 flex gap-2 overflow-x-auto lg:order-1 lg:max-h-[36rem] lg:flex-col lg:overflow-y-auto lg:overflow-x-visible">

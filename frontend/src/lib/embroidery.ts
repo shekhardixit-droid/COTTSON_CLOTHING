@@ -14,7 +14,42 @@ export type EmbroideryOptions = {
   width?: number;
   /** Real-world width of the logo, used to size stitches like ~0.4 mm thread */
   widthCm?: number;
+  /** Grow every stroke outward by this much (mm per side) before stitching, so hairlines and
+   * small text get wide enough to hold a satin stitch */
+  thickenMm?: number;
+  /** Stitch direction in degrees (0 = horizontal, 90 = vertical); default 45 */
+  angleDeg?: number;
+  /** Stitch every visible pixel, including a solid background colour (e.g. a logo on a filled
+   * square). Default false: the colour at the corners of an opaque image is treated as background. */
+  keepBackground?: boolean;
 };
+
+/** Stock embroidery thread colors offered in the thread picker */
+export const THREADS = [
+  { id: "white", name: "White", hex: "#f4f4f1" },
+  { id: "silver", name: "Silver", hex: "#b9bdc3" },
+  { id: "gold", name: "Gold", hex: "#c9a14a" },
+  { id: "red", name: "Red", hex: "#c8102e" },
+  { id: "navy", name: "Navy", hex: "#1f2a44" },
+  { id: "black", name: "Black", hex: "#1c1c1c" },
+] as const;
+
+/** Grow the logo's shape outward by `steps` px; each new pixel takes a neighbor's thread color */
+function dilate(mask: Uint8Array, label: Uint8Array, w: number, h: number, steps: number) {
+  for (let s = 0; s < steps; s++) {
+    const m = mask.slice(), l = label.slice();
+    for (let y = 0; y < h; y++)
+      for (let x = 0; x < w; x++) {
+        const i = y * w + x;
+        if (m[i]) continue;
+        const n = x > 0 && m[i - 1] ? i - 1 : x < w - 1 && m[i + 1] ? i + 1 : y > 0 && m[i - w] ? i - w : y < h - 1 && m[i + w] ? i + w : -1;
+        if (n >= 0) {
+          mask[i] = 1;
+          label[i] = l[n];
+        }
+      }
+  }
+}
 
 const loadImage = (src: string) =>
   new Promise<HTMLImageElement>((resolve, reject) => {
@@ -29,6 +64,12 @@ const hexToRgb = (hex: string): RGB => {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 };
 const dist2 = (a: RGB, b: RGB) => (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2;
+const luminance = ([r, g, b]: RGB) => (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+// Polyester thread reads a little less saturated than screen/ink color
+const threadTone = (c: RGB, k = 0.1): RGB => {
+  const l = luminance(c) * 255;
+  return [c[0] + (l - c[0]) * k, c[1] + (l - c[1]) * k, c[2] + (l - c[2]) * k];
+};
 const shade = ([r, g, b]: RGB, f: number) => {
   // f > 0 lightens toward white, f < 0 darkens toward black
   const t = f > 0 ? 255 : 0;
@@ -37,6 +78,13 @@ const shade = ([r, g, b]: RGB, f: number) => {
 };
 
 /** Which pixels belong to the logo: real transparency if the file has it, else "not the background color" */
+/** Every non-transparent pixel */
+function alphaMask(data: Uint8ClampedArray, n: number) {
+  const mask = new Uint8Array(n);
+  for (let i = 0; i < n; i++) mask[i] = data[i * 4 + 3] >= 128 ? 1 : 0;
+  return mask;
+}
+
 function logoMask(data: Uint8ClampedArray, w: number, h: number) {
   const n = w * h;
   const mask = new Uint8Array(n);
@@ -111,8 +159,10 @@ export async function renderEmbroidery(src: string, opts: EmbroideryOptions): Pr
   rctx.drawImage(img, 0, 0, W, H);
   const { data } = rctx.getImageData(0, 0, W, H);
 
-  const mask = logoMask(data, W, H);
-  const palette = opts.thread ? [hexToRgb(opts.thread)] : threadPalette(data, mask, Math.max(1, opts.maxColors));
+  const mask = opts.keepBackground ? alphaMask(data, W * H) : logoMask(data, W, H);
+  const palette = (opts.thread ? [hexToRgb(opts.thread)] : threadPalette(data, mask, Math.max(1, opts.maxColors))).map((c) =>
+    threadTone(c)
+  );
   const label = new Uint8Array(W * H);
   for (let i = 0; i < label.length; i++) {
     if (!mask[i]) continue;
@@ -122,10 +172,12 @@ export async function renderEmbroidery(src: string, opts: EmbroideryOptions): Pr
     label[i] = best;
   }
 
+  const pxPerCm = W / (opts.widthCm ?? 9);
+  if (opts.thickenMm) dilate(mask, label, W, H, Math.round((opts.thickenMm / 10) * pxPerCm));
+
   // Thread spacing: ~0.5 mm per row at the logo's real size, but at least ~1/110 of the
   // width so individual stitches stay visible in the close-up preview
-  const pxPerCm = W / (opts.widthCm ?? 9);
-  const gap = Math.max(W / 110, pxPerCm * 0.05);
+  const gap = Math.max(W / 240, pxPerCm * 0.04); // fine rows: read as satin sheen, not stripes
   const maxStitch = gap * 5; // tatami stitch length before the thread goes down and back up
 
   const out = document.createElement("canvas");
@@ -145,11 +197,13 @@ export async function renderEmbroidery(src: string, opts: EmbroideryOptions): Pr
   }
   ctx.putImageData(under, 0, 0);
 
-  // Stitch rows run at 45°: walk each row, split it into runs of one thread color, then
-  // lay stitches along each run (staggered row to row like a tatami fill).
+  // Stitch rows run at angleDeg (45° unless the fabric's folds suggest otherwise): walk each
+  // row, split it into runs of one thread color, then lay stitches along each run (staggered
+  // row to row like a tatami fill).
   const rand = rng(W * 31 + H);
-  const dx = Math.SQRT1_2, dy = Math.SQRT1_2; // along the stitch
-  const nx = -Math.SQRT1_2, ny = Math.SQRT1_2; // across rows
+  const ang = ((opts.angleDeg ?? 45) * Math.PI) / 180;
+  const dx = Math.cos(ang), dy = Math.sin(ang); // along the stitch
+  const nx = -dy, ny = dx; // across rows
   const span = W + H;
   ctx.lineCap = "round";
   let row = 0;
@@ -175,27 +229,34 @@ export async function renderEmbroidery(src: string, opts: EmbroideryOptions): Pr
       }
       runStart = NaN;
     };
-    const drawStitch = (a: number, b: number, c: RGB) => {
-      const j = () => (rand() - 0.5) * gap * 0.25;
-      const x1 = ox + dx * a + j(), y1 = oy + dy * a + j();
-      const x2 = ox + dx * b + j(), y2 = oy + dy * b + j();
-      const tone = (rand() - 0.5) * 0.12;
-      // Thread body, slightly dark at the edges...
-      ctx.strokeStyle = shade(c, -0.18 + tone);
-      ctx.lineWidth = gap * 1.05;
+    const line = (x1: number, y1: number, x2: number, y2: number, style: string, width: number) => {
+      ctx.strokeStyle = style;
+      ctx.lineWidth = width;
       ctx.beginPath();
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
       ctx.stroke();
-      // ...and a highlight along its crown, shorter than the stitch so the ends dip in
-      const k = Math.min(0.2, (gap * 0.6) / Math.max(1, Math.hypot(x2 - x1, y2 - y1)));
-      const hx = nx * gap * -0.18, hy = ny * gap * -0.18;
-      ctx.strokeStyle = shade(c, 0.22 + tone);
-      ctx.lineWidth = gap * 0.42;
-      ctx.beginPath();
-      ctx.moveTo(x1 + (x2 - x1) * k + hx, y1 + (y2 - y1) * k + hy);
-      ctx.lineTo(x2 - (x2 - x1) * k + hx, y2 - (y2 - y1) * k + hy);
-      ctx.stroke();
+    };
+    const drawStitch = (a: number, b: number, c: RGB) => {
+      const j = () => (rand() - 0.5) * gap * 0.25;
+      const x1 = ox + dx * a + j(), y1 = oy + dy * a + j();
+      const x2 = ox + dx * b + j(), y2 = oy + dy * b + j();
+      const tone = (rand() - 0.5) * 0.05;
+      // How far the lit side of a thread lifts toward white. Dark thread needs more: a black
+      // stitch lightened by the same 20% as a red one stays black and the stitching vanishes.
+      const sheen = 0.08 + (1 - luminance(c)) * 0.12;
+      // Light comes from the top-left, so each thread's crown shifts that way (across the row)
+      const hx = nx * gap * -0.2, hy = ny * gap * -0.2;
+      // The crown is shorter than the stitch so its ends dip into the fabric
+      const k = Math.min(0.22, (gap * 0.6) / Math.max(1, Math.hypot(x2 - x1, y2 - y1)));
+      const ax = x1 + (x2 - x1) * k, ay = y1 + (y2 - y1) * k;
+      const bx = x2 - (x2 - x1) * k, by = y2 - (y2 - y1) * k;
+      // 1. Thread body, darker at its edges where it rolls away from the light
+      line(x1, y1, x2, y2, shade(c, -0.08 + tone), gap * 1.05);
+      // 2. Broad soft mid-tone
+      line(x1 + hx * 0.4, y1 + hy * 0.4, x2 + hx * 0.4, y2 + hy * 0.4, shade(c, sheen * 0.35 + tone), gap * 0.66);
+      // 3. Narrow bright crown: the polyester sheen
+      line(ax + hx, ay + hy, bx + hx, by + hy, shade(c, sheen + tone), gap * 0.26);
     };
     for (let t = -span; t <= span; t += 0.7) {
       const x = Math.round(ox + dx * t), y = Math.round(oy + dy * t);
@@ -211,34 +272,54 @@ export async function renderEmbroidery(src: string, opts: EmbroideryOptions): Pr
     flush(span);
   }
 
-  // Keep stitches inside the logo's outline (round caps and jitter spill over slightly)
-  const clip = ctx.createImageData(W, H);
-  for (let i = 0; i < mask.length; i++) clip.data[i * 4 + 3] = mask[i] ? 255 : 0;
-  const clipCanvas = document.createElement("canvas");
-  clipCanvas.width = W;
-  clipCanvas.height = H;
-  clipCanvas.getContext("2d")!.putImageData(clip, 0, 0);
+  const canvas = () => {
+    const c = document.createElement("canvas");
+    c.width = W;
+    c.height = H;
+    return c;
+  };
+  const maskCanvas = canvas();
+  const maskData = ctx.createImageData(W, H);
+  for (let i = 0; i < mask.length; i++) maskData.data[i * 4 + 3] = mask[i] ? 255 : 0;
+  maskCanvas.getContext("2d")!.putImageData(maskData, 0, 0);
+
+  // Trim the spill from round caps and jitter, but against the outline grown by a fraction of
+  // a stitch: the ragged stitch ends then form the edge instead of a crisp vector cut.
+  const grown = canvas();
+  const gctx = grown.getContext("2d")!;
+  const r = gap * 0.35;
+  for (const [ux, uy] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1], [0.7, 0.7], [-0.7, 0.7], [0.7, -0.7], [-0.7, -0.7]])
+    gctx.drawImage(maskCanvas, ux * r, uy * r);
   ctx.globalCompositeOperation = "destination-in";
-  ctx.drawImage(clipCanvas, 0, 0);
+  ctx.drawImage(grown, 0, 0);
+
+  // Raised thread: a soft highlight inside the top-left edges and a dark band inside the
+  // bottom-right ones, as if the whole fill were a slightly padded surface lit from the top-left.
+  // Each band is "everything except the outline nudged toward the light", painted onto the
+  // thread only (source-atop). The blur needs canvas filters (Chrome/Firefox); without them the
+  // bands are just harder.
+  const bevel = gap * 0.9;
+  const edge = (color: string, shift: number, alpha: number) => {
+    const band = canvas();
+    const bctx = band.getContext("2d")!;
+    bctx.fillStyle = color;
+    bctx.fillRect(0, 0, W, H);
+    bctx.globalCompositeOperation = "destination-out";
+    bctx.drawImage(maskCanvas, shift, shift);
+    ctx.globalCompositeOperation = "source-atop";
+    ctx.globalAlpha = alpha;
+    ctx.filter = `blur(${bevel * 0.6}px)`;
+    ctx.drawImage(band, 0, 0);
+    ctx.filter = "none";
+    ctx.globalAlpha = 1;
+  };
+  edge("#000", -bevel, 0.4); // outline nudged up-left leaves the bottom-right rim uncovered
+  edge("#fff", bevel, 0.22); // nudged down-right leaves the top-left rim
   ctx.globalCompositeOperation = "source-over";
 
-  // Raised look: the thread sits on top of the fabric and casts a small, tight shadow
-  const final = document.createElement("canvas");
-  const pad = Math.ceil(gap * 3);
-  final.width = W + pad * 2;
-  final.height = H + pad * 2;
-  const fctx = final.getContext("2d")!;
-  fctx.shadowColor = "rgba(0,0,0,0.55)";
-  fctx.shadowBlur = gap * 1.2;
-  fctx.shadowOffsetX = gap * 0.35;
-  fctx.shadowOffsetY = gap * 0.5;
-  fctx.drawImage(out, pad, pad);
-  // Crop the padding back off so the image lines up with the logo box exactly
-  const crop = document.createElement("canvas");
-  crop.width = W;
-  crop.height = H;
-  crop.getContext("2d")!.drawImage(final, pad, pad, W, H, 0, 0, W, H);
-  return crop.toDataURL("image/png");
+  // No shadow is baked in: the display adds it (CSS drop-shadow), so this image's alpha is
+  // exactly the thread and can double as the mask for the fabric-shading overlay.
+  return out.toDataURL("image/png");
 }
 
 const toHex = (c: RGB) => "#" + c.map((v) => Math.round(v).toString(16).padStart(2, "0")).join("");
@@ -258,6 +339,62 @@ export async function logoPalette(src: string): Promise<string[]> {
   return threadPalette(data, mask, 8)
     .filter((c, i, all) => all.findIndex((d) => dist2(c, d) < 50 * 50) === i)
     .map(toHex);
+}
+
+/** Typical thinnest stroke of the logo, in px. Each logo pixel's thickness is the shortest run
+ * of logo pixels through it across 4 directions (diagonals count √2 per step), which is about
+ * the width of the stroke it sits in. Taking a low percentile rather than the minimum keeps
+ * stroke tips and anti-aliased corners (always 1–2 px) from flagging every logo. */
+function thinStrokePx(mask: Uint8Array, w: number, h: number, percentile = 0.1): number {
+  const thick = new Float32Array(w * h).fill(Infinity);
+  // Walk one line of pixels (start, step, count) and give each pixel of every run its length
+  const walk = (start: number, step: number, count: number, unit: number) => {
+    let runStart = -1;
+    for (let k = 0; k <= count; k++) {
+      const on = k < count && mask[start + k * step];
+      if (on && runStart < 0) runStart = k;
+      if (!on && runStart >= 0) {
+        const len = (k - runStart) * unit;
+        for (let m = runStart; m < k; m++) {
+          const i = start + m * step;
+          if (len < thick[i]) thick[i] = len;
+        }
+        runStart = -1;
+      }
+    }
+  };
+  for (let y = 0; y < h; y++) walk(y * w, 1, w, 1);
+  for (let x = 0; x < w; x++) walk(x, w, h, 1);
+  // Diagonals: ↘ from the top row and left column, ↙ from the top row and right column
+  for (let x = 0; x < w; x++) walk(x, w + 1, Math.min(w - x, h), Math.SQRT2);
+  for (let y = 1; y < h; y++) walk(y * w, w + 1, Math.min(w, h - y), Math.SQRT2);
+  for (let x = 0; x < w; x++) walk(x, w - 1, Math.min(x + 1, h), Math.SQRT2);
+  for (let y = 1; y < h; y++) walk(y * w + w - 1, w - 1, Math.min(w, h - y), Math.SQRT2);
+
+  const values: number[] = [];
+  for (let i = 0; i < thick.length; i++) if (mask[i]) values.push(thick[i]);
+  if (!values.length) return 0;
+  values.sort((a, b) => a - b);
+  return values[Math.floor(values.length * percentile)];
+}
+
+/** Checks whether the logo has strokes/text thinner than embroidery machines can stitch
+ * cleanly (~1.5 mm) at the size it'll actually be sewn. */
+export async function checkStitchability(src: string, widthCm: number): Promise<{ minStrokeMm: number; tooFine: boolean }> {
+  const img = await loadImage(src);
+  const W = 600;
+  const H = Math.max(1, Math.round((W * img.naturalHeight) / img.naturalWidth));
+  const c = document.createElement("canvas");
+  c.width = W;
+  c.height = H;
+  const ctx = c.getContext("2d", { willReadFrequently: true })!;
+  ctx.drawImage(img, 0, 0, W, H);
+  const { data } = ctx.getImageData(0, 0, W, H);
+  const mask = logoMask(data, W, H);
+  const strokePx = thinStrokePx(mask, W, H);
+  const mmPerPx = (widthCm * 10) / W;
+  const minStrokeMm = strokePx * mmPerPx;
+  return { minStrokeMm, tooFine: minStrokeMm > 0 && minStrokeMm < 1.5 };
 }
 
 /** The logo in a single color (monochrome / custom color prints), keeping its shape and edges */

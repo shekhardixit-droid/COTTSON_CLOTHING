@@ -1,10 +1,26 @@
-// Logo placement on the Essential Polo photo, in real-world centimetres.
-// The photos are 682×1024 (2:3); the torso spans ~58% of the image width, and a size-M
-// polo is ~52 cm across the chest, so the whole image covers ~90 × 135 cm.
+// Logo placement on a product photo, in real-world centimetres.
+//
+// The photo is shown in a 2:3 frame. How many cm that frame spans depends on how the garment
+// was photographed, so each product carries a measured `fit` (scripts/measure-fit.mjs): the
+// torso's width as a fraction of the frame. A size-M garment is ~52 cm across the chest, so a
+// torso filling 42% of the frame means the frame is 52 / 0.42 ≈ 124 cm wide. Everything else
+// (logo sizes, tier limits, the position dialog, stitch density) then works in true cm.
+import type { Fit } from "@/lib/catalog";
 
 export const IMAGE_ASPECT = 682 / 1024;
-export const IMAGE_WIDTH_CM = 90;
-export const IMAGE_HEIGHT_CM = IMAGE_WIDTH_CM / IMAGE_ASPECT;
+/** Chest width of a size-M garment, the scale reference for every photo */
+export const REAL_CHEST_CM = 52;
+/** Default logo width: a standard left-chest logo */
+export const DEFAULT_LOGO_CM = 8;
+
+/** Real-world size the photo frame spans, in cm, plus where the garment sits in it */
+export type Frame = { w: number; h: number; fit?: Fit };
+// Without a measured fit: the Essential Polo photo, whose torso fills ~58% of the frame (~90 cm)
+export const frameFor = (fit?: Fit): Frame => {
+  const w = fit ? REAL_CHEST_CM / fit.chest : 90;
+  return { w, h: w / IMAGE_ASPECT, fit };
+};
+export const DEFAULT_FRAME = frameFor();
 
 /** Top-left corner + width in cm; height follows the logo's own aspect ratio */
 export type Placement = { x: number; y: number; w: number; rotation: number };
@@ -31,20 +47,34 @@ export const finishingById = (id: string) => FINISHINGS.find((f) => f.id === id)
 export const finishingHint = (f: Finishing) =>
   `Max ${f.maxColors} colors and ${f.maxCm}×${f.maxCm} cm`;
 
-/** Where on the chest the logo starts; centre points in cm */
 export const POSITIONS = [
-  { id: "left-chest", label: "Left chest", cx: 0.63 * IMAGE_WIDTH_CM, cy: 0.33 * IMAGE_HEIGHT_CM },
-  { id: "center-chest", label: "Center chest", cx: 0.5 * IMAGE_WIDTH_CM, cy: 0.4 * IMAGE_HEIGHT_CM },
-  { id: "right-chest", label: "Right chest", cx: 0.37 * IMAGE_WIDTH_CM, cy: 0.33 * IMAGE_HEIGHT_CM },
+  { id: "left-chest", label: "Left chest" },
+  { id: "center-chest", label: "Center chest" },
+  { id: "right-chest", label: "Right chest" },
 ] as const;
 export type PositionId = (typeof POSITIONS)[number]["id"];
+
+/** Centre point of a position, in cm. With a measured fit: chest logos 12 cm either side of the
+ * torso's centre and 23 cm below the top of the garment (the collar tip, which stands a few cm
+ * above the shoulder seam) — where the makers' own chest emblems sit on the catalog photos.
+ * Centre-chest prints sit a little lower. (Left chest is the wearer's left: the viewer's right.) */
+export const positionCenter = (frame: Frame, pos: PositionId) => {
+  const { fit } = frame;
+  if (!fit) {
+    const f = { "left-chest": [0.63, 0.33], "center-chest": [0.5, 0.4], "right-chest": [0.37, 0.33] }[pos];
+    return { cx: f[0] * frame.w, cy: f[1] * frame.h };
+  }
+  const cx = fit.cx * frame.w, top = fit.top * frame.h;
+  if (pos === "center-chest") return { cx, cy: top + 28 };
+  return { cx: cx + (pos === "left-chest" ? 12 : -12), cy: top + 23 };
+};
 
 /** Largest width that keeps both sides within the finishing's max size */
 export const maxWidthFor = (f: Finishing, aspect: number) => Math.min(f.maxCm, f.maxCm * aspect);
 
-export const placeAt = (pos: PositionId, w: number, aspect: number, rotation = 0): Placement => {
-  const p = POSITIONS.find((q) => q.id === pos)!;
-  return { x: p.cx - w / 2, y: p.cy - w / aspect / 2, w, rotation };
+export const placeAt = (frame: Frame, pos: PositionId, w: number, aspect: number, rotation = 0): Placement => {
+  const { cx, cy } = positionCenter(frame, pos);
+  return { x: cx - w / 2, y: cy - w / aspect / 2, w, rotation };
 };
 
 /** Widest the logo can get with any tier of this kind (embroidery tops out at Premium) */
@@ -58,18 +88,19 @@ export const tierFor = (current: Finishing, w: number, aspect: number) => {
 };
 
 /** The square print area for a placement: centred on the position, as large as the tier allows */
-export const printArea = (pos: PositionId, f: Finishing) => {
-  const p = POSITIONS.find((q) => q.id === pos)!;
-  return { x: p.cx - f.maxCm / 2, y: p.cy - f.maxCm / 2, size: f.maxCm };
+export const printArea = (frame: Frame, pos: PositionId, f: Finishing) => {
+  const { cx, cy } = positionCenter(frame, pos);
+  return { x: cx - f.maxCm / 2, y: cy - f.maxCm / 2, size: f.maxCm };
 };
 
 /** Where to zoom the photo to show the logo up close: its centre (fractions of the image) and a
  * zoom level that makes small logos readable without magnifying the photo into mush */
 export type Focus = { px: number; py: number; z: number };
-export const focusOn = (p: Placement, aspect: number): Focus => ({
-  px: (p.x + p.w / 2) / IMAGE_WIDTH_CM,
-  py: (p.y + p.w / aspect / 2) / IMAGE_HEIGHT_CM,
-  z: Math.min(4, Math.max(1.8, 54 / p.w)),
+export const focusOn = (frame: Frame, p: Placement, aspect: number): Focus => ({
+  px: (p.x + p.w / 2) / frame.w,
+  py: (p.y + p.w / aspect / 2) / frame.h,
+  // Zoom so the logo fills ~60% of the view, within limits
+  z: Math.min(4, Math.max(1.8, (0.6 * frame.w) / p.w)),
 });
 
 export const round1 = (n: number) => Math.round(n * 10) / 10;
