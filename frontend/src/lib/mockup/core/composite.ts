@@ -224,10 +224,24 @@ export function dilateWithinBody(mask: Uint8Array, body: Uint8Array, width: numb
   return out;
 }
 
-/** Scale-to-fit a logo in a zone keeping its aspect ratio, then scale by the slider (0.5–1) */
-export function fitLogo(zone: { x: number; y: number; w: number; h: number }, logoW: number, logoH: number, scale: number) {
-  const s = Math.min(1, Math.max(0.5, scale));
-  const k = Math.min(zone.w / logoW, zone.h / logoH) * s;
+/** Scale-to-fit a logo in a zone keeping its aspect ratio, scaled by the slider (0.5–1.5) and zone base factor */
+export function fitLogo(zone: { id?: string; x: number; y: number; w: number; h: number }, logoW: number, logoH: number, scale: number) {
+  const s = Math.min(1.5, Math.max(0.5, scale));
+  const baseFactor =
+    zone.id === "left-chest"
+      ? 0.88
+      : zone.id === "right-chest"
+      ? 0.80
+      : zone.id && zone.id.includes("sleeve")
+      ? 0.70
+      : zone.id === "center-chest"
+      ? 0.90
+      : zone.id === "back-neck"
+      ? 0.90
+      : zone.id === "back-full" || zone.id === "back"
+      ? 0.95
+      : 0.85;
+  const k = Math.min(zone.w / logoW, zone.h / logoH) * s * baseFactor;
   return { boxW: logoW * k, boxH: logoH * k, cx: zone.x + zone.w / 2, cy: zone.y + zone.h / 2 };
 }
 

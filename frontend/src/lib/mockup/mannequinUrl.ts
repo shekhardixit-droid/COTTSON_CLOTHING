@@ -51,7 +51,7 @@ export function uiStateFromParams(p: Params, d: MannequinUiState): MannequinUiSt
     trim1,
     trim2: hex(one(p, "trim2")) ?? (one(p, "trim1") ? trim1 : d.trim2),
     zone: pick<PlacementId>(one(p, "zone"), PLACEMENT_IDS, d.zone),
-    scale: Number.isFinite(size) && size >= 50 && size <= 100 ? Math.round(size) / 100 : d.scale,
+    scale: Number.isFinite(size) && size >= 50 && size <= 150 ? Math.round(size) / 100 : d.scale,
     finish: pick(one(p, "finish"), ["embroidery", "print"], d.finish),
   };
 }

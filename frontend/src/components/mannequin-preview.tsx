@@ -47,7 +47,7 @@ export function MannequinPreview({
   const { view, closure } = design.options;
   const logoSrc = design.logo?.src ?? null;
   const pocket = design.options.pocket;
-  const loadKey = `${view}|${closure}|${pocket}|${logoSrc?.length ?? 0}:${logoSrc?.slice(-24) ?? ""}`;
+  const loadKey = `${view}|${closure}|${pocket}|${logoSrc?.length ?? 0}:${logoSrc?.slice(30, 60) ?? ""}:${logoSrc?.slice(-32) ?? ""}`;
   useEffect(() => {
     let cancelled = false;
     prepareMannequin({ ...design, options: { ...design.options, view, closure, pocket } })

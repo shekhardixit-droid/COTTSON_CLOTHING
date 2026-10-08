@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { loadImage, loadTemplate, renderMockup, type PreparedTemplate } from "@/lib/mockup/renderCanvas";
 import { defaultColours, templateTypeFor } from "@/lib/mockup/products";
 import { logoSizeCm, placedZone } from "@/lib/mockup/zones";
-import { renderEmbroidery } from "@/lib/embroidery";
+import { createRealStitchTexture } from "@/lib/mockup/stitchTexture";
 import type { LogoPlacement, RegionColours } from "@/lib/mockup/types";
 
 type Props = {
@@ -22,54 +22,6 @@ type Props = {
   /** Called with the loaded template (or null when falling back), e.g. to list supported regions */
   onTemplate?: (t: PreparedTemplate | null) => void;
 };
-
-/**
- * The uploaded logo in its OWN colours with the stitch render's light/shade laid over it, so
- * embroidery reads as thread without changing any colour of the artwork.
- */
-async function stitchTexture(originalSrc: string, stitchesSrc: string) {
-  const [orig, stitches] = await Promise.all([loadImage(originalSrc), loadImage(stitchesSrc)]);
-  const W = 900;
-  const H = Math.max(1, Math.round((W * orig.naturalHeight) / (orig.naturalWidth || W)));
-  const c = document.createElement("canvas");
-  c.width = W;
-  c.height = H;
-  const ctx = c.getContext("2d")!;
-  ctx.drawImage(orig, 0, 0, W, H);
-  // Grayscale stitches, soft-lit onto the artwork: lighter thread crowns, darker gaps
-  const g = document.createElement("canvas");
-  g.width = W;
-  g.height = H;
-  const gx = g.getContext("2d", { willReadFrequently: true })!;
-  gx.fillStyle = "#808080";
-  gx.fillRect(0, 0, W, H);
-  gx.filter = "grayscale(1) contrast(2.4)";
-  gx.drawImage(stitches, 0, 0, W, H);
-  gx.filter = "none";
-  // Re-centre the stitch pattern on mid-grey (128): overlay then only adds light/shade around
-  // the thread and leaves the logo's average colour exactly as uploaded
-  const id = gx.getImageData(0, 0, W, H);
-  const px = id.data;
-  let sum = 0, n = 0;
-  for (let i = 0; i < px.length; i += 4) {
-    sum += px[i];
-    n++;
-  }
-  const shift = n ? 128 - sum / n : 0;
-  for (let i = 0; i < px.length; i += 4) {
-    const v = Math.max(0, Math.min(255, px[i] + shift));
-    px[i] = px[i + 1] = px[i + 2] = v;
-  }
-  gx.putImageData(id, 0, 0);
-  ctx.globalCompositeOperation = "overlay";
-  ctx.globalAlpha = 0.85;
-  ctx.drawImage(g, 0, 0);
-  // Keep exactly the uploaded logo's shape
-  ctx.globalAlpha = 1;
-  ctx.globalCompositeOperation = "destination-in";
-  ctx.drawImage(orig, 0, 0, W, H);
-  return c.toDataURL("image/png");
-}
 
 /**
  * Live ghost-mannequin mockup for a product. Renders on a canvas at the template's native size and
@@ -108,32 +60,23 @@ export function MockupPreview({ productSlug, colours, logo, fallbackSrc, alt, cl
 
   const template = loaded?.type === (type ?? "") ? loaded.t : undefined;
 
-  // Embroidery: stitch the logo with the real thread renderer (same as the product page),
-  // sized to its real width in the zone so the stitch density is right
+  // Embroidery: real thread texture sewn into the garment; Print: clean flat graphic
   const rawSrc = logo?.src ?? null;
-  const stitchKey = (() => {
-    if (!rawSrc || logo?.finish !== "embroidery" || !template) return null;
-    const zone = placedZone(template.config, logo.zone, logo.orientation);
-    if (!zone) return null;
-    // Real width at this zone/scale, assuming a square-ish logo; rounded so the slider doesn't re-stitch every step
-    const cm = Math.max(2, Math.round(logoSizeCm(template.config, zone, 1, 1, logo.scale).w));
-    return `${rawSrc.length}:${rawSrc.slice(-24)}:${cm}`;
-  })();
+  const isEmbroidery = logo?.finish === "embroidery";
   const [stitched, setStitched] = useState<{ key: string; url: string } | null>(null);
   useEffect(() => {
-    if (!stitchKey || !rawSrc) return;
+    if (!rawSrc || !isEmbroidery) return;
+    if (rawSrc.startsWith("data:image/png;base64,") && rawSrc.length > 30000) return;
     let cancelled = false;
-    const cm = Number(stitchKey.split(":").pop());
-    renderEmbroidery(rawSrc, { maxColors: 4, widthCm: cm, width: 900, keepBackground: true })
-      .then((stitches) => stitchTexture(rawSrc, stitches))
-      .then((url) => !cancelled && setStitched({ key: stitchKey, url }))
+    createRealStitchTexture(rawSrc)
+      .then((url) => !cancelled && setStitched({ key: rawSrc, url }))
       .catch(() => {});
     return () => {
       cancelled = true;
     };
-  }, [stitchKey, rawSrc]);
-  // Until the stitches are ready, show the plain logo
-  const logoSrc = stitchKey && stitched?.key === stitchKey ? stitched.url : rawSrc;
+  }, [rawSrc, isEmbroidery]);
+
+  const logoSrc = isEmbroidery && stitched?.key === rawSrc ? stitched.url : rawSrc;
 
   // Load the logo image whenever its (plain or stitched) source changes
   useEffect(() => {

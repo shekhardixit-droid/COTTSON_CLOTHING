@@ -60,20 +60,19 @@ const products: ProductItem[] = [
     name: "Heavyweight Team Tee",
     category: "T-SHIRTS",
     feature: "240 GSM Luxury Feel · MOQ 30 pcs",
-    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/09_1.jpg",
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/06_1.jpg",
   },
   {
     id: 7,
     name: "Tailored Formal Shirt",
     category: "SHIRTS",
     feature: "Giza Cotton Blend · MOQ 25 pcs",
-    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/07_1.jpg",
+    image: "https://ik.imagekit.io/qiap0iq38/COTTSON/09_1.jpg",
   },
   {
     id: 8,
     name: "Team Pullover Hoodie",
     category: "HOODIES",
-    badge: "Popular Product",
     feature: "380 GSM Heavy Fleece · MOQ 20 pcs",
     image: "https://ik.imagekit.io/qiap0iq38/COTTSON/12_1.jpg",
   },
@@ -142,18 +141,10 @@ function ProductCard({ product }: { product: ProductItem }) {
         </div>
 
         <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2.5">
-          <span
-            className="
-              text-[11px] sm:text-[12px]
-              font-semibold text-[#113858]
-              transition-colors duration-200
-              group-hover:text-[#1d5b8c]
-            "
-          >
-            Inquire for Team
+          <span className="text-[11px] sm:text-[12px] font-semibold text-[#113858] transition-colors duration-200 group-hover:text-[#1d5b8c]">
+            Shop Now
           </span>
-
-          <div
+          <span
             className="
               flex h-6 w-6 sm:h-7 sm:w-7
               items-center justify-center
@@ -165,7 +156,7 @@ function ProductCard({ product }: { product: ProductItem }) {
             "
           >
             <ArrowUpRight size={13} strokeWidth={2.2} />
-          </div>
+          </span>
         </div>
       </div>
     </Link>
@@ -257,9 +248,10 @@ export function ProductShowcase() {
           </div>
         </div>
 
+        {/* Product Cards Grid */}
         <div
           className="
-            mt-10 sm:mt-12
+            mt-8 sm:mt-10
             grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4
             gap-3.5 sm:gap-5 lg:gap-6
           "
@@ -269,6 +261,7 @@ export function ProductShowcase() {
           ))}
         </div>
 
+        {/* Bottom Navigation Actions */}
         <div className="mt-12 sm:mt-14 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4">
           {activeCategory !== "ALL" && (
             <button

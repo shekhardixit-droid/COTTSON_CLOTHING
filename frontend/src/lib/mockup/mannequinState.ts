@@ -52,8 +52,8 @@ export function viewForPlacement(id: PlacementId): MannequinView {
   return "front";
 }
 
-/** Starting logo size for a placement: sleeves a little inside their area, others full */
-export const defaultScaleFor = (id: PlacementId) => (id === "left-sleeve" || id === "right-sleeve" ? 0.7 : 1);
+/** Starting logo size for a placement: 1.0 represents the default typical size (allows -50% to +50% adjustment) */
+export const defaultScaleFor = (_id?: PlacementId) => 1.0;
 
 export const POCKET_NOTICE = "The pocket is on the left chest. Choose right chest or center chest.";
 

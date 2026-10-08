@@ -3,10 +3,11 @@
 // Mannequin customiser controls (polo family): style, view, closure, pocket, trim style, colours,
 // and the logo panel. State lives in the parent (MannequinUiState, see mannequinState.ts) so the
 // same controls can drive /mockup-lab now and /studio later.
-import { useId, useRef } from "react";
-import { Check, ChevronDown, Upload, X } from "lucide-react";
+import { useId, useRef, useState } from "react";
+import { Check, ChevronDown, Eraser, Loader2, Upload, X } from "lucide-react";
 import { GARMENT_COLORS, TRIM_COLORS, type Color } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
+import { removeBackground } from "@/lib/remove-bg";
 import {
   PLACEMENTS,
   POCKET_NOTICE,
@@ -24,6 +25,7 @@ import {
   type Style,
 } from "@/lib/mockup/mannequinState";
 import type { MannequinZone } from "@/lib/mockup/mannequin";
+import { TYPICAL_SIZES, baseScaleForZone } from "@/lib/mockup/zones";
 
 const colourName = (hex: string) =>
   [...GARMENT_COLORS, ...TRIM_COLORS].find((c) => c.hex.toLowerCase() === hex.toLowerCase())?.name ?? hex.toUpperCase();
@@ -318,11 +320,16 @@ export function MannequinLogoPanel({
 }) {
   const s = state;
   const fileRef = useRef<HTMLInputElement>(null);
+  const [originalSrc, setOriginalSrc] = useState<string | null>(null);
+  const [bgRemoved, setBgRemoved] = useState(false);
+  const [isProcessingBg, setIsProcessingBg] = useState(false);
   const zone = zones[s.zone];
   // Fitted logo size in cm (contain fit, scaled by the slider) and the zone's print limit
   const size = (() => {
     if (!zone || !logo) return null;
-    const k = Math.min(zone.w / logo.w, zone.h / logo.h) * s.scale;
+    const baseFactor = baseScaleForZone(s.zone);
+    const effectiveScale = s.scale * baseFactor;
+    const k = Math.min(zone.w / logo.w, zone.h / logo.h) * effectiveScale;
     return { w: (logo.w * k) / pxPerCm, h: (logo.h * k) / pxPerCm, max: zone.maxCm };
   })();
   return (
@@ -355,19 +362,95 @@ export function MannequinLogoPanel({
             e.target.value = "";
             if (!f) return;
             const l = await readLogo(f);
+            setOriginalSrc(l.src);
+            setBgRemoved(false);
             onLogo({ ...l, name: f.name });
+            // Default typical size: 100% (1.0), allows ±50% adjustment
+            onChange({ ...s, scale: 1.0 });
           }}
         />
         {logo ? (
-          <div className="flex items-center gap-3 rounded-lg border bg-white p-2.5">
-            {/* eslint-disable-next-line @next/next/no-img-element -- local data URL */}
-            <img src={logo.src} alt="" className="size-10 rounded bg-muted object-contain p-1" />
-            <span className="min-w-0 flex-1 truncate font-medium">{logo.name}</span>
-            <button type="button" onClick={() => fileRef.current?.click()} className="min-h-11 px-1 text-xs font-medium text-brand hover:underline">
-              Replace
-            </button>
-            <button type="button" onClick={() => onLogo(null)} aria-label="Remove logo" className="grid size-11 place-items-center rounded-md text-muted-foreground hover:bg-muted">
-              <X className="size-4" />
+          <div className="space-y-2">
+            <div className="flex items-center gap-3 rounded-lg border bg-white p-2.5">
+              {/* eslint-disable-next-line @next/next/no-img-element -- local data URL */}
+              <img src={logo.src} alt="" className="size-10 rounded bg-muted object-contain p-1" />
+              <span className="min-w-0 flex-1 truncate font-medium">{logo.name}</span>
+              <button type="button" onClick={() => fileRef.current?.click()} className="min-h-11 px-1 text-xs font-medium text-brand hover:underline">
+                Replace
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onLogo(null);
+                  setOriginalSrc(null);
+                  setBgRemoved(false);
+                }}
+                aria-label="Remove logo"
+                className="grid size-11 place-items-center rounded-md text-muted-foreground hover:bg-muted"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            {/* Remove Background button */}
+            <button
+              type="button"
+              onClick={async () => {
+                if (!logo) return;
+                if (bgRemoved && originalSrc) {
+                  onLogo({ ...logo, src: originalSrc });
+                  setBgRemoved(false);
+                  return;
+                }
+                setIsProcessingBg(true);
+                try {
+                  const cleaned = await removeBackground(logo.src);
+                  if (!originalSrc) setOriginalSrc(logo.src);
+                  const img = new Image();
+                  img.onload = () => {
+                    onLogo({
+                      ...logo,
+                      src: cleaned,
+                      w: img.naturalWidth || logo.w,
+                      h: img.naturalHeight || logo.h,
+                    });
+                    setBgRemoved(true);
+                    setIsProcessingBg(false);
+                  };
+                  img.onerror = () => {
+                    onLogo({ ...logo, src: cleaned });
+                    setBgRemoved(true);
+                    setIsProcessingBg(false);
+                  };
+                  img.src = cleaned;
+                } catch {
+                  setIsProcessingBg(false);
+                }
+              }}
+              disabled={isProcessingBg}
+              className={cn(
+                "flex h-9 w-full items-center justify-center gap-2 rounded-lg border text-xs font-semibold transition-all",
+                bgRemoved
+                  ? "border-brand/30 bg-brand/5 text-brand hover:bg-brand/10"
+                  : "border-slate-200 bg-slate-50 text-[#113858] hover:bg-slate-100 hover:border-slate-300"
+              )}
+            >
+              {isProcessingBg ? (
+                <>
+                  <Loader2 className="size-3.5 animate-spin text-brand" />
+                  <span>Removing background…</span>
+                </>
+              ) : bgRemoved ? (
+                <>
+                  <Eraser className="size-3.5 text-brand" />
+                  <span>Restore original background</span>
+                </>
+              ) : (
+                <>
+                  <Eraser className="size-3.5 text-brand" />
+                  <span>Remove background</span>
+                </>
+              )}
             </button>
           </div>
         ) : (
@@ -420,27 +503,53 @@ export function MannequinLogoPanel({
       </div>
 
       <label className="block">
-        <span className="mb-2 flex justify-between text-xs">
+        <div className="mb-2 flex items-center justify-between text-xs">
           <span className="font-semibold uppercase tracking-wide text-muted-foreground">Size</span>
-          <span className="font-medium text-foreground">{Math.round(s.scale * 100)}%</span>
-        </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onChange({ ...s, scale: 1.0 })}
+              className="rounded bg-muted px-2 py-0.5 text-[10px] font-semibold text-brand transition-colors hover:bg-muted/80"
+              title="Reset to default typical size"
+            >
+              Default (100%)
+            </button>
+            <span className="font-medium text-foreground">
+              {Math.round(s.scale * 100)}%
+              {Math.round(s.scale * 100) === 100
+                ? " (Default)"
+                : Math.round(s.scale * 100) < 100
+                  ? ` (-${100 - Math.round(s.scale * 100)}%)`
+                  : ` (+${Math.round(s.scale * 100) - 100}%)`}
+            </span>
+          </div>
+        </div>
         <input
           type="range"
           min={50}
-          max={100}
-          value={s.scale * 100}
+          max={150}
+          step={1}
+          value={Math.round(s.scale * 100)}
           onChange={(e) => onChange({ ...s, scale: +e.target.value / 100 })}
           aria-label="Logo size"
           className="h-11 w-full accent-[var(--color-brand)]"
         />
-        <span className="flex justify-between text-[11px] text-muted-foreground">
-          <span>Smaller</span>
-          <span>Fills the area</span>
-        </span>
+        <div className="flex justify-between text-[11px] text-muted-foreground">
+          <span>50% (-50%)</span>
+          <span className="font-medium text-brand/70">100% (Default)</span>
+          <span>150% (+50%)</span>
+        </div>
         {size && (
-          <span className="mt-1.5 block text-xs text-foreground">
-            {size.w.toFixed(1)} × {size.h.toFixed(1)} cm <span className="text-muted-foreground">(max {size.max.w} × {size.max.h} cm)</span>
-          </span>
+          <div className="mt-2 space-y-0.5">
+            <span className="block text-xs font-semibold text-foreground">
+              {size.w.toFixed(1)} × {size.h.toFixed(1)} cm
+            </span>
+            {TYPICAL_SIZES[s.zone] && (
+              <span className="block text-[11px] text-muted-foreground">
+                Typical: {TYPICAL_SIZES[s.zone].note}
+              </span>
+            )}
+          </div>
         )}
       </label>
     </section>

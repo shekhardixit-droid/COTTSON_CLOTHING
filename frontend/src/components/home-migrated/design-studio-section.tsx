@@ -1,5 +1,10 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Palette, Shirt } from "lucide-react";
+import { ArrowRight, Palette, Shirt, Upload, RotateCcw } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { loadTemplate, renderMockup, type PreparedTemplate } from "@/lib/mockup/renderCanvas";
 
 const steps = [
   {
@@ -24,7 +29,147 @@ const steps = [
   },
 ];
 
+type Preset = {
+  id: string;
+  name: string;
+  hex: string;
+};
+
+// 5 specific whole-garment colours
+const PRESETS: Preset[] = [
+  { id: "black", name: "Black", hex: "#1c1c1c" },
+  { id: "navy", name: "Navy", hex: "#1f2a44" },
+  { id: "white", name: "White", hex: "#f5f5f2" },
+  { id: "red", name: "Red", hex: "#c8102e" },
+  { id: "green", name: "Forest Green", hex: "#1f5a33" },
+];
+
+type PlacementId = "left-chest" | "center-chest" | "right-chest";
+
+interface PlacementConfig {
+  id: PlacementId;
+  label: string;
+  shortLabel: string;
+  x: string;
+  y: string;
+}
+
+const PLACEMENTS: PlacementConfig[] = [
+  { id: "left-chest", label: "Left Chest", shortLabel: "Left Chest", x: "62%", y: "31%" },
+  { id: "center-chest", label: "Center Chest", shortLabel: "Center", x: "50%", y: "41%" },
+  { id: "right-chest", label: "Right Chest", shortLabel: "Right Chest", x: "38%", y: "31%" },
+];
+
 export function DesignStudioSection() {
+  const [selected, setSelected] = useState<Preset>(PRESETS[0]);
+  const [base, setBase] = useState<Preset>(PRESETS[0]);
+  const [incoming, setIncoming] = useState<Preset | null>(null);
+  const [swept, setSwept] = useState(false);
+
+  const [renderedPhotos, setRenderedPhotos] = useState<Record<string, string>>({});
+  const initialCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  const [placement, setPlacement] = useState<PlacementId>("left-chest");
+  const [customLogo, setCustomLogo] = useState<string | null>(null);
+  const [customLogoName, setCustomLogoName] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load template and pre-render all 5 whole-cloth colors for instant 60fps wave sweeps
+  useEffect(() => {
+    let cancelled = false;
+
+    loadTemplate("polo").then((t: PreparedTemplate | null) => {
+      if (!t || cancelled) return;
+
+      const photos: Record<string, string> = {};
+
+      for (const p of PRESETS) {
+        // Recolor every region of the polo (body, sleeves, cuffs, collar, placket, tipping) to this color
+        const c = renderMockup(
+          t,
+          {
+            colours: {
+              body: p.hex,
+              sleeve: p.hex,
+              collar: p.hex,
+              cuff: p.hex,
+              placket: p.hex,
+              "collar-tip": p.hex,
+              "collar-tip-a": p.hex,
+              "collar-tip-b": p.hex,
+              "sleeve-tip": p.hex,
+              "sleeve-tip-a": p.hex,
+              "sleeve-tip-b": p.hex,
+            } as any,
+          },
+          null,
+          undefined,
+          { background: null }
+        );
+        photos[p.id] = c.toDataURL("image/png");
+      }
+
+      if (!cancelled) {
+        setRenderedPhotos(photos);
+        // Paint immediately onto initial canvas if present
+        if (initialCanvasRef.current && photos[PRESETS[0].id]) {
+          const ctx = initialCanvasRef.current.getContext("2d");
+          const img = new Image();
+          img.onload = () => {
+            if (initialCanvasRef.current && ctx) {
+              initialCanvasRef.current.width = t.config.width;
+              initialCanvasRef.current.height = t.config.height;
+              ctx.drawImage(img, 0, 0);
+            }
+          };
+          img.src = photos[PRESETS[0].id];
+        }
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const selectPreset = (p: Preset) => {
+    if (p.id === selected.id) return;
+    setSelected(p);
+    setIncoming(p);
+    setSwept(false);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setSwept(true);
+      });
+    });
+    window.setTimeout(() => {
+      setBase(p);
+      setIncoming(null);
+      setSwept(false);
+    }, 650);
+  };
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (typeof event.target?.result === "string") {
+        setCustomLogo(event.target.result);
+        setCustomLogoName(file.name);
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const handleResetLogo = () => {
+    setCustomLogo(null);
+    setCustomLogoName("");
+  };
+
+  const currentPlacement = PLACEMENTS.find((p) => p.id === placement) ?? PLACEMENTS[0];
+
   return (
     <section
       id="customise"
@@ -134,7 +279,7 @@ export function DesignStudioSection() {
           </div>
 
           <Link
-            href="/studio"
+            href={`/mockup-lab?product=indus-01&body=${selected.hex.replace("#", "")}&zone=${placement}`}
             className="
               group
               mt-9
@@ -185,9 +330,9 @@ export function DesignStudioSection() {
         <div
           className="
             relative
-            min-h-[420px]
+            min-h-[440px]
             overflow-hidden
-            sm:min-h-[480px]
+            sm:min-h-[500px]
             lg:min-h-[650px]
           "
         >
@@ -253,11 +398,8 @@ export function DesignStudioSection() {
             "
           />
 
-          <img
-            src="/polo.png"
-            alt="Custom Cottson apparel preview"
-            loading="lazy"
-            decoding="async"
+          {/* POLO SHIRT PREVIEW */}
+          <div
             className="
               absolute
               bottom-[15px]
@@ -265,43 +407,110 @@ export function DesignStudioSection() {
               z-10
               h-[300px]
               w-[255px]
-              -translate-x-[42%]
-              object-contain
-              drop-shadow-[0_25px_30px_rgba(17,56,88,0.14)]
+              -translate-x-1/2
               min-[380px]:h-[390px]
               min-[380px]:w-[330px]
               sm:h-[440px]
               sm:w-[390px]
-              lg:bottom-[35px]
+              lg:bottom-[25px]
               lg:h-[510px]
               lg:w-[440px]
             "
-          />
+          >
+            <div className="relative h-full w-full select-none">
+              {/* Base Garment Photo */}
+              <img
+                src={renderedPhotos[base.id] || "/mockup/polo-black.png"}
+                alt={`Cottson custom apparel — ${base.name}`}
+                className="pointer-events-none h-full w-full object-contain drop-shadow-[0_25px_30px_rgba(17,56,88,0.14)]"
+              />
 
-          {/* FLOATING CUSTOMISATION PANEL */}
+              {/* Incoming Garment Photo with Wave Sweep Clip-Path */}
+              {incoming && renderedPhotos[incoming.id] && (
+                <div
+                  className="absolute inset-0 transition-[clip-path] duration-[650ms] ease-in-out"
+                  style={{ clipPath: `inset(0 ${swept ? "0%" : "100%"} 0 0)` }}
+                >
+                  <img
+                    src={renderedPhotos[incoming.id]}
+                    alt={`Cottson custom apparel — ${incoming.name}`}
+                    className="pointer-events-none h-full w-full object-contain drop-shadow-[0_25px_30px_rgba(17,56,88,0.14)]"
+                  />
+                </div>
+              )}
+
+              {/* Soft wave sweep light band on leading edge */}
+              {incoming && (
+                <div
+                  className="pointer-events-none absolute inset-y-0 w-16 -translate-x-1/2 bg-gradient-to-r from-transparent via-white/70 to-transparent blur-md transition-[left] duration-[650ms] ease-in-out"
+                  style={{ left: swept ? "100%" : "0%" }}
+                />
+              )}
+
+              {/* Active Placed Logo with smooth spring gliding */}
+              <div
+                style={{
+                  left: currentPlacement.x,
+                  top: currentPlacement.y,
+                }}
+                className="absolute z-20 -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] pointer-events-none select-none"
+              >
+                <div className="relative">
+                  {customLogo ? (
+                    <img
+                      src={customLogo}
+                      alt="Custom corporate logo"
+                      className={cn(
+                        "h-auto object-contain transition-all duration-300 drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]",
+                        placement === "center-chest"
+                          ? "max-h-[46px] max-w-[100px] sm:max-h-[56px] sm:max-w-[120px]"
+                          : "max-h-[34px] max-w-[65px] sm:max-h-[40px] sm:max-w-[78px]"
+                      )}
+                    />
+                  ) : (
+                    <img
+                      src="/cottson.png"
+                      alt="Cottson embroidery"
+                      className={cn(
+                        "h-auto object-contain transition-all duration-300",
+                        placement === "center-chest"
+                          ? "max-h-[34px] max-w-[105px] sm:max-h-[42px] sm:max-w-[125px]"
+                          : "max-h-[24px] max-w-[72px] sm:max-h-[30px] sm:max-w-[85px]",
+                        selected.id === "white"
+                          ? "drop-shadow-[0_1px_3px_rgba(17,56,88,0.2)]"
+                          : "brightness-0 invert drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
+                      )}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* FLOATING CUSTOMISATION PANEL (5 WHOLE-CLOTH COLOURS) */}
           <div
             className="
               absolute
-              left-[4%]
-              top-[15%]
+              left-[3%]
+              top-[4%]
               z-20
-              w-[145px]
-              rounded-[16px]
+              w-[185px]
+              rounded-[18px]
               border
               border-white/60
               bg-white/90
               p-3
               shadow-[0_15px_45px_rgba(17,56,88,0.12)]
               backdrop-blur-xl
-              min-[380px]:left-[6%]
-              min-[380px]:top-[18%]
-              min-[380px]:w-[180px]
+              min-[380px]:left-[4%]
+              min-[380px]:top-[6%]
+              min-[380px]:w-[205px]
               min-[380px]:rounded-[20px]
-              min-[380px]:p-4
-              sm:left-[10%]
-              sm:w-[200px]
+              min-[380px]:p-3.5
+              sm:left-[6%]
+              sm:top-[8%]
               lg:left-[3%]
-              lg:top-[24%]
+              lg:top-[12%]
             "
           >
             <div className="flex min-w-0 items-center gap-2">
@@ -346,75 +555,154 @@ export function DesignStudioSection() {
                     text-[#113858]
                   "
                 >
-                  Choose your shade
+                  {selected.name}
                 </p>
               </div>
             </div>
 
-            <div className="mt-4 flex items-center gap-2">
-              <span className="h-[22px] w-[22px] shrink-0 rounded-full border-[3px] border-white bg-[#113858] shadow-[0_0_0_1px_rgba(17,56,88,0.15)]" />
-              <span className="h-[22px] w-[22px] shrink-0 rounded-full border-[3px] border-white bg-[#FFFFFF] shadow-[0_0_0_1px_rgba(17,56,88,0.15)]" />
-              <span className="h-[22px] w-[22px] shrink-0 rounded-full bg-[#9EB3C3]" />
-              <span className="h-[22px] w-[22px] shrink-0 rounded-full bg-[#D7E1E8]" />
+            <div className="mt-3.5 flex items-center justify-between gap-1.5 sm:gap-2">
+              {PRESETS.map((p) => {
+                const isSelected = selected.id === p.id;
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => selectPreset(p)}
+                    title={p.name}
+                    aria-label={p.name}
+                    className={cn(
+                      "relative size-[24px] sm:size-[26px] shrink-0 rounded-full transition-all duration-200 outline-none flex items-center justify-center cursor-pointer",
+                      isSelected
+                        ? "ring-2 ring-[#113858] ring-offset-2 scale-110 shadow-sm"
+                        : "hover:scale-105 opacity-90 hover:opacity-100 shadow-[0_0_0_1px_rgba(17,56,88,0.15)]"
+                    )}
+                    style={{ backgroundColor: p.hex }}
+                  >
+                    {isSelected && (
+                      <span
+                        className={cn(
+                          "size-1.5 rounded-full",
+                          p.id === "white" ? "bg-[#113858]" : "bg-white"
+                        )}
+                      />
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* LOGO PLACEMENT CARD */}
+          {/* FLOATING BRANDING & LOGO PLACEMENT CARD */}
           <div
             className="
               absolute
-              bottom-[10%]
-              right-[4%]
+              bottom-[4%]
+              right-[3%]
               z-20
-              flex
-              max-w-[68%]
-              items-center
-              gap-2
-              rounded-[14px]
+              w-[200px]
+              rounded-[18px]
               border
               border-white/60
               bg-white/90
-              px-3
-              py-2.5
+              p-3
               shadow-[0_15px_45px_rgba(17,56,88,0.12)]
               backdrop-blur-xl
-              min-[380px]:bottom-[13%]
-              min-[380px]:right-[5%]
-              min-[380px]:max-w-none
-              min-[380px]:gap-3
-              min-[380px]:rounded-[18px]
-              min-[380px]:px-4
-              min-[380px]:py-3
-              sm:right-[10%]
-              lg:bottom-[17%]
-              lg:right-[5%]
+              min-[380px]:bottom-[5%]
+              min-[380px]:right-[4%]
+              min-[380px]:w-[225px]
+              min-[380px]:p-3.5
+              sm:bottom-[7%]
+              sm:right-[6%]
+              lg:bottom-[10%]
+              lg:right-[4%]
             "
           >
-            <span
-              className="
-                flex
-                h-[30px]
-                w-[30px]
-                shrink-0
-                items-center
-                justify-center
-                rounded-full
-                bg-[#113858]
-                text-white
-                min-[380px]:h-[34px]
-                min-[380px]:w-[34px]
-              "
-            >
-              <Shirt size={15} strokeWidth={2} />
-            </span>
+            <div className="flex items-center gap-2 min-w-0">
+              <span
+                className="
+                  flex
+                  h-[28px]
+                  w-[28px]
+                  shrink-0
+                  items-center
+                  justify-center
+                  rounded-full
+                  bg-[#113858]
+                  text-white
+                  min-[380px]:h-[30px]
+                  min-[380px]:w-[30px]
+                "
+              >
+                <Shirt size={14} strokeWidth={2} />
+              </span>
 
-            <div className="min-w-0">
-              <p className="truncate text-[9px] font-medium text-[#607487]">
-                Branding
-              </p>
-              <p className="mt-[1px] truncate text-[11px] font-semibold text-[#113858]">
-                Logo placement
-              </p>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[9px] font-semibold uppercase tracking-[0.12em] text-[#607487]">
+                  Branding
+                </p>
+                <p className="mt-[1px] truncate text-[11px] font-semibold text-[#113858]">
+                  Logo placement: <span className="font-normal text-[#607487]">{currentPlacement.shortLabel}</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Placement Switcher Buttons */}
+            <div className="mt-3 grid grid-cols-3 gap-1">
+              {PLACEMENTS.map((item) => {
+                const active = placement === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setPlacement(item.id)}
+                    className={cn(
+                      "rounded-lg py-1 px-1 text-[10px] font-semibold transition-all duration-200 text-center truncate cursor-pointer",
+                      active
+                        ? "bg-[#113858] text-white shadow-xs"
+                        : "bg-[#E9F0F5]/80 text-[#113858] hover:bg-[#E9F0F5]"
+                    )}
+                  >
+                    {item.shortLabel}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Custom Logo Upload Action */}
+            <div className="mt-2.5 flex items-center justify-between border-t border-[#113858]/8 pt-2">
+              {customLogo ? (
+                <>
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <img src={customLogo} alt="" className="size-3.5 rounded object-contain shrink-0" />
+                    <span className="truncate text-[9.5px] font-medium text-[#113858] max-w-[90px]">
+                      {customLogoName}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleResetLogo}
+                    className="flex items-center gap-0.5 text-[9.5px] font-medium text-[#c8102e] hover:underline cursor-pointer"
+                    title="Reset to Cottson logo"
+                  >
+                    <RotateCcw size={9} /> Reset
+                  </button>
+                </>
+              ) : (
+                <>
+                  <span className="text-[9.5px] text-[#607487]">Embroidered crest</span>
+                  <label className="inline-flex cursor-pointer items-center gap-1 text-[10px] font-semibold text-[#113858] hover:underline">
+                    <Upload size={10} strokeWidth={2.2} />
+                    <span>Upload Logo</span>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                      className="hidden"
+                      onChange={handleLogoUpload}
+                    />
+                  </label>
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -12,7 +12,31 @@ const benefits = [
 
 export function Hero() {
   return (
-    <main id="home" className="relative bg-white overflow-hidden">
+    <main id="home" className="relative isolate bg-[#F8F4EC] overflow-hidden">
+      {/* Ambient rich warm watercolor texture wash in the background */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0 opacity-90"
+        style={{
+          background:
+            "radial-gradient(ellipse at 50% 25%, #EFE3D0 0%, #F8F4EC 50%, #F3E8D7 100%)",
+        }}
+      />
+
+      {/* Warm organic ambient blurs */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-16 -left-16 h-[540px] w-[540px] rounded-full bg-[#E8D4BB]/60 blur-3xl z-0"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-1/4 -right-16 h-[480px] w-[480px] rounded-full bg-[#E2CEAF]/50 blur-3xl z-0"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-8 left-1/4 h-[440px] w-[440px] rounded-full bg-[#EFE0CB]/60 blur-3xl z-0"
+      />
+
       <section
         className="
           relative mx-auto w-full max-w-[1600px]
@@ -321,11 +345,9 @@ export function Hero() {
         </div>
       </section>
 
-      {/* BENEFITS / TRUST STRIP */}
-      <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 pb-8 sm:pb-12">
-        <div className="group relative overflow-hidden border-y border-[#113858]/10 py-4 sm:py-5 select-none">
-          <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-12 sm:w-24 bg-gradient-to-r from-white to-transparent" />
-          <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-12 sm:w-24 bg-gradient-to-l from-white to-transparent" />
+      {/* BENEFITS / TRUST STRIP — FULL BLEED EDGE-TO-EDGE */}
+      <div className="w-full pb-8 sm:pb-12">
+        <div className="group relative w-full overflow-hidden border-y border-[#113858]/10 py-4 sm:py-5 select-none">
 
           <div
             className="hero-marquee-track flex w-max will-change-transform [transform:translateZ(0)] group-hover:[animation-play-state:paused]"

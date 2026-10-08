@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Check, ChevronDown, Search, Upload, X } from "lucide-react";
+import { Check, ChevronDown, Eraser, Loader2, Search, Upload, X } from "lucide-react";
+import { removeBackground } from "@/lib/remove-bg";
+import { createRealStitchTexture } from "@/lib/mockup/stitchTexture";
 import {
   PRODUCTS,
   GARMENT_COLORS,
@@ -20,7 +22,7 @@ import {
   type PreparedTemplate,
 } from "@/lib/mockup/renderCanvas";
 import { defaultColours, hasMannequin, mannequinDefaultsFor } from "@/lib/mockup/products";
-import { DEFAULT_LOGO_SCALE, defaultScaleFor, hasOrientation } from "@/lib/mockup/zones";
+import { DEFAULT_LOGO_SCALE, TYPICAL_SIZES, defaultScaleFor, hasOrientation } from "@/lib/mockup/zones";
 import type {
   Finish,
   LogoOrientation,
@@ -271,6 +273,9 @@ export function MockupLab({
   const [template, setTemplate] = useState<PreparedTemplate | null>(null);
   const [logoSrc, setLogoSrc] = useState<string | null>(null);
   const [logoName, setLogoName] = useState("");
+  const [ghostOriginalSrc, setGhostOriginalSrc] = useState<string | null>(null);
+  const [ghostBgRemoved, setGhostBgRemoved] = useState(false);
+  const [ghostProcessingBg, setGhostProcessingBg] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [zone, setZone] = useState<LogoZoneId>("left-chest");
   const [scale, setScale] = useState(DEFAULT_LOGO_SCALE);
@@ -278,10 +283,33 @@ export function MockupLab({
   const [finish, setFinish] = useState<Finish>("embroidery");
   const [openPart, setOpenPart] = useState<RegionId | null>("body");
 
+  const [stitchedSrc, setStitchedSrc] = useState<{ key: string; url: string } | null>(null);
+
+  const activeFinish = mannequinOn ? ui.finish : finish;
+  const stitchKey = logoSrc && activeFinish === "embroidery" ? `${logoSrc.length}:${logoSrc.slice(-32)}` : null;
+
+  useEffect(() => {
+    if (!stitchKey || !logoSrc) return;
+    let cancelled = false;
+    createRealStitchTexture(logoSrc)
+      .then((url) => {
+        if (!cancelled) setStitchedSrc({ key: stitchKey, url });
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [stitchKey, logoSrc]);
+
+  const activeLogoSrc =
+    activeFinish === "embroidery" && stitchKey && stitchedSrc?.key === stitchKey
+      ? stitchedSrc.url
+      : logoSrc;
+
   const merged = { ...defaultColours(slug), ...colours };
   const logo = useMemo(
-    () => (logoSrc ? { src: logoSrc, zone, scale, finish, orientation } : null),
-    [logoSrc, zone, scale, finish, orientation],
+    () => (activeLogoSrc ? { src: activeLogoSrc, zone, scale, finish: activeFinish, orientation } : null),
+    [activeLogoSrc, zone, scale, activeFinish, orientation],
   );
 
   // Mannequin state → URL (debounced replaceState), so a reload restores all but the logo image
@@ -307,7 +335,10 @@ export function MockupLab({
       cancelled = true;
     };
   }, [logoSrc]);
-  const mannequinLogo = logoSrc && logoDims?.src === logoSrc ? { src: logoSrc, name: logoName, w: logoDims.w, h: logoDims.h } : null;
+  const mannequinLogo =
+    logoSrc && logoDims?.src === logoSrc
+      ? { src: logoSrc, name: logoName, w: logoDims.w, h: logoDims.h }
+      : null;
 
   const design = useMemo(
     () => ({
@@ -315,9 +346,9 @@ export function MockupLab({
       colours: ui.colours,
       trim1: ui.trim1,
       trim2: ui.trim2,
-      logo: logoSrc ? { src: logoSrc, zoneId: ui.zone, scale: ui.scale } : null,
+      logo: activeLogoSrc ? { src: activeLogoSrc, zoneId: ui.zone, scale: ui.scale } : null,
     }),
-    [ui, logoSrc],
+    [ui, activeLogoSrc],
   );
   // Remember every zone a loaded view has shown (the logo panel's cm readout needs its box)
   const onMannequinTemplate = useCallback(({ config, zones }: { config: { pxPerCm: number }; zones: MannequinZone[] }) => {
@@ -396,37 +427,93 @@ export function MockupLab({
                   if (!f) return;
                   const r = new FileReader();
                   r.onload = () => {
-                    setLogoSrc(r.result as string);
+                    const src = r.result as string;
+                    setLogoSrc(src);
+                    setGhostOriginalSrc(src);
+                    setGhostBgRemoved(false);
                     setLogoName(f.name);
+                    setScale(defaultScaleFor(zone));
                   };
                   r.readAsDataURL(f);
                 }}
               />
               {logoSrc ? (
-                <div className="flex items-center gap-3 rounded-lg border bg-white p-2.5">
-                  {/* eslint-disable-next-line @next/next/no-img-element -- local data URL */}
-                  <img
-                    src={logoSrc}
-                    alt=""
-                    className="size-10 rounded bg-muted object-contain p-1"
-                  />
-                  <span className="min-w-0 flex-1 truncate font-medium">
-                    {logoName}
-                  </span>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 rounded-lg border bg-white p-2.5">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- local data URL */}
+                    <img
+                      src={logoSrc}
+                      alt=""
+                      className="size-10 rounded bg-muted object-contain p-1"
+                    />
+                    <span className="min-w-0 flex-1 truncate font-medium">
+                      {logoName}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => fileRef.current?.click()}
+                      className="text-xs font-medium text-brand hover:underline"
+                    >
+                      Replace
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLogoSrc(null);
+                        setGhostOriginalSrc(null);
+                        setGhostBgRemoved(false);
+                      }}
+                      aria-label="Remove logo"
+                      className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-muted"
+                    >
+                      <X className="size-4" />
+                    </button>
+                  </div>
+
+                  {/* Remove Background button */}
                   <button
                     type="button"
-                    onClick={() => fileRef.current?.click()}
-                    className="text-xs font-medium text-brand hover:underline"
+                    onClick={async () => {
+                      if (!logoSrc) return;
+                      if (ghostBgRemoved && ghostOriginalSrc) {
+                        setLogoSrc(ghostOriginalSrc);
+                        setGhostBgRemoved(false);
+                        return;
+                      }
+                      setGhostProcessingBg(true);
+                      try {
+                        const cleaned = await removeBackground(logoSrc);
+                        if (!ghostOriginalSrc) setGhostOriginalSrc(logoSrc);
+                        setLogoSrc(cleaned);
+                        setGhostBgRemoved(true);
+                      } finally {
+                        setGhostProcessingBg(false);
+                      }
+                    }}
+                    disabled={ghostProcessingBg}
+                    className={cn(
+                      "flex h-9 w-full items-center justify-center gap-2 rounded-lg border text-xs font-semibold transition-all",
+                      ghostBgRemoved
+                        ? "border-brand/30 bg-brand/5 text-brand hover:bg-brand/10"
+                        : "border-slate-200 bg-slate-50 text-[#113858] hover:bg-slate-100 hover:border-slate-300"
+                    )}
                   >
-                    Replace
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setLogoSrc(null)}
-                    aria-label="Remove logo"
-                    className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-muted"
-                  >
-                    <X className="size-4" />
+                    {ghostProcessingBg ? (
+                      <>
+                        <Loader2 className="size-3.5 animate-spin text-brand" />
+                        <span>Removing background…</span>
+                      </>
+                    ) : ghostBgRemoved ? (
+                      <>
+                        <Eraser className="size-3.5 text-brand" />
+                        <span>Restore original background</span>
+                      </>
+                    ) : (
+                      <>
+                        <Eraser className="size-3.5 text-brand" />
+                        <span>Remove background</span>
+                      </>
+                    )}
                   </button>
                 </div>
               ) : (
@@ -494,26 +581,48 @@ export function MockupLab({
             </div>
 
             <label className="block p-4">
-              <span className="mb-2 flex justify-between text-xs">
+              <span className="mb-2 flex items-center justify-between text-xs">
                 <span className="font-semibold uppercase tracking-wide text-muted-foreground">
                   Size
                 </span>
-                <span className="font-medium text-foreground">
-                  {Math.round(scale * 100)}%
-                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setScale(1.0)}
+                    className="rounded bg-muted px-2 py-0.5 text-[10px] font-semibold text-brand transition-colors hover:bg-muted/80"
+                    title="Reset to default typical size"
+                  >
+                    Default (100%)
+                  </button>
+                  <span className="font-medium text-foreground">
+                    {Math.round(scale * 100)}%
+                    {Math.round(scale * 100) === 100
+                      ? " (Default)"
+                      : Math.round(scale * 100) < 100
+                        ? ` (-${100 - Math.round(scale * 100)}%)`
+                        : ` (+${Math.round(scale * 100) - 100}%)`}
+                  </span>
+                </div>
               </span>
               <input
                 type="range"
                 min={50}
-                max={100}
-                value={scale * 100}
+                max={150}
+                step={1}
+                value={Math.round(scale * 100)}
                 onChange={(e) => setScale(+e.target.value / 100)}
                 className="w-full accent-[var(--color-brand)]"
               />
-              <span className="mt-1 flex justify-between text-[11px] text-muted-foreground">
-                <span>Smaller</span>
-                <span>Fills the area</span>
-              </span>
+              <div className="flex justify-between text-[11px] text-muted-foreground">
+                <span>50% (-50%)</span>
+                <span className="font-medium text-brand/70">100% (Default)</span>
+                <span>150% (+50%)</span>
+              </div>
+              {TYPICAL_SIZES[zone] && (
+                <div className="mt-2 text-[11px] text-muted-foreground">
+                  Typical: {TYPICAL_SIZES[zone].note}
+                </div>
+              )}
             </label>
           </section>
         )}
